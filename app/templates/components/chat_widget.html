@@ -649,18 +649,19 @@
 }
 
 .chat-message.sent {
-  align-self: flex-end;
-  flex-direction: row-reverse;
-  margin-left: auto;
+  align-self: flex-end !important;
+  flex-direction: row-reverse !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
 }
 
 .chat-message.received {
-  align-self: flex-start;
-  margin-right: auto;
+  align-self: flex-start !important;
+  margin-right: auto !important;
+  margin-left: 0 !important;
 }
 
 .chat-message-content {
-  background: #2a2a2a;
   padding: 10px 14px;
   border-radius: 18px;
   font-size: 14px;
@@ -673,40 +674,40 @@
 }
 
 .chat-message.sent .chat-message-content {
-  background: #007AFF;
-  color: white;
+  background: #007AFF !important;
+  color: white !important;
   border-bottom-right-radius: 4px;
 }
 
 .chat-message.received .chat-message-content {
-  background: #2a2a2a;
-  color: white;
+  background: #2a2a2a !important;
+  color: white !important;
   border-bottom-left-radius: 4px;
 }
 
 /* Add tail effect for iMessage style */
 .chat-message.sent .chat-message-content::after {
-  content: '';
+  content: '' !important;
   position: absolute;
   bottom: 0;
   right: -8px;
   width: 0;
   height: 0;
-  border-left: 8px solid #007AFF;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
+  border-left: 8px solid #007AFF !important;
+  border-top: 8px solid transparent !important;
+  border-bottom: 8px solid transparent !important;
 }
 
 .chat-message.received .chat-message-content::after {
-  content: '';
+  content: '' !important;
   position: absolute;
   bottom: 0;
   left: -8px;
   width: 0;
   height: 0;
-  border-right: 8px solid #2a2a2a;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
+  border-right: 8px solid #2a2a2a !important;
+  border-top: 8px solid transparent !important;
+  border-bottom: 8px solid transparent !important;
 }
 
 .chat-message-time {
@@ -1018,14 +1019,17 @@ function displayMessages(messages, otherUser) {
   
   recipientName.textContent = otherUser.name;
   
-  container.innerHTML = messages.map(message => `
-    <div class="chat-message ${message.user_id === currentUserId ? 'sent' : 'received'}">
-      <div class="chat-message-content">
-        ${message.content}
-        <div class="chat-message-time">${formatTime(message.timestamp)}</div>
+  container.innerHTML = messages.map(message => {
+    const isSent = message.user_id === currentUserId;
+    return `
+      <div class="chat-message ${isSent ? 'sent' : 'received'}">
+        <div class="chat-message-content">
+          ${message.content}
+          <div class="chat-message-time">${formatTime(message.timestamp)}</div>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
   
   // Scroll to bottom
   container.scrollTop = container.scrollHeight;
