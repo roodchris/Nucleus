@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+{% block content %}
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">🏥 Practice Profile</h1>
+    <p class="page-subtitle">Manage your practice information for residents to view</p>
+  </div>
+
+<div class="data-section">
+  <div class="form-card">
+    <div class="card-header">
+      <div class="card-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="card-title">
+        <h3>Practice Information</h3>
+        <p>Update your practice details and description</p>
+      </div>
+    </div>
+    
+    <form method="POST" class="profile-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Practice Setting</label>
+          <select name="practice_setting" class="form-input">
+            <option value="">Select practice setting</option>
+            <option value="Academic Medical Center" {% if profile and profile.practice_setting == 'Academic Medical Center' %}selected{% endif %}>Academic Medical Center</option>
+            <option value="Private Practice" {% if profile and profile.practice_setting == 'Private Practice' %}selected{% endif %}>Private Practice</option>
+            <option value="Hospital-based" {% if profile and profile.practice_setting == 'Hospital-based' %}selected{% endif %}>Hospital-based</option>
+            <option value="Teleradiology" {% if profile and profile.practice_setting == 'Teleradiology' %}selected{% endif %}>Teleradiology</option>
+            <option value="Urgent Care" {% if profile and profile.practice_setting == 'Urgent Care' %}selected{% endif %}>Urgent Care</option>
+            <option value="Other" {% if profile and profile.practice_setting == 'Other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+        
+        <div class="form-group full-width">
+          <label class="form-label">Modalities Used</label>
+          <textarea name="modalities" class="form-input" rows="3" placeholder="e.g., CT, MRI, X-ray, Ultrasound, Mammography, Nuclear Medicine">{{ profile.modalities or '' }}</textarea>
+        </div>
+        
+        <div class="form-group full-width">
+          <label class="form-label">Location & Address</label>
+          <textarea name="location" class="form-input" rows="3" placeholder="Detailed location information including city, state, and any relevant details">{{ profile.location or '' }}</textarea>
+        </div>
+        
+        <div class="form-group full-width">
+          <label class="form-label">Practice Description</label>
+          <textarea name="practice_description" class="form-input" rows="6" placeholder="Describe your practice, work environment, team culture, and what makes your practice unique...">{{ profile.practice_description or '' }}</textarea>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="17,21 17,13 7,13 7,21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="7,3 7,8 15,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Save Practice Profile
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {% if profile %}
+  <div class="preview-card">
+    <div class="card-header">
+      <div class="card-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="card-title">
+        <h3>Profile Preview</h3>
+        <p>How your practice profile appears to residents</p>
+      </div>
+    </div>
+    
+    <div class="preview-content">
+      <div class="preview-details">
+        {% if profile.practice_setting %}
+        <div class="detail-row">
+          <span class="detail-label">Practice Setting</span>
+          <span class="detail-value">{{ profile.practice_setting }}</span>
+        </div>
+        {% endif %}
+        
+        {% if profile.modalities %}
+        <div class="detail-row full-width">
+          <span class="detail-label">Modalities</span>
+          <div class="detail-value">{{ profile.modalities }}</div>
+        </div>
+        {% endif %}
+        
+        {% if profile.location %}
+        <div class="detail-row full-width">
+          <span class="detail-label">Location</span>
+          <div class="detail-value">{{ profile.location }}</div>
+        </div>
+        {% endif %}
+        
+        {% if profile.practice_description %}
+        <div class="detail-row full-width">
+          <span class="detail-label">Practice Description</span>
+          <div class="detail-value practice-text">{{ profile.practice_description }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  /* Page Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+  }
+
+  .profile-form {
+    width: 100%;
+  }
+
+  .form-card, .preview-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .form-card:hover, .preview-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--accent-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: var(--accent);
+    box-shadow: var(--accent-glow);
+  }
+
+  .card-title h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .card-title p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 1rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .form-input {
+    background: var(--glass-light);
+    border: 1px solid var(--glass-border-light);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+  }
+
+  .form-input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .form-actions .btn.primary {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+    color: var(--text);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .form-actions .btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--accent-glow);
+  }
+
+  .preview-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .preview-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .detail-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--glass-light);
+    border-radius: 8px;
+    border: 1px solid var(--glass-border-light);
+    transition: all 0.3s ease;
+  }
+
+  .detail-row:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+  }
+
+  .detail-row.full-width {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .detail-label {
+    font-weight: 600;
+    color: var(--text);
+    min-width: 140px;
+    font-size: 0.9rem;
+  }
+
+  .detail-value {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    flex: 1;
+  }
+
+  .practice-text {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2.5rem;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .detail-row {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .detail-label {
+      min-width: auto;
+    }
+
+    .card-header {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+    
+    .card-icon {
+      margin-right: 0;
+    }
+  }
+</style>
+{% endblock %}

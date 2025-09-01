@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1>🏥 {{ program_name }}</h1>
+      <p class="text-secondary">Program reviews and ratings</p>
+    </div>
+    <a href="/program-reviews/new" class="btn">Write a Review</a>
+  </div>
+</div>
+
+<!-- Program Statistics -->
+{% if avg_ratings.total_reviews > 0 %}
+<div class="grid-3 mb-6">
+  <div class="card">
+    <h3>Educational Quality</h3>
+    {% if avg_ratings.avg_educational %}
+      <span class="rating-badge rating-{{ avg_ratings.avg_educational|round|int }}" style="font-size: 1.5rem; padding: 0.5rem 1rem;">{{ "%.1f"|format(avg_ratings.avg_educational) }}/5</span>
+    {% else %}
+      <p class="text-2xl font-bold text-gray-400">N/A</p>
+    {% endif %}
+    <p class="text-sm text-secondary">{{ avg_ratings.total_reviews }} reviews</p>
+  </div>
+  
+  <div class="card">
+    <h3>Work-Life Balance</h3>
+    {% if avg_ratings.avg_work_life %}
+      <span class="rating-badge rating-{{ avg_ratings.avg_work_life|round|int }}" style="font-size: 1.5rem; padding: 0.5rem 1rem;">{{ "%.1f"|format(avg_ratings.avg_work_life) }}/5</span>
+    {% else %}
+      <p class="text-2xl font-bold text-gray-400">N/A</p>
+    {% endif %}
+    <p class="text-sm text-secondary">{{ avg_ratings.total_reviews }} reviews</p>
+  </div>
+  
+  <div class="card">
+    <h3>Attending Quality</h3>
+    {% if avg_ratings.avg_attending %}
+      <span class="rating-badge rating-{{ avg_ratings.avg_attending|round|int }}" style="font-size: 1.5rem; padding: 0.5rem 1rem;">{{ "%.1f"|format(avg_ratings.avg_attending) }}/5</span>
+    {% else %}
+      <p class="text-2xl font-bold text-gray-400">N/A</p>
+    {% endif %}
+    <p class="text-sm text-secondary">{{ avg_ratings.total_reviews }} reviews</p>
+  </div>
+  
+  <div class="card">
+    <h3>Facilities Quality</h3>
+    {% if avg_ratings.avg_facilities %}
+      <span class="rating-badge rating-{{ avg_ratings.avg_facilities|round|int }}" style="font-size: 1.5rem; padding: 0.5rem 1rem;">{{ "%.1f"|format(avg_ratings.avg_facilities) }}/5</span>
+    {% else %}
+      <p class="text-2xl font-bold text-gray-400">N/A</p>
+    {% endif %}
+    <p class="text-sm text-secondary">{{ avg_ratings.total_reviews }} reviews</p>
+  </div>
+  
+  <div class="card">
+    <h3>Research Opportunities</h3>
+    {% if avg_ratings.avg_research %}
+      <span class="rating-badge rating-{{ avg_ratings.avg_research|round|int }}" style="font-size: 1.5rem; padding: 0.5rem 1rem;">{{ "%.1f"|format(avg_ratings.avg_research) }}/5</span>
+    {% else %}
+      <p class="text-2xl font-bold text-gray-400">N/A</p>
+    {% endif %}
+    <p class="text-sm text-secondary">{{ avg_ratings.total_reviews }} reviews</p>
+  </div>
+  
+  <div class="card">
+    <h3>Culture</h3>
+    {% if avg_ratings.avg_culture %}
+      <span class="rating-badge rating-{{ avg_ratings.avg_culture|round|int }}" style="font-size: 1.5rem; padding: 0.5rem 1rem;">{{ "%.1f"|format(avg_ratings.avg_culture) }}/5</span>
+    {% else %}
+      <p class="text-2xl font-bold text-gray-400">N/A</p>
+    {% endif %}
+    <p class="text-sm text-secondary">{{ avg_ratings.total_reviews }} reviews</p>
+  </div>
+</div>
+
+<!-- Overall Rating -->
+<div class="card mb-6">
+  <h3>Overall Program Rating</h3>
+  <div class="text-center">
+    {% set overall_avg = ((avg_ratings.avg_educational or 0) + (avg_ratings.avg_work_life or 0) + (avg_ratings.avg_attending or 0) + (avg_ratings.avg_facilities or 0) + (avg_ratings.avg_research or 0) + (avg_ratings.avg_culture or 0)) / 6 %}
+    {% if overall_avg > 0 %}
+      <span class="rating-badge rating-{{ overall_avg|round|int }}" style="font-size: 2.5rem; padding: 1rem 2rem;">{{ "%.1f"|format(overall_avg) }}/5</span>
+    {% else %}
+      <p class="text-4xl font-bold text-gray-400 mb-2">N/A</p>
+    {% endif %}
+    <p class="text-secondary mt-2">Based on {{ avg_ratings.total_reviews }} reviews</p>
+  </div>
+</div>
+{% endif %}
+
+<!-- Individual Reviews -->
+<div class="card">
+  <h3>Reviews ({{ reviews|length }} total)</h3>
+  
+  {% if reviews %}
+  <div class="space-y-6">
+    {% for review in reviews %}
+    <div class="border-b border-border pb-6 last:border-b-0">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <h4 class="font-medium">{{ review.user.username }}</h4>
+          <p class="text-sm text-secondary">{{ review.created_at.strftime('%B %Y') }}</p>
+        </div>
+        <div class="text-right">
+          {% set review_overall = (review.educational_quality + review.work_life_balance + review.attending_quality + review.facilities_quality + review.research_opportunities + review.culture) / 6 %}
+          <span class="rating-badge rating-{{ review_overall|round|int }}">{{ "%.1f"|format(review_overall) }}/5</span>
+          <p class="text-sm text-secondary mt-1">Overall</p>
+        </div>
+      </div>
+      
+      <div class="grid-3 gap-4 mb-4">
+        <div class="text-center">
+          <p class="text-sm text-secondary">Educational</p>
+          <span class="rating-badge rating-{{ review.educational_quality }}">{{ review.educational_quality }}/5</span>
+        </div>
+        <div class="text-center">
+          <p class="text-sm text-secondary">Work-Life</p>
+          <span class="rating-badge rating-{{ review.work_life_balance }}">{{ review.work_life_balance }}/5</span>
+        </div>
+        <div class="text-center">
+          <p class="text-sm text-secondary">Attending</p>
+          <span class="rating-badge rating-{{ review.attending_quality }}">{{ review.attending_quality }}/5</span>
+        </div>
+        <div class="text-center">
+          <p class="text-sm text-secondary">Facilities</p>
+          <span class="rating-badge rating-{{ review.facilities_quality }}">{{ review.facilities_quality }}/5</span>
+        </div>
+        <div class="text-center">
+          <p class="text-sm text-secondary">Research</p>
+          <span class="rating-badge rating-{{ review.research_opportunities }}">{{ review.research_opportunities }}/5</span>
+        </div>
+        <div class="text-center">
+          <p class="text-sm text-secondary">Culture</p>
+          <span class="rating-badge rating-{{ review.culture }}">{{ review.culture }}/5</span>
+        </div>
+      </div>
+      
+      {% if review.comments %}
+      <div class="bg-surface-2 p-4 rounded-lg">
+        <p class="text-sm text-secondary mb-2">Comments:</p>
+        <p>{{ review.comments }}</p>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-center text-secondary py-8">No reviews yet for this program. Be the first to review!</p>
+  {% endif %}
+</div>
+
+<!-- Back to Programs -->
+<div class="mt-6">
+  <a href="/program-reviews" class="btn btn-secondary">← Back to All Programs</a>
+</div>
+
+<style>
+  /* Rating badges with color scheme matching job reviews */
+  .rating-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: white;
+  }
+  
+  /* Rating colors: 1=red, 2=orange, 3=yellow, 4=green, 5=blue */
+  .rating-1 { background-color: #ef4444; }
+  .rating-2 { background-color: #f97316; }
+  .rating-3 { background-color: #eab308; }
+  .rating-4 { background-color: #22c55e; }
+  .rating-5 { background-color: #3b82f6; }
+</style>
+{% endblock %}

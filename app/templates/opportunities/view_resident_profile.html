@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="job-card" style="padding:24px;">
+    <h2 style="margin-top:0;">Radiologist Profile</h2>
+    <div class="muted">{{ user.name }}</div>
+    
+    <div style="margin-top:20px;">
+      <a class="btn" href="/opportunities">← Back to opportunities</a>
+      {% if current_user.is_authenticated and current_user.role.value == 'employer' %}
+        <a class="btn" href="/messages/start?resident_id={{ user.id }}" style="margin-left:12px;">Message Radiologist</a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if profile %}
+    <div class="job-card" style="padding:24px;">
+      <div style="display:grid; gap:20px;">
+        {% if profile.photo_filename %}
+          <div>
+            <h3>Profile Photo</h3>
+            <div style="text-align:center;">
+              <img src="/uploads/{{ profile.photo_filename }}" alt="{{ user.name }}" style="width:150px; height:150px; border-radius:50%; object-fit:cover; border:3px solid var(--accent);">
+            </div>
+          </div>
+        {% endif %}
+        
+        {% if profile.medical_school %}
+          <div>
+            <h3>Medical School</h3>
+            <p>{{ profile.medical_school }}</p>
+          </div>
+        {% endif %}
+        
+        {% if profile.residency_program %}
+          <div>
+            <h3>Current Residency Program</h3>
+            <p>{{ profile.residency_program }}</p>
+          </div>
+        {% endif %}
+        
+        {% if profile.training_year %}
+          <div>
+            <h3>Training Level</h3>
+            <p>{{ profile.training_year.value }}</p>
+          </div>
+        {% endif %}
+        
+        {% if profile.bio %}
+          <div>
+            <h3>Bio</h3>
+            <p style="white-space:pre-wrap;">{{ profile.bio }}</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <div class="job-card" style="padding:24px;">
+      <p class="muted">This radiologist hasn't created a profile yet.</p>
+    </div>
+  {% endif %}
+{% endblock %}

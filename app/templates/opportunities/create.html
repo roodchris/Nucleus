@@ -1,0 +1,496 @@
+{% extends "base.html" %}
+{% block content %}
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">📝 Post New Opportunity</h1>
+    <p class="page-subtitle">Create a new job opportunity for radiologists</p>
+  </div>
+
+<div class="data-section">
+  <form method="POST" class="opportunity-form">
+    {{ form.hidden_tag() }}
+    
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="card-title">
+          <h3>Opportunity Details</h3>
+          <p>Basic information about the position</p>
+        </div>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">{{ form.title.label }}</label>
+          {{ form.title(class="form-input") }}
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ form.opportunity_type.label }}</label>
+          {{ form.opportunity_type(class="form-input") }}
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ form.zip_code.label }}</label>
+          {{ form.zip_code(class="form-input") }}
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ form.pgy_min.label }}</label>
+          {{ form.pgy_min(class="form-input") }}
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ form.pgy_max.label }}</label>
+          {{ form.pgy_max(class="form-input") }}
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ form.pay_per_hour.label }}</label>
+          {{ form.pay_per_hour(class="form-input") }}
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ form.shift_length_hours.label }}</label>
+          {{ form.shift_length_hours(class="form-input") }}
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ form.hours_per_week.label }}</label>
+          {{ form.hours_per_week(class="form-input") }}
+        </div>
+        
+        <div class="form-group full-width">
+          <label class="form-label">{{ form.description.label }}</label>
+          {{ form.description(class="form-input", rows="4") }}
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="card-title">
+          <h3>Available Time Slots</h3>
+          <p>Specify when you need coverage. You can add more slots after creating the opportunity.</p>
+        </div>
+      </div>
+      
+      <div id="calendar-slots" class="slots-container">
+        <div class="slot-card">
+          <div class="slot-header">
+            <div class="slot-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="slot-title">
+              <h4>Time Slot 1</h4>
+            </div>
+            <button type="button" class="btn remove-btn" onclick="removeSlot(this)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Remove
+            </button>
+          </div>
+          
+          <div class="slot-inputs">
+            <div class="input-group">
+              <label class="input-label">Date</label>
+              <input type="date" name="slot_date_0" class="form-input" required min="{{ today }}" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Start Time</label>
+              <input type="time" name="slot_start_0" class="form-input" required />
+            </div>
+            <div class="input-group">
+              <label class="input-label">End Time</label>
+              <input type="time" name="slot_end_0" class="form-input" required />
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="add-slot-section">
+        <button type="button" class="btn add-btn" onclick="addSlot()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Add Another Time Slot
+        </button>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button type="submit" class="btn primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Publish Opportunity
+      </button>
+    </div>
+  </form>
+</div>
+
+<style>
+  /* Page Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+  }
+
+  .opportunity-form {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .form-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .form-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--accent-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: var(--accent);
+    box-shadow: var(--accent-glow);
+  }
+
+  .card-title h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .card-title p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 1rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .form-input {
+    background: var(--glass-light);
+    border: 1px solid var(--glass-border-light);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+  }
+
+  .form-input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .slots-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .slot-card {
+    background: var(--glass-light);
+    border: 1px solid var(--glass-border-light);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .slot-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+
+  .slot-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .slot-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--accent-light);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    box-shadow: var(--accent-glow);
+  }
+
+  .slot-title h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .remove-btn {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .remove-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .slot-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .input-label {
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .add-slot-section {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+
+  .add-btn {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .add-btn:hover {
+    background: var(--accent);
+    color: var(--text);
+    transform: translateY(-2px);
+    box-shadow: var(--accent-glow);
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .form-actions .btn.primary {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+    color: var(--text);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .form-actions .btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--accent-glow);
+  }
+
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2.5rem;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .slot-inputs {
+      grid-template-columns: 1fr;
+    }
+    
+    .slot-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .card-header {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+    
+    .card-icon {
+      margin-right: 0;
+    }
+  }
+</style>
+
+<script>
+let slotCount = 1;
+
+function addSlot() {
+  const container = document.getElementById('calendar-slots');
+  const newSlot = document.createElement('div');
+  newSlot.className = 'slot-card';
+  
+  newSlot.innerHTML = `
+    <div class="slot-header">
+      <div class="slot-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="slot-title">
+        <h4>Time Slot ${slotCount + 1}</h4>
+      </div>
+      <button type="button" class="btn remove-btn" onclick="removeSlot(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Remove
+      </button>
+    </div>
+    
+    <div class="slot-inputs">
+      <div class="input-group">
+        <label class="input-label">Date</label>
+        <input type="date" name="slot_date_${slotCount}" class="form-input" required min="{{ today }}" />
+      </div>
+      <div class="input-group">
+        <label class="input-label">Start Time</label>
+        <input type="time" name="slot_start_${slotCount}" class="form-input" required />
+      </div>
+      <div class="input-group">
+        <label class="input-label">End Time</label>
+        <input type="time" name="slot_end_${slotCount}" class="form-input" required />
+      </div>
+    </div>
+  `;
+  
+  container.appendChild(newSlot);
+  slotCount++;
+}
+
+function removeSlot(button) {
+  button.closest('.slot-card').remove();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-6">
+  <h1>🏥 Write a Program Review</h1>
+  <p class="text-secondary">Share your experience with a radiology residency program</p>
+</div>
+
+<div class="card max-w-2xl mx-auto">
+  <form method="POST" class="space-y-6">
+    <div>
+      <label for="program_name" class="block text-sm font-medium mb-2">Program *</label>
+      <select name="program_name" id="program_name" class="form-control" required>
+        <option value="">Choose a program...</option>
+        {% for program in programs %}
+        <option value="{{ program }}">{{ program }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="grid-2 gap-6">
+      <div>
+        <label for="educational_quality" class="block text-sm font-medium mb-2">Educational Quality *</label>
+        <select name="educational_quality" id="educational_quality" class="form-control" required>
+          <option value="">Select rating...</option>
+          <option value="1">1 - Poor</option>
+          <option value="2">2 - Below Average</option>
+          <option value="3">3 - Average</option>
+          <option value="4">4 - Above Average</option>
+          <option value="5">5 - Excellent</option>
+        </select>
+        <p class="text-sm text-secondary mt-1">Teaching, learning opportunities, curriculum quality</p>
+      </div>
+
+      <div>
+        <label for="work_life_balance" class="block text-sm font-medium mb-2">Work-Life Balance *</label>
+        <select name="work_life_balance" id="work_life_balance" class="form-control" required>
+          <option value="">Select rating...</option>
+          <option value="1">1 - Poor</option>
+          <option value="2">2 - Below Average</option>
+          <option value="3">3 - Average</option>
+          <option value="4">4 - Above Average</option>
+          <option value="5">5 - Excellent</option>
+        </select>
+        <p class="text-sm text-secondary mt-1">Hours, call schedule, personal time</p>
+      </div>
+
+      <div>
+        <label for="attending_quality" class="block text-sm font-medium mb-2">Attending Quality *</label>
+        <select name="attending_quality" id="attending_quality" class="form-control" required>
+          <option value="">Select rating...</option>
+          <option value="1">1 - Poor</option>
+          <option value="2">2 - Below Average</option>
+          <option value="3">3 - Average</option>
+          <option value="4">4 - Above Average</option>
+          <option value="5">5 - Excellent</option>
+        </select>
+        <p class="text-sm text-secondary mt-1">Faculty expertise, teaching ability, mentorship</p>
+      </div>
+
+      <div>
+        <label for="facilities_quality" class="block text-sm font-medium mb-2">Facilities Quality *</label>
+        <select name="facilities_quality" id="facilities_quality" class="form-control" required>
+          <option value="">Select rating...</option>
+          <option value="1">1 - Poor</option>
+          <option value="2">2 - Below Average</option>
+          <option value="3">3 - Average</option>
+          <option value="4">4 - Above Average</option>
+          <option value="5">5 - Excellent</option>
+        </select>
+        <p class="text-sm text-secondary mt-1">Equipment, workspace, resources</p>
+      </div>
+
+      <div>
+        <label for="research_opportunities" class="block text-sm font-medium mb-2">Research Opportunities *</label>
+        <select name="research_opportunities" id="research_opportunities" class="form-control" required>
+          <option value="">Select rating...</option>
+          <option value="1">1 - Poor</option>
+          <option value="2">2 - Below Average</option>
+          <option value="3">3 - Average</option>
+          <option value="4">4 - Above Average</option>
+          <option value="5">5 - Excellent</option>
+        </select>
+        <p class="text-sm text-secondary mt-1">Research support, projects, publications</p>
+      </div>
+
+      <div>
+        <label for="culture" class="block text-sm font-medium mb-2">Culture *</label>
+        <select name="culture" id="culture" class="form-control" required>
+          <option value="">Select rating...</option>
+          <option value="1">1 - Poor</option>
+          <option value="2">2 - Below Average</option>
+          <option value="3">3 - Average</option>
+          <option value="4">4 - Above Average</option>
+          <option value="5">5 - Excellent</option>
+        </select>
+        <p class="text-sm text-secondary mt-1">Program atmosphere, trainee camaraderie, support</p>
+      </div>
+    </div>
+
+    <div>
+      <label for="comments" class="block text-sm font-medium mb-2">Additional Comments</label>
+      <textarea name="comments" id="comments" rows="6" class="form-control" placeholder="Share your detailed experience, pros and cons, advice for future radiologists, or any other insights..."></textarea>
+      <p class="text-sm text-secondary mt-1">Optional: Provide detailed feedback about your experience</p>
+    </div>
+
+    <div class="flex gap-4">
+      <button type="submit" class="btn">Submit Review</button>
+      <a href="/program-reviews" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<!-- Rating Guide -->
+<div class="card max-w-2xl mx-auto mt-6">
+  <h3>Rating Guide</h3>
+  <div class="grid-2 gap-6">
+    <div>
+      <h4>Rating Scale (1-5)</h4>
+      <ul class="text-secondary text-sm">
+        <li><strong>1:</strong> Poor - Significant issues</li>
+        <li><strong>2:</strong> Below Average - Some concerns</li>
+        <li><strong>3:</strong> Average - Meets basic expectations</li>
+        <li><strong>4:</strong> Above Average - Exceeds expectations</li>
+        <li><strong>5:</strong> Excellent - Outstanding quality</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Tips for Good Reviews</h4>
+      <ul class="text-secondary text-sm">
+        <li>Be specific about your experiences</li>
+        <li>Include both positive and negative aspects</li>
+        <li>Provide constructive feedback</li>
+        <li>Focus on facts rather than personal opinions</li>
+        <li>Consider the overall program value</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

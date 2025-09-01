@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-6">
+  <h1>📊 Submit Compensation Data</h1>
+  <p class="text-secondary">Share your compensation information to help the radiology community</p>
+</div>
+
+  <div class="card max-w-4xl mx-auto">
+    <h3 class="text-2xl font-bold mb-4">Community Compensation Submission</h3>
+    <p class="text-secondary mb-8 text-lg leading-relaxed">
+      Your submission will be visible to all users to promote transparency in radiology compensation. 
+      This helps the community understand market rates across different regions, specialties, and practice types.
+    </p>
+
+      <form method="POST" class="space-y-6">
+      {{ form.hidden_tag() }}
+      
+      <!-- Tile 1: Basic Information Section -->
+      <div class="card bg-white shadow-md border border-gray-200">
+        <div class="flex items-center mb-4">
+          <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</div>
+          <h4 class="text-lg font-semibold text-gray-800">Basic Information</h4>
+        </div>
+        <div class="grid-2 gap-6">
+          <div>
+            <label for="{{ form.year.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.year.label }}</label>
+            <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Year of compensation data</p>
+            {{ form.year(class="form-control", placeholder="e.g., 2024") }}
+            {% if form.year.errors %}
+              <div class="text-red-500 text-sm mt-2">
+                {% for error in form.year.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div>
+            <label for="{{ form.region.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.region.label }}</label>
+            <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Geographic region of practice</p>
+            {{ form.region(class="form-control") }}
+            {% if form.region.errors %}
+              <div class="text-red-500 text-sm mt-2">
+                {% for error in form.region.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Tile 2: Practice Details Section -->
+      <div class="card bg-white shadow-md border border-gray-200">
+        <div class="flex items-center mb-4">
+          <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</div>
+          <h4 class="text-lg font-semibold text-gray-800">Practice Details</h4>
+        </div>
+        <div class="grid-2 gap-6">
+          <div>
+            <label for="{{ form.specialty.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.specialty.label }}</label>
+            <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Radiology specialty area</p>
+            {{ form.specialty(class="form-control") }}
+            {% if form.specialty.errors %}
+              <div class="text-red-500 text-sm mt-2">
+                {% for error in form.specialty.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div>
+            <label for="{{ form.practice_type.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.practice_type.label }}</label>
+            <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Type of practice setting</p>
+            {{ form.practice_type(class="form-control") }}
+            {% if form.practice_type.errors %}
+              <div class="text-red-500 text-sm mt-2">
+                {% for error in form.practice_type.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Tile 3: Compensation Section -->
+      <div class="card bg-white shadow-md border border-gray-200">
+        <div class="flex items-center mb-4">
+          <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</div>
+          <h4 class="text-lg font-semibold text-gray-800">Compensation</h4>
+        </div>
+        <div class="grid-2 gap-6">
+          <div class="col-span-2">
+            <label for="{{ form.total_compensation.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.total_compensation.label }}</label>
+            <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Total annual compensation including all benefits</p>
+            {{ form.total_compensation(class="form-control", placeholder="e.g., 450000") }}
+            {% if form.total_compensation.errors %}
+              <div class="text-red-500 text-sm mt-2">
+                {% for error in form.total_compensation.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Tile 4: RVU Information Section -->
+      <div class="card bg-white shadow-md border border-gray-200">
+        <div class="flex items-center mb-4">
+          <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">4</div>
+          <h4 class="text-lg font-semibold text-gray-800">RVU Information <span class="text-sm font-normal text-gray-500">(Optional)</span></h4>
+        </div>
+        <div class="grid-2 gap-6">
+          <div>
+            <label for="{{ form.total_yearly_rvu.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.total_yearly_rvu.label }}</label>
+            <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Total RVUs generated in the year</p>
+            {{ form.total_yearly_rvu(class="form-control", placeholder="e.g., 8000") }}
+            {% if form.total_yearly_rvu.errors %}
+              <div class="text-red-500 text-sm mt-2">
+                {% for error in form.total_yearly_rvu.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div>
+            <label for="{{ form.compensation_per_rvu.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.compensation_per_rvu.label }}</label>
+            <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Compensation received per RVU</p>
+            {{ form.compensation_per_rvu(class="form-control", placeholder="e.g., 45.50") }}
+            {% if form.compensation_per_rvu.errors %}
+              <div class="text-red-500 text-sm mt-2">
+                {% for error in form.compensation_per_rvu.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Tile 5: Work Schedule Section -->
+      <div class="card bg-white shadow-md border border-gray-200">
+        <div class="flex items-center mb-4">
+          <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">5</div>
+          <h4 class="text-lg font-semibold text-gray-800">Work Schedule</h4>
+        </div>
+        <div class="grid-2 gap-6">
+          <div>
+            <label for="{{ form.hours_per_week.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.hours_per_week.label }}</label>
+            <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Average hours worked per week</p>
+            {{ form.hours_per_week(class="form-control", placeholder="e.g., 45.0") }}
+            {% if form.hours_per_week.errors %}
+              <div class="text-red-500 text-sm mt-2">
+                {% for error in form.hours_per_week.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div>
+            <label for="{{ form.weeks_vacation.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.weeks_vacation.label }} <span class="text-sm text-gray-500">(Optional)</span></label>
+            <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Number of vacation weeks per year</p>
+            {{ form.weeks_vacation(class="form-control", placeholder="e.g., 4") }}
+            {% if form.weeks_vacation.errors %}
+              <div class="text-red-500 text-sm mt-2">
+                {% for error in form.weeks_vacation.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+
+
+      <div class="flex gap-4 pt-6">
+        <button type="submit" class="btn px-8 py-3 text-lg">Submit Compensation Data</button>
+        <a href="/compensation" class="btn btn-secondary px-8 py-3 text-lg">Cancel</a>
+      </div>
+  </form>
+</div>
+
+<div class="card mt-6 max-w-4xl mx-auto">
+  <h3>Community Data Sharing</h3>
+  <ul class="text-secondary space-y-2">
+    <li>• All submissions are visible to promote industry transparency</li>
+    <li>• No personal information is collected or displayed</li>
+    <li>• Data is used solely for educational and informational purposes</li>
+    <li>• You can submit multiple entries for different years or practice types</li>
+    <li>• Your contribution helps other radiologists understand market rates</li>
+    <li>• All submissions are reviewed for accuracy before being displayed</li>
+  </ul>
+</div>
+{% endblock %}

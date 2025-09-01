@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+{% block content %}
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Knowledge Base</h1>
+    <p class="page-subtitle">Curated resources and educational materials organized by radiology subspecialty</p>
+  </div>
+
+  <!-- Subspecialties Grid -->
+  <div class="subspecialties-grid">
+    {% for subspecialty, data in subspecialties.items() %}
+    <div class="subspecialty-card">
+      <div class="subspecialty-header">
+        <div class="subspecialty-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="subspecialty-info">
+          <h3 class="subspecialty-title">{{ subspecialty }}</h3>
+        </div>
+      </div>
+      
+      <div class="resources-list">
+        {% for resource in data.resources %}
+        <div class="resource-item">
+          <div class="resource-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="resource-content">
+            <a href="{{ resource.url }}" target="_blank" rel="noopener noreferrer" class="resource-link">
+              {{ resource.name }}
+            </a>
+            <p class="resource-description">{{ resource.description }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Additional Resources Section -->
+  <div class="additional-resources">
+    <div class="additional-header">
+      <h2 class="additional-title">Additional Resources</h2>
+      <p class="additional-subtitle">General resources covering a wide range of radiology topics</p>
+    </div>
+    
+    <div class="general-resources-grid">
+      <a href="https://www.rsna.org/" target="_blank" rel="noopener noreferrer" class="general-resource-card">
+        <div class="resource-card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="resource-card-content">
+          <h4 class="resource-card-title">RSNA</h4>
+          <p class="resource-card-subtitle">Radiological Society of North America</p>
+        </div>
+      </a>
+      
+      <a href="https://www.acr.org/" target="_blank" rel="noopener noreferrer" class="general-resource-card">
+        <div class="resource-card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="resource-card-content">
+          <h4 class="resource-card-title">ACR</h4>
+          <p class="resource-card-subtitle">American College of Radiology</p>
+        </div>
+      </a>
+      
+      <a href="https://www.arrs.org/" target="_blank" rel="noopener noreferrer" class="general-resource-card">
+        <div class="resource-card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="resource-card-content">
+          <h4 class="resource-card-title">ARRS</h4>
+          <p class="resource-card-subtitle">American Roentgen Ray Society</p>
+        </div>
+      </a>
+      
+      <a href="https://www.radiologyinfo.org/" target="_blank" rel="noopener noreferrer" class="general-resource-card">
+        <div class="resource-card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="resource-card-content">
+          <h4 class="resource-card-title">RadiologyInfo</h4>
+          <p class="resource-card-subtitle">Patient information resource</p>
+        </div>
+      </a>
+    </div>
+  </div>
+
+<style>
+  /* Page Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+  }
+
+  /* Subspecialties Grid */
+  .subspecialties-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+  }
+
+  /* Subspecialty Card */
+  .subspecialty-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .subspecialty-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
+    border-radius: 20px 20px 0 0;
+  }
+
+  .subspecialty-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  /* Subspecialty Header */
+  .subspecialty-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .subspecialty-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--accent-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .subspecialty-info {
+    flex: 1;
+  }
+
+  .subspecialty-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  /* Resources List */
+  .resources-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .resource-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--glass-light);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border-light);
+    transition: all 0.3s ease;
+  }
+
+  .resource-item:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    transform: translateX(4px);
+  }
+
+  .resource-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--glass);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .resource-content {
+    flex: 1;
+  }
+
+  .resource-link {
+    display: block;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    margin-bottom: 0.25rem;
+    transition: color 0.3s ease;
+  }
+
+  .resource-link:hover {
+    color: var(--text);
+  }
+
+  .resource-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  /* Additional Resources */
+  .additional-resources {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+  }
+
+  .additional-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .additional-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .additional-subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+  }
+
+  /* General Resources Grid */
+  .general-resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .general-resource-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--glass-light);
+    border: 1px solid var(--glass-border-light);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .general-resource-card:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+  }
+
+  .resource-card-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-light);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .resource-card-content {
+    flex: 1;
+  }
+
+  .resource-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+
+  .resource-card-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2.5rem;
+    }
+
+    .subspecialties-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .general-resources-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .subspecialty-header {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .resource-item {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  }
+</style>
+{% endblock %}

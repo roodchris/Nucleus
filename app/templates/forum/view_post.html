@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% block content %}
+  <!-- Back to Forum -->
+  <div style="margin-bottom: 1.5rem;">
+    <a href="/forum" class="btn btn-secondary">← Back to Forum</a>
+  </div>
+
+  <!-- Main Post -->
+  <div class="card mb-6">
+    <div style="display: flex; gap: 1.5rem;">
+      <!-- Vote Column -->
+      <div style="display: flex; flex-direction: column; align-items: center; min-width: 60px;">
+        <button class="vote-btn upvote" data-post-id="{{ post.id }}" data-vote-type="upvote" style="background: none; border: none; font-size: 24px; cursor: pointer; color: {% if post._user_vote == 'upvote' %}var(--accent){% else %}var(--text-muted){% endif %}; transition: color 0.2s ease;">▲</button>
+        <span class="vote-count" id="post-votes-{{ post.id }}" style="font-weight: 600; font-size: 20px; color: var(--text);">{{ post._total_votes if post._total_votes is defined else post.total_votes }}</span>
+        <button class="vote-btn downvote" data-post-id="{{ post.id }}" data-vote-type="downvote" style="background: none; border: none; font-size: 24px; cursor: pointer; color: {% if post._user_vote == 'downvote' %}var(--notification){% else %}var(--text-muted){% endif %}; transition: color 0.2s ease;">▼</button>
+      </div>
+      
+      <!-- Post Content -->
+      <div style="flex-grow: 1;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+          <span class="category-badge" style="background: var(--accent); color: white; padding: 0.5rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600;">
+            {{ post.category.value.replace('_', ' ').title() }}
+          </span>
+          {% if post.is_pinned %}
+            <span style="background: var(--warning); color: white; padding: 0.5rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600;">📌 Pinned</span>
+          {% endif %}
+          {% if post.is_locked %}
+            <span style="background: var(--notification); color: white; padding: 0.5rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600;">🔒 Locked</span>
+          {% endif %}
+        </div>
+        
+        <h1 style="margin: 0 0 1rem 0;">{{ post.title }}</h1>
+        
+        <div style="margin-bottom: 1.5rem; line-height: 1.6; white-space: pre-wrap;">{{ post.content }}</div>
+        
+        <div style="display: flex; align-items: center; gap: 1.5rem; font-size: 0.875rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            {% if post.author.resident_profile and post.author.resident_profile.photo_filename %}
+              <img src="/uploads/{{ post.author.resident_profile.photo_filename }}" alt="{{ post.author.name }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+            {% else %}
+              <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 600;">
+                {{ post.author.name[0].upper() }}
+              </div>
+            {% endif %}
+            <span>{{ post.author.name }}</span>
+          </div>
+          
+          <span>{{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+          {% if post.updated_at != post.created_at %}
+            <span>(edited {{ post.updated_at.strftime('%B %d, %Y at %I:%M %p') }})</span>
+          {% endif %}
+        </div>
+        
+        <!-- Action Buttons -->
+        {% if current_user.is_authenticated and current_user.id == post.author_id %}
+          <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+            <a href="/forum/post/{{ post.id }}/edit" class="btn btn-secondary">Edit Post</a>
+            <button class="btn" style="background: var(--notification);" onclick="deletePost({{ post.id }})">Delete Post</button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Comments Section -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h3 style="margin: 0;">Comments ({{ post.comment_count }})</h3>
+      
+      <!-- Comment Sorting -->
+      <div>
+        <label>Sort comments:</label>
+        <select onchange="window.location.href='?sort=' + this.value" class="input">
+          <option value="most_voted" {% if current_sort == "most_voted" %}selected{% endif %}>Most Upvoted</option>
+          <option value="most_downvoted" {% if current_sort == "most_downvoted" %}selected{% endif %}>Most Downvoted</option>
+          <option value="most_recent" {% if current_sort == "most_recent" %}selected{% endif %}>Most Recent</option>
+          <option value="oldest" {% if current_sort == "oldest" %}selected{% endif %}>Oldest</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Add Comment Form -->
+    {% if current_user.is_authenticated and not post.is_locked %}
+      <div style="margin-bottom: 1.5rem; padding: 1.5rem; background: var(--surface-2); border-radius: 0.75rem; border: 1px solid var(--border);">
+        <h4 style="margin-top: 0;">Add a Comment</h4>
+        <form method="POST" action="/forum/post/{{ post.id }}/comment">
+          <textarea name="content" class="input" rows="4" placeholder="Write your comment here..." required></textarea>
+          <div style="margin-top: 0.75rem;">
+            <button type="submit" class="btn">Post Comment</button>
+          </div>
+        </form>
+      </div>
+    {% elif post.is_locked %}
+      <div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 0.75rem; color: var(--notification);">
+        🔒 This post is locked and cannot be commented on.
+      </div>
+    {% else %}
+      <div style="padding: 1rem; background: var(--surface-2); border-radius: 0.75rem; border: 1px solid var(--border);">
+        <a href="/auth/login" class="btn">Login to Comment</a>
+      </div>
+    {% endif %}
+
+    <!-- Comments List -->
+    {% if comments %}
+      <div style="display: grid; gap: 1.5rem;">
+        {% for comment in comments %}
+          <div class="comment" style="padding: 1rem; background: var(--surface-2); border-radius: 0.75rem; border: 1px solid var(--border);">
+            <div style="display: flex; gap: 1rem;">
+              <!-- Vote Column -->
+              <div style="display: flex; flex-direction: column; align-items: center; min-width: 50px;">
+                <button class="vote-btn upvote" data-comment-id="{{ comment.id }}" data-vote-type="upvote" style="background: none; border: none; font-size: 18px; cursor: pointer; color: {% if comment._user_vote == 'upvote' %}var(--accent){% else %}var(--text-muted){% endif %}; transition: color 0.2s ease;">▲</button>
+                <span class="vote-count" id="comment-votes-{{ comment.id }}" style="font-weight: 600; font-size: 16px; color: var(--text);">{{ comment._total_votes }}</span>
+                <button class="vote-btn downvote" data-comment-id="{{ comment.id }}" data-vote-type="downvote" style="background: none; border: none; font-size: 18px; cursor: pointer; color: {% if comment._user_vote == 'downvote' %}var(--notification){% else %}var(--text-muted){% endif %}; transition: color 0.2s ease;">▼</button>
+              </div>
+              
+              <!-- Comment Content -->
+              <div style="flex-grow: 1;">
+                <div style="margin-bottom: 1rem; line-height: 1.5; white-space: pre-wrap;">{{ comment.content }}</div>
+                
+                <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.875rem; color: var(--text-muted);">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    {% if comment.author.resident_profile and comment.author.resident_profile.photo_filename %}
+                      <img src="/uploads/{{ comment.author.resident_profile.photo_filename }}" alt="{{ comment.author.name }}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                      <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600;">
+                        {{ comment.author.name[0].upper() }}
+                      </div>
+                    {% endif %}
+                    <span>{{ comment.author.name }}</span>
+                  </div>
+                  
+                  <span>{{ comment.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                  {% if comment.is_edited %}
+                    <span>(edited)</span>
+                  {% endif %}
+                </div>
+                
+                <!-- Comment Actions -->
+                {% if current_user.is_authenticated and current_user.id == comment.author_id %}
+                  <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                    <button class="btn btn-sm btn-secondary" onclick="showEditComment({{ comment.id }})">Edit</button>
+                    <button class="btn btn-sm" style="background: var(--notification);" onclick="deleteComment({{ comment.id }})">Delete</button>
+                  </div>
+                  
+                  <!-- Edit Comment Form (Hidden by default) -->
+                  <div id="edit-comment-{{ comment.id }}" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--surface-3); border-radius: 0.5rem;">
+                    <form method="POST" action="/forum/comment/{{ comment.id }}/edit">
+                      <textarea name="content" class="input" rows="3" required>{{ comment.content }}</textarea>
+                      <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                        <button type="submit" class="btn btn-sm">Save</button>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="hideEditComment({{ comment.id }})">Cancel</button>
+                      </div>
+                    </form>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+        <p>No comments yet. Be the first to share your thoughts!</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    // Voting functionality for posts
+    document.querySelectorAll('.vote-btn[data-post-id]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const postId = this.dataset.postId;
+        const voteType = this.dataset.voteType;
+        
+        fetch('/forum/vote', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            post_id: postId,
+            vote_type: voteType
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Update vote count
+            document.getElementById('post-votes-' + postId).textContent = data.total_votes;
+            
+            // Update button colors based on user's current vote
+            const upvoteBtn = document.querySelector(`[data-post-id="${postId}"][data-vote-type="upvote"]`);
+            const downvoteBtn = document.querySelector(`[data-post-id="${postId}"][data-vote-type="downvote"]`);
+            
+            if (data.user_vote === 'upvote') {
+              upvoteBtn.style.color = 'var(--accent)';
+              downvoteBtn.style.color = 'var(--text-muted)';
+            } else if (data.user_vote === 'downvote') {
+              downvoteBtn.style.color = 'var(--notification)';
+              upvoteBtn.style.color = 'var(--text-muted)';
+            } else {
+              upvoteBtn.style.color = 'var(--text-muted)';
+              downvoteBtn.style.color = 'var(--text-muted)';
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error voting:', error);
+        });
+      });
+    });
+
+    // Voting functionality for comments
+    document.querySelectorAll('.vote-btn[data-comment-id]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const commentId = this.dataset.commentId;
+        const voteType = this.dataset.voteType;
+        
+        fetch('/forum/vote', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            comment_id: commentId,
+            vote_type: voteType
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Update vote count
+            document.getElementById('comment-votes-' + commentId).textContent = data.total_votes;
+            
+            // Update button colors based on user's current vote
+            const upvoteBtn = document.querySelector(`[data-comment-id="${commentId}"][data-vote-type="upvote"]`);
+            const downvoteBtn = document.querySelector(`[data-comment-id="${commentId}"][data-vote-type="downvote"]`);
+            
+            if (data.user_vote === 'upvote') {
+              upvoteBtn.style.color = 'var(--accent)';
+              downvoteBtn.style.color = 'var(--text-muted)';
+            } else if (data.user_vote === 'downvote') {
+              downvoteBtn.style.color = 'var(--notification)';
+              upvoteBtn.style.color = 'var(--text-muted)';
+            } else {
+              upvoteBtn.style.color = 'var(--text-muted)';
+              downvoteBtn.style.color = 'var(--text-muted)';
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error voting:', error);
+        });
+      });
+    });
+
+    // Comment editing functions
+    function showEditComment(commentId) {
+      document.getElementById(`edit-comment-${commentId}`).style.display = 'block';
+    }
+    
+    function hideEditComment(commentId) {
+      document.getElementById(`edit-comment-${commentId}`).style.display = 'none';
+    }
+
+    // Delete functions
+    function deletePost(postId) {
+      if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+        fetch('/forum/post/' + postId + '/delete', {
+          method: 'POST'
+        })
+        .then(response => {
+          if (response.ok) {
+            window.location.href = '/forum';
+          }
+        });
+      }
+    }
+
+    function deleteComment(commentId) {
+      if (confirm('Are you sure you want to delete this comment? This action cannot be undone.')) {
+        fetch('/forum/comment/' + commentId + '/delete', {
+          method: 'POST'
+        })
+        .then(response => {
+          if (response.ok) {
+            window.location.reload();
+          }
+        });
+      }
+    }
+  </script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-container">
+  <h1>Create your account</h1>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div>{{ form.name.label }} {{ form.name(class="input") }}{% for e in form.name.errors %}<div class="muted" style="color:#fca5a5; font-size:12px; margin-top:6px;">{{ e }}</div>{% endfor %}</div>
+    <div>{{ form.email.label }} {{ form.email(class="input") }}{% for e in form.email.errors %}<div class="muted" style="color:#fca5a5; font-size:12px; margin-top:6px;">{{ e }}</div>{% endfor %}</div>
+    <div>{{ form.password.label }} {{ form.password(class="input") }}{% for e in form.password.errors %}<div class="muted" style="color:#fca5a5; font-size:12px; margin-top:6px;">{{ e }}</div>{% endfor %}</div>
+    <div>{{ form.confirm_password.label }} {{ form.confirm_password(class="input") }}{% for e in form.confirm_password.errors %}<div class="muted" style="color:#fca5a5; font-size:12px; margin-top:6px;">{{ e }}</div>{% endfor %}</div>
+    <div>{{ form.role.label }} {{ form.role(class="input") }}{% for e in form.role.errors %}<div class="muted" style="color:#fca5a5; font-size:12px; margin-top:6px;">{{ e }}</div>{% endfor %}</div>
+    <div>{{ form.organization.label }} {{ form.organization(class="input") }}{% for e in form.organization.errors %}<div class="muted" style="color:#fca5a5; font-size:12px; margin-top:6px;">{{ e }}</div>{% endfor %}</div>
+    <button type="submit" class="btn">Sign up</button>
+  </form>
+  <p>Already have an account? <a href="/auth/login">Log in</a></p>
+</div>
+{% endblock %}

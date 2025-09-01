@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block content %}
+  <style>
+    /* Prevent browser validation styling */
+    input:invalid {
+      box-shadow: none !important;
+      border-color: var(--border) !important;
+    }
+    
+    input:valid {
+      box-shadow: none !important;
+      border-color: var(--border) !important;
+    }
+    
+    /* Custom validation styling */
+    .input.error {
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 0 1px #ef4444 !important;
+    }
+    
+    .input.success {
+      border-color: #10b981 !important;
+      box-shadow: 0 0 0 1px #10b981 !important;
+    }
+  </style>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">📅 {{ opp.title }} - Calendar</h1>
+    <p class="page-subtitle">{{ opp.zip_code }} · {{ opp.opportunity_type.value|replace('_',' ') }} · ${{ opp.pay_per_hour }}/hr · {{ opp.shift_length_hours }}h shifts</p>
+  </div>
+
+  <!-- Back Button -->
+  <div class="back-section">
+    <a href="/opportunities/{{ opp.id }}" class="btn secondary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back to Opportunity
+    </a>
+  </div>
+
+  <div class="calendar-container">
+    <h3>Available Time Slots</h3>
+    
+    <!-- Month Navigation -->
+    <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; justify-content:center;">
+      <a href="?month={{ (today.replace(day=1) - timedelta(days=1)).replace(day=1).strftime('%Y-%m') }}" class="btn" style="background:rgba(17,24,39,0.6);">← Previous Month</a>
+      <h4 style="margin:0;">{{ today.strftime('%B %Y') }}</h4>
+      <a href="?month={{ (today.replace(day=1) + timedelta(days=32)).replace(day=1).strftime('%Y-%m') }}" class="btn" style="background:rgba(17,24,39,0.6);">Next Month →</a>
+    </div>
+    
+    {% if current_user.is_authenticated and current_user.role.value == 'employer' and current_user.id == opp.employer_id %}
+      <div style="margin-bottom:20px;">
+        <h4>Add New Time Slot</h4>
+        <form method="POST" action="/opportunities/{{ opp.id }}/calendar/add" onsubmit="return validateForm()" style="display:grid; grid-template-columns: 1fr 1fr 1fr auto; gap:12px; align-items:end;" novalidate>
+          <div>
+            <label>Date</label>
+            <input type="date" name="date" id="slot_date" class="input" min="{{ today }}" />
+          </div>
+          <div>
+            <label>Start Time</label>
+            <input type="time" name="start_time" id="slot_start_time" class="input" />
+          </div>
+          <div>
+            <label>End Time</label>
+            <input type="time" name="end_time" id="slot_end_time" class="input" />
+          </div>
+          <button type="submit" class="btn">Add Slot</button>
+        </form>
+        <div id="debug-info" style="margin-top:12px; font-size:12px; color:#666;"></div>
+      </div>
+    {% endif %}
+
+    {% if calendar_slots %}
+      <div class="calendar-grid">
+        {% for slot in calendar_slots %}
+          <div class="calendar-day has-slots">
+            <div class="date">{{ slot.date.strftime('%b %d') }}</div>
+            <div class="slots">{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</div>
+          </div>
+        {% endfor %}
+      </div>
+      
+      <div style="margin-top:20px;">
+        <h4>All Available Slots</h4>
+        <div style="display:grid; gap:8px;">
+          {% for slot in calendar_slots %}
+            <div style="background:rgba(17,24,39,0.6); padding:12px; border-radius:8px; border:1px solid var(--border);">
+              <strong>{{ slot.date.strftime('%A, %B %d, %Y') }}</strong>
+              <div class="muted">{{ slot.start_time.strftime('%I:%M %p') }} - {{ slot.end_time.strftime('%I:%M %p') }}</div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <p class="muted">No time slots available yet.</p>
+      {% if current_user.is_authenticated and current_user.role.value == 'employer' and current_user.id == opp.employer_id %}
+        <p>Add your first time slot using the form above.</p>
+      {% else %}
+        <p>Check back later for available time slots.</p>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  <script>
+  // Prevent browser validation completely
+  document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('input[type="date"], input[type="time"]');
+    inputs.forEach(input => {
+      // Prevent browser validation
+      input.addEventListener('invalid', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      });
+      
+      // Update debug info on input
+      input.addEventListener('input', function() {
+        updateDebugInfo();
+      });
+      
+      // Prevent form submission validation
+      input.addEventListener('submit', function(e) {
+        e.preventDefault();
+        return false;
+      });
+    });
+  });
+
+  function updateDebugInfo() {
+    const date = document.getElementById('slot_date')?.value || '';
+    const startTime = document.getElementById('slot_start_time')?.value || '';
+    const endTime = document.getElementById('slot_end_time')?.value || '';
+    
+    const debugDiv = document.getElementById('debug-info');
+    if (debugDiv) {
+      debugDiv.innerHTML = `Debug: Date="${date}", Start="${startTime}", End="${endTime}"`;
+    }
+  }
+
+  function validateForm() {
+    const date = document.getElementById('slot_date').value;
+    const startTime = document.getElementById('slot_start_time').value;
+    const endTime = document.getElementById('slot_end_time').value;
+    
+    console.log('Form validation - Date:', date, 'Start:', startTime, 'End:', endTime);
+    
+    if (!date || !startTime || !endTime) {
+      alert('Please fill in all fields');
+      return false;
+    }
+    
+    if (startTime >= endTime) {
+      alert('End time must be after start time');
+      return false;
+    }
+    
+    return true;
+  }
+  </script>
+{% endblock %}
