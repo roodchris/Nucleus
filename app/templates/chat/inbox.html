@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+{% block content %}
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">💬 Messages</h1>
+    <p class="page-subtitle">Connect with fellow radiologists and employers</p>
+  </div>
+
+  <!-- New Message Button -->
+  <div class="submit-section">
+    <a href="{{ url_for('chat.direct') }}" class="submit-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      New Message
+    </a>
+  </div>
+
+  <!-- Conversations Section -->
+  <div class="data-section">
+    <div class="data-header">
+      <h2 class="data-title">Recent Conversations</h2>
+      <p class="data-subtitle">{{ convos|length }} conversation{{ 's' if convos|length != 1 else '' }}</p>
+    </div>
+
+    {% if convos %}
+    <div class="conversations-grid">
+      {% for c in convos %}
+      <div class="conversation-card">
+        <div class="conversation-header">
+          <div class="conversation-avatar">
+            {% if c.other_user_profile and c.other_user_profile.photo_filename %}
+              <img src="/uploads/{{ c.other_user_profile.photo_filename }}" alt="{{ c.other_user.name }}" class="avatar-image">
+            {% else %}
+              <div class="avatar-fallback">
+                {{ c.other_user.name[0].upper() }}
+              </div>
+            {% endif %}
+          </div>
+          <div class="conversation-info">
+            <h3 class="conversation-name">
+              {% if c.other_user.role.value == 'resident' %}
+                <a href="/profile/{{ c.other_user.id }}" class="user-link">{{ c.other_user.name }}</a>
+              {% else %}
+                {{ c.other_user.name }}
+              {% endif %}
+            </h3>
+            <p class="conversation-type">
+              {% if c.opportunity %}
+                {{ c.opportunity.title }}
+              {% else %}
+                Direct Message
+              {% endif %}
+            </p>
+          </div>
+          <div class="conversation-actions">
+            <a href="/messages/{{ c.id }}" class="btn primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Open
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3>No conversations yet</h3>
+      <p>Start a conversation to connect with other radiologists and employers.</p>
+    </div>
+    {% endif %}
+  </div>
+
+<style>
+  /* Page Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+  }
+
+  /* Submit Section */
+  .submit-section {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+  }
+
+  .submit-btn:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Data Section */
+  .data-section {
+    margin-bottom: 3rem;
+  }
+
+  .data-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .data-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .data-subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+  }
+
+  /* Conversations Grid */
+  .conversations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+  }
+
+  .conversation-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .conversation-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
+    border-radius: 20px 20px 0 0;
+  }
+
+  .conversation-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  .conversation-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .conversation-avatar {
+    flex-shrink: 0;
+  }
+
+  .avatar-image {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--glass-border);
+  }
+
+  .avatar-fallback {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    border: 3px solid var(--glass-border);
+  }
+
+  .conversation-info {
+    flex: 1;
+  }
+
+  .conversation-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .user-link {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .user-link:hover {
+    color: var(--accent-dark);
+  }
+
+  .conversation-type {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .conversation-actions {
+    flex-shrink: 0;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn.primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn.primary:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+  }
+
+  .empty-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--accent-light);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    color: var(--accent);
+  }
+
+  .empty-state h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .empty-state p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2.5rem;
+    }
+
+    .conversations-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .conversation-header {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .conversation-actions {
+      width: 100%;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+{% endblock %}

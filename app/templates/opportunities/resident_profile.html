@@ -1,0 +1,449 @@
+{% extends "base.html" %}
+{% block content %}
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">👤 My Profile</h1>
+    <p class="page-subtitle">Create and manage your professional profile for employers to view</p>
+  </div>
+
+<div class="data-section">
+  <div class="form-card">
+    <div class="card-header">
+      <div class="card-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="card-title">
+        <h3>Profile Information</h3>
+        <p>Update your professional details and preferences</p>
+      </div>
+    </div>
+    
+    <form method="POST" enctype="multipart/form-data" class="profile-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Medical School Attended</label>
+          <input type="text" name="medical_school" value="{{ profile.medical_school or '' }}" class="form-input" placeholder="e.g., Harvard Medical School" />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Current Residency Program</label>
+          <input type="text" name="residency_program" value="{{ profile.residency_program or '' }}" class="form-input" placeholder="e.g., Radiology Residency at Johns Hopkins" />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Training Level</label>
+          <select name="training_year" class="form-input">
+            <option value="">Select training level</option>
+            <option value="R1" {% if profile and profile.training_year == 'R1' %}selected{% endif %}>R1</option>
+            <option value="R2" {% if profile and profile.training_year == 'R2' %}selected{% endif %}>R2</option>
+            <option value="R3" {% if profile and profile.training_year == 'R3' %}selected{% endif %}>R3</option>
+            <option value="R4" {% if profile and profile.training_year == 'R4' %}selected{% endif %}>R4</option>
+            <option value="FELLOW" {% if profile and profile.training_year == 'FELLOW' %}selected{% endif %}>FELLOW</option>
+            <option value="ATTENDING" {% if profile and profile.training_year == 'ATTENDING' %}selected{% endif %}>ATTENDING</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Profile Photo</label>
+          <div class="file-upload-container">
+            <input type="file" name="photo" accept="image/*" class="file-input" id="photo-upload" />
+            <label for="photo-upload" class="file-upload-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="7,10 12,15 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Choose Photo
+            </label>
+            {% if profile and profile.photo_filename %}
+              <div class="current-photo">
+                <span>Current: {{ profile.photo_filename }}</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="form-group full-width">
+          <label class="form-label">Bio</label>
+          <textarea name="bio" class="form-input" rows="6" placeholder="Tell employers about yourself, your interests, and what you're looking for in radiology opportunities...">{{ profile.bio or '' }}</textarea>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="17,21 17,13 7,13 7,21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="7,3 7,8 15,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Save Profile
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {% if profile %}
+  <div class="preview-card">
+    <div class="card-header">
+      <div class="card-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="card-title">
+        <h3>Profile Preview</h3>
+        <p>How your profile appears to employers</p>
+      </div>
+    </div>
+    
+    <div class="preview-content">
+      {% if profile.photo_filename %}
+      <div class="preview-section">
+        <div class="preview-photo">
+          <img src="/uploads/{{ profile.photo_filename }}" alt="Profile Photo" class="profile-image">
+        </div>
+      </div>
+      {% endif %}
+      
+      <div class="preview-details">
+        {% if profile.medical_school %}
+        <div class="detail-row">
+          <span class="detail-label">Medical School</span>
+          <span class="detail-value">{{ profile.medical_school }}</span>
+        </div>
+        {% endif %}
+        
+        {% if profile.residency_program %}
+        <div class="detail-row">
+          <span class="detail-label">Residency Program</span>
+          <span class="detail-value">{{ profile.residency_program }}</span>
+        </div>
+        {% endif %}
+        
+        {% if profile.training_year %}
+        <div class="detail-row">
+          <span class="detail-label">Training Level</span>
+          <span class="detail-value">{{ profile.training_year.value }}</span>
+        </div>
+        {% endif %}
+        
+        {% if profile.bio %}
+        <div class="detail-row full-width">
+          <span class="detail-label">Bio</span>
+          <div class="detail-value bio-text">{{ profile.bio }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  /* Page Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+  }
+
+  .profile-form {
+    width: 100%;
+  }
+
+.form-card, .preview-card {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-card:hover, .preview-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--accent-light);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  color: var(--accent);
+  box-shadow: var(--accent-glow);
+}
+
+.card-title h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.card-title p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.form-input {
+  background: var(--glass-light);
+  border: 1px solid var(--glass-border-light);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
+.file-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-upload-label {
+  background: var(--accent-light);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--accent);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.file-upload-label:hover {
+  background: var(--accent);
+  color: var(--text);
+  transform: translateY(-1px);
+  box-shadow: var(--accent-glow);
+}
+
+.current-photo {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  padding: 0.5rem 0.75rem;
+  background: var(--glass-light);
+  border-radius: 6px;
+  border: 1px solid var(--glass-border-light);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.form-actions .btn.primary {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+  color: var(--text);
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.form-actions .btn.primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.form-actions .btn.primary:hover::before {
+  left: 100%;
+}
+
+.form-actions .btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--accent-glow);
+}
+
+.preview-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.preview-section {
+  display: flex;
+  justify-content: center;
+}
+
+.preview-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--accent);
+  box-shadow: var(--accent-glow);
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--glass-light);
+  border-radius: 8px;
+  border: 1px solid var(--glass-border-light);
+  transition: all 0.3s ease;
+}
+
+.detail-row:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+}
+
+.detail-row.full-width {
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: var(--text);
+  min-width: 140px;
+  font-size: 0.95rem;
+}
+
+.detail-value {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.bio-text {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2.5rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .detail-label {
+    min-width: auto;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .card-icon {
+    margin-right: 0;
+  }
+}
+</style>
+{% endblock %}

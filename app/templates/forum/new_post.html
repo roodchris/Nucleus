@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="job-card" style="padding:24px;">
+    <h2 style="margin-top:0;">Create New Post</h2>
+    <p class="muted">Share your thoughts, questions, or advice with the community</p>
+  </div>
+
+  <div class="job-card" style="padding:24px; margin-top:20px;">
+    <form method="POST">
+      <div style="display:grid; gap:20px;">
+        <div>
+          <label style="display:block; margin-bottom:8px; font-weight:500;">Title *</label>
+          <input type="text" name="title" class="input" placeholder="Enter a descriptive title for your post" required>
+        </div>
+        
+        <div>
+          <label style="display:block; margin-bottom:8px; font-weight:500;">Category *</label>
+          <select name="category" class="input" required>
+            <option value="">Select a category</option>
+            {% for category in categories %}
+              <option value="{{ category.value }}">{{ category.value.replace('_', ' ').title() }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div>
+          <label style="display:block; margin-bottom:8px; font-weight:500;">Content *</label>
+          <textarea name="content" class="input" rows="10" placeholder="Write your post content here..." required></textarea>
+          <div style="margin-top:8px; font-size:14px; color:#888;">
+            You can use basic formatting. Be respectful and helpful to the community.
+          </div>
+        </div>
+        
+        <div style="display:flex; gap:12px;">
+          <button type="submit" class="btn">Create Post</button>
+          <a href="/forum" class="btn" style="background:rgba(17,24,39,0.6);">Cancel</a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="job-card" style="padding:24px; margin-top:20px;">
+    <h3>Posting Guidelines</h3>
+    <ul style="margin:0; padding-left:20px; line-height:1.6;">
+      <li>Be respectful and professional</li>
+      <li>Use appropriate categories for your posts</li>
+      <li>Provide helpful and constructive content</li>
+      <li>Respect patient privacy and confidentiality</li>
+      <li>No spam or promotional content</li>
+    </ul>
+  </div>
+{% endblock %}

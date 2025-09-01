@@ -1,0 +1,1063 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <title>Nucleus - Radiology Opportunities</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Modern Dark Theme - Inspired by Orano Group */
+      --bg: #000000;
+      --bg-gradient: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%);
+      --surface: rgba(255, 255, 255, 0.02);
+      --surface-2: rgba(255, 255, 255, 0.04);
+      --surface-3: rgba(255, 255, 255, 0.06);
+      --text: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.5);
+      --accent: #00d4ff;
+      --accent-hover: #00b8e6;
+      --accent-light: rgba(0, 212, 255, 0.1);
+      --accent-glow: 0 0 20px rgba(0, 212, 255, 0.3);
+      --border: rgba(255, 255, 255, 0.1);
+      --border-light: rgba(255, 255, 255, 0.05);
+      --ring: rgba(0, 212, 255, 0.3);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.6);
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --notification: #ff4757;
+      --success: #2ed573;
+      --warning: #ffa502;
+      --blur: blur(20px);
+    }
+
+    :root[data-theme="light"] {
+      /* Modern Light Theme */
+      --bg: #ffffff;
+      --bg-gradient: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #ffffff 100%);
+      --surface: rgba(0, 0, 0, 0.02);
+      --surface-2: rgba(0, 0, 0, 0.04);
+      --surface-3: rgba(0, 0, 0, 0.06);
+      --text: #000000;
+      --text-secondary: rgba(0, 0, 0, 0.7);
+      --text-muted: rgba(0, 0, 0, 0.5);
+      --accent: #00d4ff;
+      --accent-hover: #00b8e6;
+      --accent-light: rgba(0, 212, 255, 0.1);
+      --accent-glow: 0 0 20px rgba(0, 212, 255, 0.2);
+      --border: rgba(0, 0, 0, 0.1);
+      --border-light: rgba(0, 0, 0, 0.05);
+      --ring: rgba(0, 212, 255, 0.3);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+      --glass: rgba(255, 255, 255, 0.8);
+      --glass-border: rgba(0, 0, 0, 0.1);
+      --notification: #ff4757;
+      --success: #2ed573;
+      --warning: #ffa502;
+      --blur: blur(20px);
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 16px;
+      font-weight: 400;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-x: hidden;
+      cursor: none; /* Hide default cursor for custom cursor */
+    }
+
+    /* Custom Cursor - Inspired by Orano Group */
+    .custom-cursor {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: difference;
+      transition: transform 0.1s ease;
+      box-shadow: var(--accent-glow);
+    }
+
+    .custom-cursor.hover {
+      transform: scale(2);
+      background: var(--accent-hover);
+    }
+
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Selection styling */
+    ::selection {
+      background: var(--accent);
+      color: var(--text);
+    }
+
+    ::-moz-selection {
+      background: var(--accent);
+      color: var(--text);
+    }
+
+    /* Typography */
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: 600;
+      line-height: 1.3;
+      letter-spacing: -0.025em;
+    }
+
+    h1 { font-size: 2.5rem; font-weight: 700; }
+    h2 { font-size: 2rem; font-weight: 600; }
+    h3 { font-size: 1.5rem; font-weight: 600; }
+    h4 { font-size: 1.25rem; font-weight: 600; }
+    h5 { font-size: 1.125rem; font-weight: 600; }
+    h6 { font-size: 1rem; font-weight: 600; }
+
+    p { margin-bottom: 1rem; }
+
+    /* Header - Glass Morphism */
+    header {
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border-bottom: 1px solid var(--glass-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow);
+    }
+
+    header .container {
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 0.5rem 2rem;
+    }
+
+    /* Brand */
+    .brand {
+      display: inline-flex; 
+      align-items: center; 
+      gap: 0.5rem;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.75rem;
+      letter-spacing: -0.025em;
+      position: relative;
+      padding: 0.5rem;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 50%, transparent 100%);
+    }
+
+    /* Logo */
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .atom-logo {
+      width: 32px;
+      height: 32px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nucleus {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: absolute;
+      z-index: 3;
+      box-shadow: var(--accent-glow);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .orbit {
+      position: absolute;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      opacity: 0.6;
+    }
+
+    .orbit-1 {
+      width: 16px;
+      height: 16px;
+      transform: rotate(0deg);
+      animation: rotate 10s linear infinite;
+    }
+
+    .orbit-2 {
+      width: 22px;
+      height: 22px;
+      transform: rotate(45deg);
+      animation: rotate 15s linear infinite reverse;
+    }
+
+    .orbit-3 {
+      width: 28px;
+      height: 28px;
+      transform: rotate(90deg);
+      animation: rotate 20s linear infinite;
+    }
+
+    .electron {
+      width: 4px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: absolute;
+      animation: electron-rotate 3s linear infinite;
+      box-shadow: 0 0 6px var(--accent);
+    }
+
+    .electron-1 {
+      top: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation-delay: 0s;
+    }
+
+    .electron-2 {
+      top: 50%;
+      right: 2px;
+      transform: translateY(-50%);
+      animation-delay: 1s;
+    }
+
+    .electron-3 {
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation-delay: 2s;
+    }
+
+    @keyframes electron-rotate {
+      0% { transform: translateX(-50%) rotate(0deg) translateX(8px) rotate(0deg); }
+      100% { transform: translateX(-50%) rotate(360deg) translateX(8px) rotate(-360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
+
+    /* Navigation Groups - Beautiful Glass Morphism Tiles */
+    .nav-groups {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .group-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.125rem;
+      text-align: center;
+    }
+
+    .group-tabs {
+      display: flex;
+      align-items: center;
+      gap: 0.125rem;
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--glass-border);
+      border-radius: 0.5rem;
+      padding: 0.125rem;
+      box-shadow: var(--shadow);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .group-tabs:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent);
+    }
+
+    /* Navigation */
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.65rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    nav a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, var(--accent-light), transparent);
+      transition: left 0.5s ease;
+    }
+
+    nav a:hover::before {
+      left: 100%;
+    }
+
+    nav a:hover {
+      color: var(--text);
+      background: var(--accent-light);
+      transform: translateY(-2px);
+      box-shadow: var(--accent-glow);
+    }
+
+    nav a.active {
+      color: var(--accent);
+      background: var(--accent-light);
+      box-shadow: var(--accent-glow);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: var(--accent-glow);
+    }
+
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text);
+      transition: all 0.3s ease;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Cards - Glass Morphism */
+    .card {
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent);
+    }
+
+    /* Buttons */
+    .btn {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+      color: var(--text);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--accent-glow);
+    }
+
+    .btn-secondary {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+    }
+
+    .btn-secondary:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+    }
+
+    /* Forms */
+    .input {
+      width: 100%;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      outline: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--ring);
+      background: var(--surface-2);
+    }
+
+    .input::placeholder {
+      color: var(--text-muted);
+    }
+
+    label { 
+      color: var(--text-secondary); 
+      font-size: 0.875rem; 
+      font-weight: 500;
+      display: block; 
+      margin-bottom: 0.5rem; 
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--border-light);
+    }
+
+    .job-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+    }
+
+    .job-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent);
+    }
+
+    .job-card h3 { 
+      margin: 0 0 0.75rem 0; 
+      color: var(--text); 
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+
+    .job-card div { 
+      color: var(--text-secondary); 
+      font-size: 0.875rem; 
+      margin-top: 0.5rem; 
+    }
+
+    /* Grid */
+    .grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+      gap: 1.5rem; 
+    }
+
+    .grid-2 { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
+      gap: 2rem; 
+    }
+
+    /* Opportunities Grid - Packed 3 columns in single row */
+    .opportunities-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      grid-auto-rows: 1fr;
+      grid-template-rows: 1fr;
+    }
+
+    .opportunities-grid .job-card {
+      height: 100%;
+    }
+
+    /* Responsive adjustments for smaller screens */
+    @media (max-width: 1200px) {
+      .opportunities-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .opportunities-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Filters */
+    .filters {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem; 
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    /* Auth Container */
+    .auth-container {
+      max-width: 480px; 
+      margin: 3rem auto; 
+      padding: 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Notification Badge */
+    .notification-badge {
+      position: relative;
+      display: inline-block;
+    }
+
+    .notification-badge .badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: var(--notification);
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    /* Calendar */
+    .calendar-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      text-align: center;
+      background: var(--surface-2);
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .calendar-day:hover {
+      background: var(--surface-3);
+      border-color: var(--border-light);
+    }
+
+    .calendar-day.has-slots {
+      background: var(--accent-light);
+      border-color: var(--accent);
+    }
+
+    .calendar-day .date {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .calendar-day .slots {
+      font-size: 0.75rem;
+      color: var(--accent);
+      margin-top: 0.25rem;
+    }
+
+    .calendar-day.today {
+      background: var(--accent-light);
+      border-color: var(--accent);
+    }
+
+    /* Utilities */
+    .muted { color: var(--text-muted); }
+    .text-secondary { color: var(--text-secondary); }
+    .text-center { text-align: center; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .mb-8 { margin-bottom: 2rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mt-6 { margin-top: 1.5rem; }
+    .mt-8 { margin-top: 2rem; }
+    .p-4 { padding: 1rem; }
+    .p-6 { padding: 1.5rem; }
+    .p-8 { padding: 2rem; }
+
+         /* Responsive */
+     @media (max-width: 768px) {
+       header .container {
+         padding: 1rem;
+         flex-direction: column;
+         gap: 1rem;
+       }
+
+       nav {
+         flex-wrap: wrap;
+         justify-content: center;
+         gap: 0.75rem;
+       }
+
+       .nav-groups {
+         flex-direction: column;
+         gap: 1rem;
+         width: 100%;
+       }
+
+       .nav-group {
+         width: 100%;
+       }
+
+       .group-tabs {
+         flex-wrap: wrap;
+         justify-content: center;
+       }
+
+       .container {
+         padding: 0 1rem;
+       }
+
+       .grid {
+         grid-template-columns: 1fr;
+       }
+
+       .grid-2 {
+         grid-template-columns: 1fr;
+       }
+     }
+  </style>
+</head>
+<body>
+  <!-- Custom Cursor -->
+  <div class="custom-cursor"></div>
+
+  <header>
+    <div class="container">
+      <strong class="brand">
+        <div class="logo">
+          <div class="atom-logo">
+            <div class="nucleus"></div>
+            <div class="orbit orbit-1"></div>
+            <div class="orbit orbit-2"></div>
+            <div class="orbit orbit-3"></div>
+            <div class="electron electron-1"></div>
+            <div class="electron electron-2"></div>
+            <div class="electron electron-3"></div>
+          </div>
+        </div>
+        <a href="/" style="color:inherit; text-decoration: none;">Nucleus</a>
+      </strong>
+      <nav>
+        <div class="nav-groups">
+          <!-- Navigation Group -->
+          <div class="nav-group">
+            <div class="group-label">Navigation</div>
+            <div class="group-tabs">
+              <a href="/" class="{% if request.endpoint == 'home' %}active{% endif %}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="9,22 9,12 15,12 15,22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Home
+              </a>
+              <a href="/calendar" class="{% if request.endpoint == 'calendar' %}active{% endif %}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Global Calendar
+              </a>
+            </div>
+          </div>
+
+          <!-- Job Opportunities Group -->
+          <div class="nav-group">
+            <div class="group-label">Job Opportunities</div>
+            <div class="group-tabs">
+              <a href="/opportunities" class="{% if request.endpoint == 'opportunities' %}active{% endif %}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 13.255A23.931 23.931 0 0 1 12 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2-2v2m8 0V6a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4m8 0v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4m8 0v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Browse Opportunities
+              </a>
+              {% if current_user.is_authenticated and current_user.role.value == 'employer' %}
+                <a href="/opportunities/new" class="{% if request.endpoint == 'new_opportunity' %}active{% endif %}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Post Opportunity
+                </a>
+                <a href="/employer/listings" class="{% if request.endpoint == 'employer_listings' %}active{% endif %}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  My Job Listings
+                </a>
+              {% endif %}
+              {% if current_user.is_authenticated and current_user.role.value == 'resident' %}
+                <a href="/applications" class="{% if request.endpoint == 'applications' %}active{% endif %}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Application Tracker
+                </a>
+              {% elif current_user.is_authenticated and current_user.role.value == 'employer' %}
+                <a href="/employer/applications" class="{% if request.endpoint == 'employer_applications' %}active{% endif %}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Application Decisions
+                </a>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Information & Learning Group -->
+          <div class="nav-group">
+            <div class="group-label">Information & Learning</div>
+            <div class="group-tabs">
+              <a href="/knowledge-base" class="{% if request.endpoint == 'knowledge_base' %}active{% endif %}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Knowledge Base
+              </a>
+              <a href="/program-reviews" class="{% if request.endpoint == 'program_reviews' %}active{% endif %}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Program Reviews
+              </a>
+              <a href="/job-reviews" class="{% if request.endpoint == 'job_reviews' %}active{% endif %}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Job Reviews
+              </a>
+              <a href="/compensation" class="{% if request.endpoint == 'compensation' %}active{% endif %}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Compensation Data
+              </a>
+            </div>
+          </div>
+
+          <!-- Community & Communication Group -->
+          <div class="nav-group">
+            <div class="group-label">Community & Communication</div>
+            <div class="group-tabs">
+              <a href="/forum" class="{% if request.endpoint == 'forum' %}active{% endif %}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Forum
+              </a>
+              <a href="/messages" class="notification-badge {% if request.endpoint == 'inbox' or request.endpoint == 'thread' %}active{% endif %}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Messages
+                {% if current_user.is_authenticated %}
+                  {% set unread_count = get_unread_count(current_user.id) %}
+                  {% if unread_count > 0 %}
+                    <span class="badge">{{ unread_count }}</span>
+                  {% endif %}
+                {% endif %}
+              </a>
+            </div>
+          </div>
+
+          <!-- Profile & Account Group -->
+          <div class="nav-group">
+            <div class="group-label">Profile & Account</div>
+            <div class="group-tabs">
+              {% if current_user.is_authenticated and current_user.role.value == 'resident' %}
+                <a href="/profile" class="{% if request.endpoint == 'resident_profile' %}active{% endif %}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  My Profile
+                </a>
+              {% elif current_user.is_authenticated and current_user.role.value == 'employer' %}
+                <a href="/employer/profile" class="{% if request.endpoint == 'employer_profile' %}active{% endif %}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Practice Profile
+                </a>
+              {% endif %}
+              {% if current_user.is_authenticated %}
+                <a href="/auth/logout">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Logout
+                </a>
+              {% else %}
+                <a href="/auth/login">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="10,17 15,12 10,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="15" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Login
+                </a>
+                <a href="/auth/signup">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="20" y1="8" x2="20" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="23" y1="11" x2="17" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Sign up
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div style="margin-left: auto;">
+          <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+            <svg class="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+            <svg class="moon-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+          </button>
+        </div>
+      </nav>
+    </div>
+  </header>
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-6">
+          {% for category, message in messages %}
+            <div class="card" style="margin-bottom: 0.5rem; background: {% if category == 'error' %}rgba(239, 68, 68, 0.1){% elif category == 'success' %}rgba(16, 185, 129, 0.1){% else %}var(--accent-light){% endif %}; border-color: {% if category == 'error' %}var(--notification){% elif category == 'success' %}var(--success){% else %}var(--accent){% endif %};">
+              <p style="margin: 0; color: {% if category == 'error' %}var(--notification){% elif category == 'success' %}var(--success){% else %}var(--accent){% endif %}; font-weight: 500;">{{ message }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+
+  <script>
+    // Custom Cursor
+    const cursor = document.querySelector('.custom-cursor');
+    
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+
+    // Add hover effect to interactive elements
+    const interactiveElements = document.querySelectorAll('a, button, .btn, input, textarea, select');
+    interactiveElements.forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.classList.add('hover');
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.classList.remove('hover');
+      });
+    });
+
+    // Theme toggle functionality
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      
+      // Update icon visibility
+      const sunIcon = document.querySelector('.sun-icon');
+      const moonIcon = document.querySelector('.moon-icon');
+      
+      if (newTheme === 'light') {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+      } else {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+      }
+
+      // Add fade-in animation to content
+      const content = document.querySelector('.container');
+      content.style.animation = 'fadeIn 0.6s ease-out';
+    }
+
+    // Initialize theme from localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      const html = document.documentElement;
+      const sunIcon = document.querySelector('.sun-icon');
+      const moonIcon = document.querySelector('.moon-icon');
+      
+      html.setAttribute('data-theme', savedTheme);
+      
+      if (savedTheme === 'light') {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+      } else {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+      }
+    });
+  </script>
+  
+  <!-- Chat Widget Component -->
+  {% if current_user.is_authenticated %}
+    {% include 'components/chat_widget.html' %}
+    <script>
+      // Set current user ID for chat widget
+      window.currentUserId = {{ current_user.id }};
+    </script>
+  {% endif %}
+</body>
+</html>

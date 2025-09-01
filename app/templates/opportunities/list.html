@@ -1,0 +1,706 @@
+{% extends "base.html" %}
+{% block content %}
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Browse Opportunities</h1>
+    <p class="page-subtitle">Find radiology opportunities that match your preferences</p>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-card">
+    <div class="filters-header">
+      <h3>🔍 Filter Opportunities</h3>
+      <button type="button" class="filters-toggle" onclick="toggleFilters()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    
+    <form method="GET" class="filters-form" id="filters-form">
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label class="filter-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 7h16M7 12h10M10 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Type
+          </label>
+          {{ form.opportunity_type(class="filter-input") }}
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 4h18v16H3z" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M7 20c1.5-2 3.5-3 5-3s3.5 1 5 3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Zip Code
+          </label>
+          {{ form.zip_code(class="filter-input") }}
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Radius (miles)
+          </label>
+          {{ form.radius_miles(class="filter-input", placeholder="Enter any radius (e.g., 500, 1000)") }}
+          <small class="filter-hint">No limit - search nationwide or any distance</small>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Training Level Minimum
+          </label>
+          {{ form.pgy_year(class="filter-input") }}
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Min $/hr
+          </label>
+          {{ form.pay_min(class="filter-input") }}
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12,6 12,12 16,14"/>
+            </svg>
+            Min shift hours
+          </label>
+          {{ form.shift_min(class="filter-input") }}
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12,6 12,12 16,14"/>
+            </svg>
+            Max shift hours
+          </label>
+          {{ form.shift_max(class="filter-input") }}
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            Min hours/week
+          </label>
+          {{ form.hpw_min(class="filter-input") }}
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            Max hours/week
+          </label>
+          {{ form.hpw_max(class="filter-input") }}
+        </div>
+      </div>
+      
+      <div class="filters-actions">
+        <button class="btn primary" type="submit">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          Apply Filters
+        </button>
+        <a href="/opportunities" class="btn secondary">Clear All</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Opportunities Header -->
+  <div class="opportunities-header">
+    <div class="opportunities-title">
+      <h2>Available Opportunities</h2>
+      <span class="opportunities-count">{{ opportunities|length }} found</span>
+    </div>
+    <div class="opportunities-actions">
+      <a href="/calendar" class="btn secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        Global Calendar
+      </a>
+    </div>
+  </div>
+
+  <!-- Opportunities List -->
+  {% if opportunities %}
+    <div class="opportunities-grid">
+      {% for opp in opportunities %}
+        <div class="opportunity-card" {% if opp.is_filled or not opp.is_active %}data-status="inactive"{% endif %}>
+          <!-- Card Header -->
+          <div class="opportunity-header">
+            <div class="opportunity-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 7h8v4H8zM5 11h14v7H5z" fill="currentColor" opacity="0.3"/>
+                <rect x="7" y="6" width="10" height="5" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+            </div>
+            
+            <div class="opportunity-title">
+              <h3>{{ opp.title }}</h3>
+              <div class="opportunity-type">{{ opp.opportunity_type.value|replace('_',' ') }}</div>
+            </div>
+            
+            {% if opp.is_filled or not opp.is_active %}
+              <div class="opportunity-status">
+                {% if opp.is_filled %}Filled{% else %}Inactive{% endif %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <!-- Card Content -->
+          <div class="opportunity-content">
+            <div class="opportunity-details">
+              <div class="detail-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 4h18v16H3z" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2"/>
+                  <path d="M7 20c1.5-2 3.5-3 5-3s3.5 1 5 3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <span>{{ opp.zip_code }}
+                  {% if opp.distance is defined %}
+                    · {{ opp.distance }} miles away
+                  {% endif %}
+                </span>
+              </div>
+              
+              <div class="detail-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>${{ opp.pay_per_hour }}/hr</span>
+              </div>
+              
+              <div class="detail-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12,6 12,12 16,14"/>
+                </svg>
+                <span>{{ opp.shift_length_hours }}h shift · {{ opp.hours_per_week }} hrs/week</span>
+              </div>
+              
+              <div class="detail-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Min: {{ opp.pgy_max.value }}</span>
+              </div>
+            </div>
+            
+            {% if opp.description %}
+              <div class="opportunity-description">
+                <p>{{ opp.description }}</p>
+              </div>
+            {% endif %}
+          </div>
+          
+          <!-- Card Actions -->
+          <div class="opportunity-actions">
+            <a href="/opportunities/{{ opp.id }}" class="btn primary">View Details</a>
+            <a href="/opportunities/{{ opp.id }}/calendar" class="btn secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              Calendar
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+      <h3>No opportunities found</h3>
+      <p>Try adjusting your filters or check back later for new opportunities.</p>
+    </div>
+  {% endif %}
+
+<style>
+  /* Page Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+  }
+
+  /* Filters Card */
+  .filters-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .filters-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  .filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .filters-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .filters-toggle {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: none;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .filters-toggle:hover {
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .filter-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+
+  .filter-label svg {
+    color: var(--accent);
+  }
+
+  .filter-input {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+  }
+
+  .filter-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: var(--accent-glow);
+  }
+
+  .filter-hint {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+  }
+
+  .filters-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  /* Opportunities Header */
+  .opportunities-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .opportunities-title {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .opportunities-title h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .opportunities-count {
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .opportunities-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  /* Opportunities Grid */
+  .opportunities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 2rem;
+  }
+
+  /* Opportunity Card */
+  .opportunity-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .opportunity-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .opportunity-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .opportunity-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  .opportunity-card[data-status="inactive"] {
+    opacity: 0.6;
+  }
+
+  .opportunity-card[data-status="inactive"]::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+  }
+
+  .opportunity-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .opportunity-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--accent-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .opportunity-title {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  .opportunity-title h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+  }
+
+  .opportunity-type {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+
+  .opportunity-status {
+    background: var(--notification);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .opportunity-content {
+    margin-bottom: 1.5rem;
+  }
+
+  .opportunity-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  .detail-item svg {
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .opportunity-description {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .opportunity-description p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .opportunity-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    cursor: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .btn:hover::before {
+    left: 100%;
+  }
+
+  .btn.primary {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+    color: var(--text);
+    box-shadow: var(--accent-glow);
+  }
+
+  .btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .btn.secondary {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    color: var(--text);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+  }
+
+  .btn.secondary:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+  }
+
+  .empty-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--accent-light);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    color: var(--accent);
+  }
+
+  .empty-state h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .empty-state p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2.5rem;
+    }
+
+    .filters-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .opportunities-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .opportunities-header {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .opportunity-actions {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  function toggleFilters() {
+    const form = document.getElementById('filters-form');
+    const toggle = document.querySelector('.filters-toggle svg');
+    
+    if (form.style.display === 'none') {
+      form.style.display = 'block';
+      toggle.style.transform = 'rotate(0deg)';
+    } else {
+      form.style.display = 'none';
+      toggle.style.transform = 'rotate(180deg)';
+    }
+  }
+</script>
+{% endblock %}

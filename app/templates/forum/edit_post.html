@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="job-card" style="padding:24px;">
+    <h2 style="margin-top:0;">Edit Post</h2>
+    <p class="muted">Update your forum post</p>
+  </div>
+
+  <div class="job-card" style="padding:24px; margin-top:20px;">
+    <form method="POST">
+      <div style="display:grid; gap:20px;">
+        <div>
+          <label style="display:block; margin-bottom:8px; font-weight:500;">Title *</label>
+          <input type="text" name="title" class="input" value="{{ post.title }}" required>
+        </div>
+        
+        <div>
+          <label style="display:block; margin-bottom:8px; font-weight:500;">Category *</label>
+          <select name="category" class="input" required>
+            {% for category in categories %}
+              <option value="{{ category.value }}" {% if category.value == post.category.value %}selected{% endif %}>
+                {{ category.value.replace('_', ' ').title() }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div>
+          <label style="display:block; margin-bottom:8px; font-weight:500;">Content *</label>
+          <textarea name="content" class="input" rows="10" required>{{ post.content }}</textarea>
+        </div>
+        
+        <div style="display:flex; gap:12px;">
+          <button type="submit" class="btn">Update Post</button>
+          <a href="/forum/post/{{ post.id }}" class="btn" style="background:rgba(17,24,39,0.6);">Cancel</a>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}

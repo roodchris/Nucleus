@@ -1,0 +1,654 @@
+{% extends "base.html" %}
+{% block content %}
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">🏥 Program Reviews</h1>
+    <p class="page-subtitle">Reviews and ratings for radiology residency programs across the United States. Spill the tea. You won't.</p>
+  </div>
+
+  <!-- Submit Review Button -->
+  <div class="submit-section">
+    <a href="/program-reviews/new" class="submit-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Write a Review
+    </a>
+  </div>
+
+  <!-- Program Selection -->
+  <div class="filters-card">
+    <div class="filters-header">
+      <h3>🔍 Select a Program</h3>
+    </div>
+    <form method="GET" action="/program-reviews" class="filters-form">
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label class="filter-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Program
+          </label>
+          <select name="program" id="program" class="filter-input" required>
+            <option value="">Choose a program...</option>
+            {% for program in all_programs %}
+            <option value="{{ program }}">{{ program }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button type="submit" class="btn primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            View Program
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Programs with Reviews -->
+  <div class="data-section">
+    <div class="data-header">
+      <h2 class="data-title">Programs with Reviews</h2>
+      <p class="data-subtitle">{{ programs|length }} program{{ 's' if programs|length != 1 else '' }} reviewed</p>
+    </div>
+
+    {% if programs %}
+    <div class="programs-grid">
+      {% for program in programs %}
+      <div class="program-card">
+        <div class="program-header">
+          <div class="program-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="program-title">
+            <h3 class="program-name">
+              <a href="/program-reviews?program={{ program.name|urlencode }}" class="program-link">{{ program.name }}</a>
+            </h3>
+            <p class="program-reviews">{{ program.review_count }} review{{ 's' if program.review_count != 1 else '' }}</p>
+          </div>
+        </div>
+        
+        <div class="program-ratings">
+          <div class="rating-row">
+            <span class="rating-label">Educational Quality</span>
+            <span class="rating-value">
+              {% if program.avg_educational %}
+                <span class="rating-badge rating-{{ program.avg_educational|round|int }}">{{ "%.1f"|format(program.avg_educational) }}/5</span>
+              {% else %}
+                <span class="rating-na">N/A</span>
+              {% endif %}
+            </span>
+          </div>
+          <div class="rating-row">
+            <span class="rating-label">Work-Life Balance</span>
+            <span class="rating-value">
+              {% if program.avg_work_life %}
+                <span class="rating-badge rating-{{ program.avg_work_life|round|int }}">{{ "%.1f"|format(program.avg_work_life) }}/5</span>
+              {% else %}
+                <span class="rating-na">N/A</span>
+              {% endif %}
+            </span>
+          </div>
+          <div class="rating-row">
+            <span class="rating-label">Attending Quality</span>
+            <span class="rating-value">
+              {% if program.avg_attending %}
+                <span class="rating-badge rating-{{ program.avg_attending|round|int }}">{{ "%.1f"|format(program.avg_attending) }}/5</span>
+              {% else %}
+                <span class="rating-na">N/A</span>
+              {% endif %}
+            </span>
+          </div>
+          <div class="rating-row">
+            <span class="rating-label">Facilities</span>
+            <span class="rating-value">
+              {% if program.avg_facilities %}
+                <span class="rating-badge rating-{{ program.avg_facilities|round|int }}">{{ "%.1f"|format(program.avg_facilities) }}/5</span>
+              {% else %}
+                <span class="rating-na">N/A</span>
+              {% endif %}
+            </span>
+          </div>
+          <div class="rating-row">
+            <span class="rating-label">Research</span>
+            <span class="rating-value">
+              {% if program.avg_research %}
+                <span class="rating-badge rating-{{ program.avg_research|round|int }}">{{ "%.1f"|format(program.avg_research) }}/5</span>
+              {% else %}
+                <span class="rating-na">N/A</span>
+              {% endif %}
+            </span>
+          </div>
+          <div class="rating-row">
+            <span class="rating-label">Culture</span>
+            <span class="rating-value">
+              {% if program.avg_culture %}
+                <span class="rating-badge rating-{{ program.avg_culture|round|int }}">{{ "%.1f"|format(program.avg_culture) }}/5</span>
+              {% else %}
+                <span class="rating-na">N/A</span>
+              {% endif %}
+            </span>
+          </div>
+        </div>
+        
+        <div class="program-overall">
+          <div class="overall-rating">
+            <span class="overall-label">Overall Rating</span>
+            <span class="overall-value">
+              {% if program.overall_avg %}
+                <span class="rating-badge rating-{{ program.overall_avg|round|int }} overall">{{ "%.1f"|format(program.overall_avg) }}/5</span>
+              {% else %}
+                <span class="rating-na">N/A</span>
+              {% endif %}
+            </span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3>No Reviews Yet</h3>
+      <p>Be the first to review a radiology residency program!</p>
+      <div class="empty-actions">
+        <a href="/program-reviews/new" class="btn primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Write a Review
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Rating Guide -->
+  <div class="info-card">
+    <div class="info-header">
+      <h3>Rating Guide</h3>
+    </div>
+    <div class="info-content">
+      <div class="guide-grid">
+        <div class="guide-section">
+          <h4>Rating Scale (1-5)</h4>
+          <ul class="guide-list">
+            <li><strong>1:</strong> Poor - Significant issues</li>
+            <li><strong>2:</strong> Below Average - Some concerns</li>
+            <li><strong>3:</strong> Average - Meets basic expectations</li>
+            <li><strong>4:</strong> Above Average - Exceeds expectations</li>
+            <li><strong>5:</strong> Excellent - Outstanding quality</li>
+          </ul>
+        </div>
+        <div class="guide-section">
+          <h4>Rating Categories</h4>
+          <ul class="guide-list">
+            <li><strong>Educational Quality:</strong> Teaching, learning opportunities, curriculum</li>
+            <li><strong>Work-Life Balance:</strong> Hours, call schedule, personal time</li>
+            <li><strong>Attending Quality:</strong> Faculty expertise, teaching ability, mentorship</li>
+            <li><strong>Facilities Quality:</strong> Equipment, workspace, resources</li>
+            <li><strong>Research Opportunities:</strong> Research support, projects, publications</li>
+            <li><strong>Culture:</strong> Program atmosphere, resident camaraderie, support</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<style>
+  /* Page Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+  }
+
+  /* Submit Section */
+  .submit-section {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+  }
+
+  .submit-btn:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Filters Card */
+  .filters-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .filters-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  .filters-header {
+    margin-bottom: 2rem;
+  }
+
+  .filters-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1.5rem;
+    align-items: end;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .filter-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+
+  .filter-input {
+    padding: 0.75rem 1rem;
+    background: var(--glass-light);
+    border: 1px solid var(--glass-border-light);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+  }
+
+  .filter-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn.primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn.primary:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+  }
+
+  /* Data Section */
+  .data-section {
+    margin-bottom: 3rem;
+  }
+
+  .data-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .data-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .data-subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+  }
+
+  /* Programs Grid */
+  .programs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+  }
+
+  .program-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .program-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
+    border-radius: 20px 20px 0 0;
+  }
+
+  .program-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  .program-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .program-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--accent-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .program-title {
+    flex: 1;
+  }
+
+  .program-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .program-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .program-link:hover {
+    color: var(--accent);
+  }
+
+  .program-reviews {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .program-ratings {
+    margin-bottom: 2rem;
+  }
+
+  .rating-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--glass-border-light);
+  }
+
+  .rating-row:last-child {
+    border-bottom: none;
+  }
+
+  .rating-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  .rating-value {
+    display: flex;
+    align-items: center;
+  }
+
+  .rating-na {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  .rating-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: white;
+  }
+
+  /* Rating colors: 1=red, 2=orange, 3=yellow, 4=green, 5=blue */
+  .rating-1 { background-color: #ef4444; }
+  .rating-2 { background-color: #f97316; }
+  .rating-3 { background-color: #eab308; }
+  .rating-4 { background-color: #22c55e; }
+  .rating-5 { background-color: #3b82f6; }
+
+  .program-overall {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--glass-border-light);
+  }
+
+  .overall-rating {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .overall-label {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 1rem;
+  }
+
+  .overall-value {
+    display: flex;
+    align-items: center;
+  }
+
+  .rating-badge.overall {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Info Card */
+  .info-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+  }
+
+  .info-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .info-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .info-content {
+    color: var(--text-secondary);
+  }
+
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .guide-section h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .guide-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .guide-list li {
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+  }
+
+  .empty-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--accent-light);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    color: var(--accent);
+  }
+
+  .empty-state h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .empty-state p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .empty-actions {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2.5rem;
+    }
+
+    .filters-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .filter-actions {
+      justify-content: center;
+    }
+
+    .programs-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .program-header {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .guide-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}

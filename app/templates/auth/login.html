@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-container">
+  <h1>Log in</h1>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div>{{ form.email.label }} {{ form.email(class="input") }}{% for e in form.email.errors %}<div class="muted" style="color:#fca5a5; font-size:12px; margin-top:6px;">{{ e }}</div>{% endfor %}</div>
+    <div>{{ form.password.label }} {{ form.password(class="input") }}{% for e in form.password.errors %}<div class="muted" style="color:#fca5a5; font-size:12px; margin-top:6px;">{{ e }}</div>{% endfor %}</div>
+    <div>{{ form.remember() }} {{ form.remember.label }}</div>
+    <button type="submit" class="btn">Log in</button>
+  </form>
+  <p>New here? <a href="/auth/signup">Create an account</a></p>
+</div>
+{% endblock %}

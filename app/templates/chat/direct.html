@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <div class="text-center mb-12">
+    <h1 class="text-4xl font-bold text-gray-900 mb-4">Direct Messages</h1>
+    <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+      Start a conversation with any user on the platform. Search by name or email to find who you want to message.
+    </p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-lg p-8">
+    <!-- Search Section -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">Find Users to Message</h2>
+      <div class="flex gap-4">
+        <input type="text" id="userSearch" placeholder="Search by name or email..." 
+               class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <button onclick="searchUsers()" 
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md transition-colors duration-200">
+          Search
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Results -->
+    <div id="searchResults" class="space-y-4 mb-8" style="display: none;">
+      <h3 class="text-lg font-semibold text-gray-900">Search Results</h3>
+      <div id="userList" class="space-y-3"></div>
+    </div>
+
+    <!-- Recent Conversations -->
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">Recent Conversations</h2>
+      {% if convos %}
+      <div class="grid gap-3">
+        {% for convo in convos %}
+        <div class="job-card">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px; min-width:60px;">
+              {% if convo.other_user_profile and convo.other_user_profile.photo_filename %}
+                <img src="/uploads/{{ convo.other_user_profile.photo_filename }}" alt="{{ convo.other_user.name }}" style="width:48px; height:48px; border-radius:50%; object-fit:cover;">
+              {% else %}
+                <div style="width:48px; height:48px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; color:white; font-size:18px; font-weight:600;">
+                  {{ convo.other_user.name[0].upper() }}
+                </div>
+              {% endif %}
+            </div>
+            <div style="flex-grow:1;">
+              <div style="font-weight:500; font-size:16px;">
+                Chat with 
+                {% if convo.other_user.role.value == 'resident' %}
+                  <a href="/profile/{{ convo.other_user.id }}" style="color:var(--accent); text-decoration:none;">{{ convo.other_user.name }}</a>
+                {% else %}
+                  {{ convo.other_user.name }}
+                {% endif %}
+              </div>
+              {% if convo.opportunity %}
+                <div class="muted" style="font-size:14px; margin-top:4px;">{{ convo.opportunity.title }}</div>
+              {% else %}
+                <div class="muted" style="font-size:14px; margin-top:4px;">Direct Message</div>
+              {% endif %}
+            </div>
+            <div>
+              <a class="btn" href="/messages/{{ convo.id }}">Open</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-8">
+        <p class="text-gray-600">No conversations yet. Start by searching for users above!</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Back to Messages -->
+  <div class="text-center mt-8">
+    <a href="{{ url_for('chat.inbox') }}" class="text-blue-600 hover:text-blue-800 font-medium hover:underline">
+      ← Back to Messages
+    </a>
+  </div>
+</div>
+
+<script>
+function searchUsers() {
+  const query = document.getElementById('userSearch').value.trim();
+  if (!query) {
+    alert('Please enter a search term');
+    return;
+  }
+
+  fetch(`/messages/search-users?q=${encodeURIComponent(query)}`)
+    .then(response => response.json())
+    .then(data => {
+      displayUsers(data.users);
+    })
+    .catch(error => {
+      console.error('Error searching users:', error);
+      alert('Error searching users. Please try again.');
+    });
+}
+
+function displayUsers(users) {
+  const userList = document.getElementById('userList');
+  const searchResults = document.getElementById('searchResults');
+  
+  if (users.length === 0) {
+    userList.innerHTML = '<p class="text-gray-600">No users found matching your search.</p>';
+  } else {
+    userList.innerHTML = users.map(user => `
+      <div class="job-card">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="display:flex; align-items:center; gap:12px; min-width:60px;">
+            <div style="width:48px; height:48px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; color:white; font-size:18px; font-weight:600;">
+              ${user.name[0].toUpperCase()}
+            </div>
+          </div>
+          <div style="flex-grow:1;">
+            <div style="font-weight:500; font-size:16px;">${user.name}</div>
+            <div class="muted" style="font-size:14px; margin-top:4px;">${user.role} • ${user.organization || 'No organization'}</div>
+          </div>
+          <div>
+            <form method="POST" action="/messages/start-direct" class="inline">
+              <input type="hidden" name="user_id" value="${user.id}">
+              <button type="submit" class="btn" style="background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">
+                Message
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  searchResults.style.display = 'block';
+}
+
+// Allow search on Enter key
+document.getElementById('userSearch').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    searchUsers();
+  }
+});
+</script>
+
+<style>
+.container {
+  max-width: 1200px;
+}
+</style>
+{% endblock %}
