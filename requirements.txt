@@ -7,5 +7,5 @@ email-validator==2.1.0
 Werkzeug==2.3.7
 geopy==2.4.0
 uszipcode==1.0.1
-pyzipcode==0.2.1
+pyzipcode==2.0.2
 gunicorn==21.2.0
