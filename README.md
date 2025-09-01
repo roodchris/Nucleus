@@ -47,7 +47,7 @@ A comprehensive platform connecting radiology residents and employers for job op
    - Click "New" → "Web Service"
    - Connect your GitHub repository
    - Set build command: `pip install -r requirements.txt`
-   - Set start command: `gunicorn app:app`
+   - Set start command: `gunicorn main:app`
    - Add environment variables as above
 
 ### Heroku
@@ -96,7 +96,7 @@ A comprehensive platform connecting radiology residents and employers for job op
 
 4. **Run the application**:
    ```bash
-   python app.py
+   python main.py
    ```
 
 5. **Visit**: `http://localhost:5000`
