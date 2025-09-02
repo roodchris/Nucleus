@@ -523,13 +523,19 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // Simple form validation - just check if form is empty
+  console.log('Setting up form validation...');
   const form = document.querySelector('.opportunity-form');
+  console.log('Form found:', form);
+  
   if (form) {
+    console.log('Adding submit event listener...');
     form.addEventListener('submit', function(e) {
+      console.log('Form submit event triggered!');
       e.preventDefault();
       
       // Get all form inputs
       const inputs = form.querySelectorAll('input, select, textarea');
+      console.log('Found inputs:', inputs.length);
       let emptyFields = [];
       
       // Check each input
@@ -551,8 +557,11 @@ document.addEventListener('DOMContentLoaded', function() {
           }
           
           emptyFields.push(fieldName);
+          console.log('Empty field found:', fieldName, input);
         }
       });
+      
+      console.log('Empty fields:', emptyFields);
       
       // Show error if any fields are empty
       if (emptyFields.length > 0) {
@@ -561,8 +570,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       // If no empty fields, submit the form
+      console.log('No empty fields, submitting form...');
       form.submit();
     });
+  } else {
+    console.error('Form not found!');
   }
 });
 </script>
