@@ -58,15 +58,7 @@
           {{ form.pay_per_hour(class="form-input") }}
         </div>
         
-        <div class="form-group">
-          <label class="form-label">{{ form.shift_length_hours.label }}</label>
-          {{ form.shift_length_hours(class="form-input") }}
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">{{ form.hours_per_week.label }}</label>
-          {{ form.hours_per_week(class="form-input") }}
-        </div>
+
         
         <div class="form-group full-width">
           <label class="form-label">{{ form.description.label }}</label>
@@ -116,15 +108,15 @@
           <div class="slot-inputs">
             <div class="input-group">
               <label class="input-label">Date</label>
-              <input type="date" name="slot_date_0" class="form-input" value="" min="{{ today }}" autocomplete="off" />
+              <input type="date" name="slot_date_0" class="form-input" placeholder="" autocomplete="off" data-empty="true" />
             </div>
             <div class="input-group">
               <label class="input-label">Start Time</label>
-              <input type="time" name="slot_start_0" class="form-input" value="" autocomplete="off" />
+              <input type="time" name="slot_start_0" class="form-input" placeholder="" autocomplete="off" data-empty="true" />
             </div>
             <div class="input-group">
               <label class="input-label">End Time</label>
-              <input type="time" name="slot_end_0" class="form-input" value="" autocomplete="off" />
+              <input type="time" name="slot_end_0" class="form-input" placeholder="" autocomplete="off" data-empty="true" />
             </div>
           </div>
         </div>
@@ -472,21 +464,27 @@ function addSlot() {
     <div class="slot-inputs">
       <div class="input-group">
         <label class="input-label">Date</label>
-        <input type="date" name="slot_date_${slotCount}" class="form-input" value="" min="{{ today }}" autocomplete="off" />
+        <input type="date" name="slot_date_${slotCount}" class="form-input" placeholder="" autocomplete="off" data-empty="true" />
       </div>
       <div class="input-group">
         <label class="input-label">Start Time</label>
-        <input type="time" name="slot_start_${slotCount}" class="form-input" value="" autocomplete="off" />
+        <input type="time" name="slot_start_${slotCount}" class="form-input" placeholder="" autocomplete="off" data-empty="true" />
       </div>
       <div class="input-group">
         <label class="input-label">End Time</label>
-        <input type="time" name="slot_end_${slotCount}" class="form-input" value="" autocomplete="off" />
+        <input type="time" name="slot_end_${slotCount}" class="form-input" placeholder="" autocomplete="off" data-empty="true" />
       </div>
     </div>
   `;
   
   container.appendChild(newSlot);
   slotCount++;
+  
+  // Clear the newly added inputs
+  const newInputs = newSlot.querySelectorAll('input[type="date"], input[type="time"]');
+  newInputs.forEach(input => {
+    input.value = '';
+  });
 }
 
 function removeSlot(button) {
@@ -495,10 +493,20 @@ function removeSlot(button) {
 
 // Clear all time slot inputs on page load to ensure they're empty
 document.addEventListener('DOMContentLoaded', function() {
+  clearTimeSlotInputs();
+  
+  // Also clear inputs periodically to prevent browser auto-fill
+  setInterval(clearTimeSlotInputs, 1000);
+});
+
+function clearTimeSlotInputs() {
   const timeSlotInputs = document.querySelectorAll('input[name^="slot_date_"], input[name^="slot_start_"], input[name^="slot_end_"]');
   timeSlotInputs.forEach(input => {
-    input.value = '';
+    if (input.getAttribute('data-empty') === 'true' && !input.value) {
+      // Only clear if it's marked as empty and currently has no value
+      input.value = '';
+    }
   });
-});
+}
 </script>
 {% endblock %}
