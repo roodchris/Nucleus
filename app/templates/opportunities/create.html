@@ -526,10 +526,50 @@ document.addEventListener('DOMContentLoaded', function() {
   const form = document.querySelector('.opportunity-form');
   if (form) {
     form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      let errors = [];
+      
+      // Check required form fields
+      const title = document.querySelector('input[name="title"]');
+      if (!title || !title.value.trim()) {
+        errors.push('Job title is required');
+      }
+      
+      const opportunityType = document.querySelector('select[name="opportunity_type"]');
+      if (!opportunityType || !opportunityType.value) {
+        errors.push('Opportunity type is required');
+      }
+      
+      const zipCode = document.querySelector('input[name="zip_code"]');
+      if (!zipCode || !zipCode.value.trim()) {
+        errors.push('Zip code is required');
+      }
+      
+      const pgyMin = document.querySelector('input[name="pgy_min"]');
+      if (!pgyMin || !pgyMin.value.trim()) {
+        errors.push('Minimum training level is required');
+      }
+      
+      const pgyMax = document.querySelector('input[name="pgy_max"]');
+      if (!pgyMax || !pgyMax.value.trim()) {
+        errors.push('Maximum training level is required');
+      }
+      
+      const payPerHour = document.querySelector('input[name="pay_per_hour"]');
+      if (!payPerHour || !payPerHour.value.trim()) {
+        errors.push('Pay per hour is required');
+      }
+      
+      const description = document.querySelector('textarea[name="description"]');
+      if (!description || !description.value.trim()) {
+        errors.push('Job description is required');
+      }
+      
+      // Check time slots
       const timeSlotInputs = document.querySelectorAll('input[name^="slot_date_"], input[name^="slot_start_"], input[name^="slot_end_"]');
       let hasValidTimeSlot = false;
       
-      // Check if at least one complete time slot is filled
       for (let i = 0; i < timeSlotInputs.length; i += 3) {
         const dateInput = timeSlotInputs[i];
         const startInput = timeSlotInputs[i + 1];
@@ -543,9 +583,16 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       if (!hasValidTimeSlot) {
-        e.preventDefault();
-        alert('Please fill in at least one complete time slot (date, start time, and end time).');
+        errors.push('At least one complete time slot (date, start time, and end time) is required');
+      }
+      
+      // Show errors or submit form
+      if (errors.length > 0) {
+        alert('Please fix the following errors:\n\n' + errors.join('\n'));
         return false;
+      } else {
+        // If no errors, submit the form
+        form.submit();
       }
     });
   }
