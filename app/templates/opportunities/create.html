@@ -107,16 +107,16 @@
           
           <div class="slot-inputs">
             <div class="input-group">
-              <label class="input-label">Date (YYYY-MM-DD)</label>
-              <input type="text" name="slot_date_0" class="form-input" placeholder="e.g., 2024-12-25" autocomplete="off" required pattern="\d{4}-\d{2}-\d{2}" />
+              <label class="input-label">Date</label>
+              <input type="date" name="slot_date_0" class="form-input" autocomplete="off" required />
             </div>
             <div class="input-group">
-              <label class="input-label">Start Time (HH:MM)</label>
-              <input type="text" name="slot_start_0" class="form-input" placeholder="e.g., 08:00" autocomplete="off" required pattern="\d{2}:\d{2}" />
+              <label class="input-label">Start Time</label>
+              <input type="time" name="slot_start_0" class="form-input" autocomplete="off" required />
             </div>
             <div class="input-group">
-              <label class="input-label">End Time (HH:MM)</label>
-              <input type="text" name="slot_end_0" class="form-input" placeholder="e.g., 17:00" autocomplete="off" required pattern="\d{2}:\d{2}" />
+              <label class="input-label">End Time</label>
+              <input type="time" name="slot_end_0" class="form-input" autocomplete="off" required />
             </div>
           </div>
         </div>
@@ -463,30 +463,66 @@ function addSlot() {
     
     <div class="slot-inputs">
       <div class="input-group">
-        <label class="input-label">Date (YYYY-MM-DD)</label>
-        <input type="text" name="slot_date_${slotCount}" class="form-input" placeholder="e.g., 2024-12-25" autocomplete="off" required pattern="\d{4}-\d{2}-\d{2}" />
+        <label class="input-label">Date</label>
+        <input type="date" name="slot_date_${slotCount}" class="form-input" autocomplete="off" required />
       </div>
       <div class="input-group">
-        <label class="input-label">Start Time (HH:MM)</label>
-        <input type="text" name="slot_start_${slotCount}" class="form-input" placeholder="e.g., 08:00" autocomplete="off" required pattern="\d{2}:\d{2}" />
+        <label class="input-label">Start Time</label>
+        <input type="time" name="slot_start_${slotCount}" class="form-input" autocomplete="off" required />
       </div>
       <div class="input-group">
-        <label class="input-label">End Time (HH:MM)</label>
-        <input type="text" name="slot_end_${slotCount}" class="form-input" placeholder="e.g., 17:00" autocomplete="off" required pattern="\d{2}:\d{2}" />
+        <label class="input-label">End Time</label>
+        <input type="time" name="slot_end_${slotCount}" class="form-input" autocomplete="off" required />
       </div>
     </div>
   `;
   
   container.appendChild(newSlot);
   slotCount++;
+  
+  // Clear the newly added inputs to prevent auto-population
+  const newInputs = newSlot.querySelectorAll('input[type="date"], input[type="time"]');
+  newInputs.forEach(input => {
+    input.value = '';
+  });
 }
 
 function removeSlot(button) {
   button.closest('.slot-card').remove();
 }
 
+// Prevent auto-population of date/time inputs
+function clearTimeSlotInputs() {
+  const timeSlotInputs = document.querySelectorAll('input[type="date"], input[type="time"]');
+  timeSlotInputs.forEach(input => {
+    // Only clear if the input doesn't have a user-entered value
+    if (!input.dataset.userModified) {
+      input.value = '';
+    }
+  });
+}
+
+// Mark inputs as user-modified when they're changed
+function markAsUserModified(input) {
+  input.dataset.userModified = 'true';
+}
+
 // Form validation for time slots
 document.addEventListener('DOMContentLoaded', function() {
+  // Clear inputs immediately on page load
+  clearTimeSlotInputs();
+  
+  // Clear inputs periodically to prevent auto-population
+  setInterval(clearTimeSlotInputs, 500);
+  
+  // Add event listeners to mark inputs as user-modified
+  document.addEventListener('input', function(e) {
+    if (e.target.type === 'date' || e.target.type === 'time') {
+      markAsUserModified(e.target);
+    }
+  });
+  
+  // Form validation
   const form = document.querySelector('.opportunity-form');
   if (form) {
     form.addEventListener('submit', function(e) {
