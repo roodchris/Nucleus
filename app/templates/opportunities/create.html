@@ -116,15 +116,15 @@
           <div class="slot-inputs">
             <div class="input-group">
               <label class="input-label">Date</label>
-              <input type="date" name="slot_date_0" class="form-input" value="" min="{{ today }}" />
+              <input type="date" name="slot_date_0" class="form-input" value="" min="{{ today }}" autocomplete="off" />
             </div>
             <div class="input-group">
               <label class="input-label">Start Time</label>
-              <input type="time" name="slot_start_0" class="form-input" value="" />
+              <input type="time" name="slot_start_0" class="form-input" value="" autocomplete="off" />
             </div>
             <div class="input-group">
               <label class="input-label">End Time</label>
-              <input type="time" name="slot_end_0" class="form-input" value="" />
+              <input type="time" name="slot_end_0" class="form-input" value="" autocomplete="off" />
             </div>
           </div>
         </div>
@@ -148,7 +148,7 @@
         Publish Opportunity
       </button>
     </div>
-  </form>
+</form>
 </div>
 
 <style>
@@ -472,15 +472,15 @@ function addSlot() {
     <div class="slot-inputs">
       <div class="input-group">
         <label class="input-label">Date</label>
-        <input type="date" name="slot_date_${slotCount}" class="form-input" value="" min="{{ today }}" />
+        <input type="date" name="slot_date_${slotCount}" class="form-input" value="" min="{{ today }}" autocomplete="off" />
       </div>
       <div class="input-group">
         <label class="input-label">Start Time</label>
-        <input type="time" name="slot_start_${slotCount}" class="form-input" value="" />
+        <input type="time" name="slot_start_${slotCount}" class="form-input" value="" autocomplete="off" />
       </div>
       <div class="input-group">
         <label class="input-label">End Time</label>
-        <input type="time" name="slot_end_${slotCount}" class="form-input" value="" />
+        <input type="time" name="slot_end_${slotCount}" class="form-input" value="" autocomplete="off" />
       </div>
     </div>
   `;
@@ -492,5 +492,13 @@ function addSlot() {
 function removeSlot(button) {
   button.closest('.slot-card').remove();
 }
+
+// Clear all time slot inputs on page load to ensure they're empty
+document.addEventListener('DOMContentLoaded', function() {
+  const timeSlotInputs = document.querySelectorAll('input[name^="slot_date_"], input[name^="slot_start_"], input[name^="slot_end_"]');
+  timeSlotInputs.forEach(input => {
+    input.value = '';
+  });
+});
 </script>
 {% endblock %}
