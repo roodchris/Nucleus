@@ -79,7 +79,7 @@
         </div>
         <div class="card-title">
           <h3>Available Time Slots</h3>
-          <p>Specify when you need coverage (optional). You can add more slots after creating the opportunity.</p>
+          <p>Specify when you need coverage. You can add more slots after creating the opportunity.</p>
         </div>
       </div>
       
@@ -107,16 +107,16 @@
           
           <div class="slot-inputs">
             <div class="input-group">
-              <label class="input-label">Date</label>
-              <input type="date" name="slot_date_0" class="form-input" placeholder="" autocomplete="off" data-empty="true" />
+              <label class="input-label">Date (YYYY-MM-DD)</label>
+              <input type="text" name="slot_date_0" class="form-input" placeholder="e.g., 2024-12-25" autocomplete="off" required pattern="\d{4}-\d{2}-\d{2}" />
             </div>
             <div class="input-group">
-              <label class="input-label">Start Time</label>
-              <input type="time" name="slot_start_0" class="form-input" placeholder="" autocomplete="off" data-empty="true" />
+              <label class="input-label">Start Time (HH:MM)</label>
+              <input type="text" name="slot_start_0" class="form-input" placeholder="e.g., 08:00" autocomplete="off" required pattern="\d{2}:\d{2}" />
             </div>
             <div class="input-group">
-              <label class="input-label">End Time</label>
-              <input type="time" name="slot_end_0" class="form-input" placeholder="" autocomplete="off" data-empty="true" />
+              <label class="input-label">End Time (HH:MM)</label>
+              <input type="text" name="slot_end_0" class="form-input" placeholder="e.g., 17:00" autocomplete="off" required pattern="\d{2}:\d{2}" />
             </div>
           </div>
         </div>
@@ -463,50 +463,56 @@ function addSlot() {
     
     <div class="slot-inputs">
       <div class="input-group">
-        <label class="input-label">Date</label>
-        <input type="date" name="slot_date_${slotCount}" class="form-input" placeholder="" autocomplete="off" data-empty="true" />
+        <label class="input-label">Date (YYYY-MM-DD)</label>
+        <input type="text" name="slot_date_${slotCount}" class="form-input" placeholder="e.g., 2024-12-25" autocomplete="off" required pattern="\d{4}-\d{2}-\d{2}" />
       </div>
       <div class="input-group">
-        <label class="input-label">Start Time</label>
-        <input type="time" name="slot_start_${slotCount}" class="form-input" placeholder="" autocomplete="off" data-empty="true" />
+        <label class="input-label">Start Time (HH:MM)</label>
+        <input type="text" name="slot_start_${slotCount}" class="form-input" placeholder="e.g., 08:00" autocomplete="off" required pattern="\d{2}:\d{2}" />
       </div>
       <div class="input-group">
-        <label class="input-label">End Time</label>
-        <input type="time" name="slot_end_${slotCount}" class="form-input" placeholder="" autocomplete="off" data-empty="true" />
+        <label class="input-label">End Time (HH:MM)</label>
+        <input type="text" name="slot_end_${slotCount}" class="form-input" placeholder="e.g., 17:00" autocomplete="off" required pattern="\d{2}:\d{2}" />
       </div>
     </div>
   `;
   
   container.appendChild(newSlot);
   slotCount++;
-  
-  // Clear the newly added inputs
-  const newInputs = newSlot.querySelectorAll('input[type="date"], input[type="time"]');
-  newInputs.forEach(input => {
-    input.value = '';
-  });
 }
 
 function removeSlot(button) {
   button.closest('.slot-card').remove();
 }
 
-// Clear all time slot inputs on page load to ensure they're empty
+// Form validation for time slots
 document.addEventListener('DOMContentLoaded', function() {
-  clearTimeSlotInputs();
-  
-  // Also clear inputs periodically to prevent browser auto-fill
-  setInterval(clearTimeSlotInputs, 1000);
+  const form = document.querySelector('.opportunity-form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      const timeSlotInputs = document.querySelectorAll('input[name^="slot_date_"], input[name^="slot_start_"], input[name^="slot_end_"]');
+      let hasValidTimeSlot = false;
+      
+      // Check if at least one complete time slot is filled
+      for (let i = 0; i < timeSlotInputs.length; i += 3) {
+        const dateInput = timeSlotInputs[i];
+        const startInput = timeSlotInputs[i + 1];
+        const endInput = timeSlotInputs[i + 2];
+        
+        if (dateInput && startInput && endInput && 
+            dateInput.value.trim() && startInput.value.trim() && endInput.value.trim()) {
+          hasValidTimeSlot = true;
+          break;
+        }
+      }
+      
+      if (!hasValidTimeSlot) {
+        e.preventDefault();
+        alert('Please fill in at least one complete time slot (date, start time, and end time).');
+        return false;
+      }
+    });
+  }
 });
-
-function clearTimeSlotInputs() {
-  const timeSlotInputs = document.querySelectorAll('input[name^="slot_date_"], input[name^="slot_start_"], input[name^="slot_end_"]');
-  timeSlotInputs.forEach(input => {
-    if (input.getAttribute('data-empty') === 'true' && !input.value) {
-      // Only clear if it's marked as empty and currently has no value
-      input.value = '';
-    }
-  });
-}
 </script>
 {% endblock %}
