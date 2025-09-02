@@ -272,13 +272,22 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes slideIn {
       from { transform: translateX(-100%); }
       to { transform: translateX(0); }
+    }
+
+    /* Page Title Animations */
+    .page-title-animated {
+      animation: fadeIn 1s ease-out 0.5s both;
+    }
+
+    .page-subtitle-animated {
+      animation: fadeIn 1s ease-out 0.8s both;
     }
 
     /* Navigation Groups - Beautiful Glass Morphism Tiles */
