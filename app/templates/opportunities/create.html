@@ -6,9 +6,51 @@
     <p class="page-subtitle page-subtitle-animated">Create a new job opportunity for radiologists</p>
   </div>
 
+  <style>
+    .error-display {
+      background: linear-gradient(135deg, #ff4444, #cc0000);
+      border: 2px solid #ff6666;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(255, 68, 68, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    
+    .error-content h3 {
+      color: white;
+      margin: 0 0 15px 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .error-content ul {
+      margin: 0;
+      padding-left: 20px;
+      color: white;
+    }
+    
+    .error-content li {
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+    
+    .error-content li:last-child {
+      margin-bottom: 0;
+    }
+  </style>
+
 <div class="data-section">
-  <form method="POST" class="opportunity-form">
+  <form method="POST" class="opportunity-form" novalidate>
     {{ form.hidden_tag() }}
+    
+    <!-- Error Display Area -->
+    <div id="form-errors" class="error-display" style="display: none;">
+      <div class="error-content">
+        <h3>⚠️ Please fill in all required fields</h3>
+        <ul id="error-list"></ul>
+      </div>
+    </div>
     
     <div class="form-card">
       <div class="card-header">
@@ -30,39 +72,39 @@
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label">{{ form.title.label }}</label>
-          {{ form.title(class="form-input") }}
+          {{ form.title(class="form-input", required=true) }}
         </div>
         
         <div class="form-group">
           <label class="form-label">{{ form.opportunity_type.label }}</label>
-          {{ form.opportunity_type(class="form-input") }}
+          {{ form.opportunity_type(class="form-input", required=true) }}
         </div>
         
         <div class="form-group">
           <label class="form-label">{{ form.zip_code.label }}</label>
-          {{ form.zip_code(class="form-input") }}
+          {{ form.zip_code(class="form-input", required=true) }}
         </div>
         
         <div class="form-group">
           <label class="form-label">{{ form.pgy_min.label }}</label>
-          {{ form.pgy_min(class="form-input") }}
+          {{ form.pgy_min(class="form-input", required=true) }}
         </div>
         
         <div class="form-group">
           <label class="form-label">{{ form.pgy_max.label }}</label>
-          {{ form.pgy_max(class="form-input") }}
+          {{ form.pgy_max(class="form-input", required=true) }}
         </div>
         
         <div class="form-group">
           <label class="form-label">{{ form.pay_per_hour.label }}</label>
-          {{ form.pay_per_hour(class="form-input") }}
+          {{ form.pay_per_hour(class="form-input", required=true) }}
         </div>
         
 
         
         <div class="form-group full-width">
           <label class="form-label">{{ form.description.label }}</label>
-          {{ form.description(class="form-input", rows="4") }}
+          {{ form.description(class="form-input", rows="4", required=true) }}
         </div>
       </div>
     </div>
@@ -507,10 +549,8 @@ function markAsUserModified(input) {
   input.dataset.userModified = 'true';
 }
 
-// Simple form validation test
+// Simple form validation with error display
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded - JavaScript is working!');
-  
   // Clear inputs immediately on page load
   clearTimeSlotInputs();
   
@@ -524,23 +564,56 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Simple form validation
+  // Form validation
   const form = document.querySelector('.opportunity-form');
-  console.log('Form found:', form);
+  const errorDisplay = document.getElementById('form-errors');
+  const errorList = document.getElementById('error-list');
   
   if (form) {
     form.addEventListener('submit', function(e) {
-      console.log('Form submit event triggered!');
       e.preventDefault();
       
-      // Simple test - just show an alert
-      alert('Form validation is working! This form would be validated here.');
+      // Get all required fields
+      const requiredFields = form.querySelectorAll('[required]');
+      const emptyFields = [];
       
-      // For now, just prevent submission
-      return false;
+      // Check each required field
+      requiredFields.forEach(field => {
+        if (!field.value || field.value.trim() === '') {
+          // Get field label
+          const label = form.querySelector(`label[for="${field.name}"]`) || 
+                       field.previousElementSibling ||
+                       field.closest('.form-group').querySelector('.form-label');
+          
+          let fieldName = field.name || 'field';
+          if (label && label.textContent) {
+            fieldName = label.textContent.replace(':', '').trim();
+          }
+          
+          emptyFields.push(fieldName);
+        }
+      });
+      
+      // Show errors if any fields are empty
+      if (emptyFields.length > 0) {
+        errorList.innerHTML = '';
+        emptyFields.forEach(field => {
+          const li = document.createElement('li');
+          li.textContent = field;
+          errorList.appendChild(li);
+        });
+        errorDisplay.style.display = 'block';
+        
+        // Scroll to top to show errors
+        errorDisplay.scrollIntoView({ behavior: 'smooth' });
+        
+        return false;
+      }
+      
+      // If no errors, submit the form
+      errorDisplay.style.display = 'none';
+      form.submit();
     });
-  } else {
-    console.error('Form not found!');
   }
 });
 </script>
