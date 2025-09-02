@@ -125,6 +125,13 @@ def create_opportunity():
     if current_user.role != UserRole.EMPLOYER:
         abort(403)
     form = OpportunityForm()
+    
+    # Debug: Print form validation status
+    if request.method == "POST":
+        print(f"DEBUG: Form validation status: {form.validate()}")
+        print(f"DEBUG: Form errors: {form.errors}")
+        print(f"DEBUG: Form data: {form.data}")
+    
     if form.validate_on_submit():
         opp = Opportunity(
             employer_id=current_user.id,
