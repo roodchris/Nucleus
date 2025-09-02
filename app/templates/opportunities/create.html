@@ -524,14 +524,18 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Form validation
   const form = document.querySelector('.opportunity-form');
+  console.log('Form found:', form);
+  
   if (form) {
     form.addEventListener('submit', function(e) {
+      console.log('Form submit event triggered');
       e.preventDefault();
       
       let errors = [];
       
       // Check required form fields
       const title = document.querySelector('input[name="title"]');
+      console.log('Title field:', title, 'Value:', title ? title.value : 'not found');
       if (!title || !title.value.trim()) {
         errors.push('Job title is required');
       }
@@ -546,13 +550,13 @@ document.addEventListener('DOMContentLoaded', function() {
         errors.push('Zip code is required');
       }
       
-      const pgyMin = document.querySelector('input[name="pgy_min"]');
-      if (!pgyMin || !pgyMin.value.trim()) {
+      const pgyMin = document.querySelector('select[name="pgy_min"]');
+      if (!pgyMin || !pgyMin.value) {
         errors.push('Minimum training level is required');
       }
       
-      const pgyMax = document.querySelector('input[name="pgy_max"]');
-      if (!pgyMax || !pgyMax.value.trim()) {
+      const pgyMax = document.querySelector('select[name="pgy_max"]');
+      if (!pgyMax || !pgyMax.value) {
         errors.push('Maximum training level is required');
       }
       
@@ -587,11 +591,13 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       // Show errors or submit form
+      console.log('Errors found:', errors);
       if (errors.length > 0) {
         alert('Please fix the following errors:\n\n' + errors.join('\n'));
         return false;
       } else {
         // If no errors, submit the form
+        console.log('No errors, submitting form');
         form.submit();
       }
     });
