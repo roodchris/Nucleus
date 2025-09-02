@@ -116,15 +116,15 @@
           <div class="slot-inputs">
             <div class="input-group">
               <label class="input-label">Date</label>
-              <input type="date" name="slot_date_0" class="form-input" min="{{ today }}" />
+              <input type="date" name="slot_date_0" class="form-input" value="" min="{{ today }}" />
             </div>
             <div class="input-group">
               <label class="input-label">Start Time</label>
-              <input type="time" name="slot_start_0" class="form-input" />
+              <input type="time" name="slot_start_0" class="form-input" value="" />
             </div>
             <div class="input-group">
               <label class="input-label">End Time</label>
-              <input type="time" name="slot_end_0" class="form-input" />
+              <input type="time" name="slot_end_0" class="form-input" value="" />
             </div>
           </div>
         </div>
@@ -472,15 +472,15 @@ function addSlot() {
     <div class="slot-inputs">
       <div class="input-group">
         <label class="input-label">Date</label>
-        <input type="date" name="slot_date_${slotCount}" class="form-input" min="{{ today }}" />
+        <input type="date" name="slot_date_${slotCount}" class="form-input" value="" min="{{ today }}" />
       </div>
       <div class="input-group">
         <label class="input-label">Start Time</label>
-        <input type="time" name="slot_start_${slotCount}" class="form-input" />
+        <input type="time" name="slot_start_${slotCount}" class="form-input" value="" />
       </div>
       <div class="input-group">
         <label class="input-label">End Time</label>
-        <input type="time" name="slot_end_${slotCount}" class="form-input" />
+        <input type="time" name="slot_end_${slotCount}" class="form-input" value="" />
       </div>
     </div>
   `;
