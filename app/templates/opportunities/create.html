@@ -507,7 +507,7 @@ function markAsUserModified(input) {
   input.dataset.userModified = 'true';
 }
 
-// Form validation for time slots
+// Simple and reliable form validation
 document.addEventListener('DOMContentLoaded', function() {
   // Clear inputs immediately on page load
   clearTimeSlotInputs();
@@ -522,84 +522,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Form validation
+  // Simple form validation - just check if form is empty
   const form = document.querySelector('.opportunity-form');
-  console.log('Form found:', form);
-  
   if (form) {
     form.addEventListener('submit', function(e) {
-      console.log('Form submit event triggered');
       e.preventDefault();
       
-      let errors = [];
+      // Get all form inputs
+      const inputs = form.querySelectorAll('input, select, textarea');
+      let emptyFields = [];
       
-      // Check required form fields
-      const title = document.querySelector('input[name="title"]');
-      console.log('Title field:', title, 'Value:', title ? title.value : 'not found');
-      if (!title || !title.value.trim()) {
-        errors.push('Job title is required');
-      }
-      
-      const opportunityType = document.querySelector('select[name="opportunity_type"]');
-      if (!opportunityType || !opportunityType.value) {
-        errors.push('Opportunity type is required');
-      }
-      
-      const zipCode = document.querySelector('input[name="zip_code"]');
-      if (!zipCode || !zipCode.value.trim()) {
-        errors.push('Zip code is required');
-      }
-      
-      const pgyMin = document.querySelector('select[name="pgy_min"]');
-      if (!pgyMin || !pgyMin.value) {
-        errors.push('Minimum training level is required');
-      }
-      
-      const pgyMax = document.querySelector('select[name="pgy_max"]');
-      if (!pgyMax || !pgyMax.value) {
-        errors.push('Maximum training level is required');
-      }
-      
-      const payPerHour = document.querySelector('input[name="pay_per_hour"]');
-      if (!payPerHour || !payPerHour.value.trim()) {
-        errors.push('Pay per hour is required');
-      }
-      
-      const description = document.querySelector('textarea[name="description"]');
-      if (!description || !description.value.trim()) {
-        errors.push('Job description is required');
-      }
-      
-      // Check time slots
-      const timeSlotInputs = document.querySelectorAll('input[name^="slot_date_"], input[name^="slot_start_"], input[name^="slot_end_"]');
-      let hasValidTimeSlot = false;
-      
-      for (let i = 0; i < timeSlotInputs.length; i += 3) {
-        const dateInput = timeSlotInputs[i];
-        const startInput = timeSlotInputs[i + 1];
-        const endInput = timeSlotInputs[i + 2];
-        
-        if (dateInput && startInput && endInput && 
-            dateInput.value.trim() && startInput.value.trim() && endInput.value.trim()) {
-          hasValidTimeSlot = true;
-          break;
+      // Check each input
+      inputs.forEach(input => {
+        // Skip hidden fields and buttons
+        if (input.type === 'hidden' || input.type === 'submit' || input.type === 'button') {
+          return;
         }
-      }
+        
+        // Check if field is empty
+        if (!input.value || input.value.trim() === '') {
+          const label = form.querySelector(`label[for="${input.name}"]`) || 
+                       form.querySelector(`label:has(input[name="${input.name}"])`) ||
+                       input.previousElementSibling;
+          
+          let fieldName = input.name || 'field';
+          if (label && label.textContent) {
+            fieldName = label.textContent.replace(':', '').trim();
+          }
+          
+          emptyFields.push(fieldName);
+        }
+      });
       
-      if (!hasValidTimeSlot) {
-        errors.push('At least one complete time slot (date, start time, and end time) is required');
-      }
-      
-      // Show errors or submit form
-      console.log('Errors found:', errors);
-      if (errors.length > 0) {
-        alert('Please fix the following errors:\n\n' + errors.join('\n'));
+      // Show error if any fields are empty
+      if (emptyFields.length > 0) {
+        alert('Please fill in the following required fields:\n\n• ' + emptyFields.join('\n• '));
         return false;
-      } else {
-        // If no errors, submit the form
-        console.log('No errors, submitting form');
-        form.submit();
       }
+      
+      // If no empty fields, submit the form
+      form.submit();
     });
   }
 });
