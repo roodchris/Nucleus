@@ -577,8 +577,11 @@ document.addEventListener('DOMContentLoaded', function() {
       const requiredFields = form.querySelectorAll('[required]');
       const emptyFields = [];
       
+      console.log('Checking', requiredFields.length, 'required fields');
+      
       // Check each required field
       requiredFields.forEach(field => {
+        console.log('Checking field:', field.name, 'Value:', field.value);
         if (!field.value || field.value.trim() === '') {
           // Get field label
           const label = form.querySelector(`label[for="${field.name}"]`) || 
@@ -591,8 +594,11 @@ document.addEventListener('DOMContentLoaded', function() {
           }
           
           emptyFields.push(fieldName);
+          console.log('Empty field found:', fieldName);
         }
       });
+      
+      console.log('Total empty fields:', emptyFields.length);
       
       // Show errors if any fields are empty
       if (emptyFields.length > 0) {
@@ -611,6 +617,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       // If no errors, submit the form
+      console.log('No validation errors, submitting form...');
       errorDisplay.style.display = 'none';
       form.submit();
     });
