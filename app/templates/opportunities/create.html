@@ -6,51 +6,9 @@
     <p class="page-subtitle page-subtitle-animated">Create a new job opportunity for radiologists</p>
   </div>
 
-  <style>
-    .error-display {
-      background: linear-gradient(135deg, #ff4444, #cc0000);
-      border: 2px solid #ff6666;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 8px 32px rgba(255, 68, 68, 0.3);
-      backdrop-filter: blur(10px);
-    }
-    
-    .error-content h3 {
-      color: white;
-      margin: 0 0 15px 0;
-      font-size: 18px;
-      font-weight: 600;
-    }
-    
-    .error-content ul {
-      margin: 0;
-      padding-left: 20px;
-      color: white;
-    }
-    
-    .error-content li {
-      margin-bottom: 8px;
-      font-size: 16px;
-    }
-    
-    .error-content li:last-child {
-      margin-bottom: 0;
-    }
-  </style>
-
 <div class="data-section">
-  <form method="POST" class="opportunity-form" novalidate>
+  <form method="POST" class="opportunity-form">
     {{ form.hidden_tag() }}
-    
-    <!-- Error Display Area -->
-    <div id="form-errors" class="error-display" style="display: none;">
-      <div class="error-content">
-        <h3>⚠️ Please fill in all required fields</h3>
-        <ul id="error-list"></ul>
-      </div>
-    </div>
     
     <div class="form-card">
       <div class="card-header">
@@ -72,39 +30,47 @@
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label">{{ form.title.label }}</label>
-          {{ form.title(class="form-input", required=true) }}
+          {{ form.title(class="form-input") }}
         </div>
         
         <div class="form-group">
           <label class="form-label">{{ form.opportunity_type.label }}</label>
-          {{ form.opportunity_type(class="form-input", required=true) }}
+          {{ form.opportunity_type(class="form-input") }}
         </div>
         
         <div class="form-group">
           <label class="form-label">{{ form.zip_code.label }}</label>
-          {{ form.zip_code(class="form-input", required=true) }}
+          {{ form.zip_code(class="form-input") }}
         </div>
         
         <div class="form-group">
           <label class="form-label">{{ form.pgy_min.label }}</label>
-          {{ form.pgy_min(class="form-input", required=true) }}
+          {{ form.pgy_min(class="form-input") }}
         </div>
         
         <div class="form-group">
           <label class="form-label">{{ form.pgy_max.label }}</label>
-          {{ form.pgy_max(class="form-input", required=true) }}
+          {{ form.pgy_max(class="form-input") }}
         </div>
         
         <div class="form-group">
           <label class="form-label">{{ form.pay_per_hour.label }}</label>
-          {{ form.pay_per_hour(class="form-input", required=true) }}
+          {{ form.pay_per_hour(class="form-input") }}
         </div>
         
-
+        <div class="form-group">
+          <label class="form-label">{{ form.shift_length_hours.label }}</label>
+          {{ form.shift_length_hours(class="form-input") }}
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ form.hours_per_week.label }}</label>
+          {{ form.hours_per_week(class="form-input") }}
+        </div>
         
         <div class="form-group full-width">
           <label class="form-label">{{ form.description.label }}</label>
-          {{ form.description(class="form-input", rows="4", required=true) }}
+          {{ form.description(class="form-input", rows="4") }}
         </div>
       </div>
     </div>
@@ -121,7 +87,7 @@
         </div>
         <div class="card-title">
           <h3>Available Time Slots</h3>
-          <p>Specify when you need coverage. You can add more slots after creating the opportunity.</p>
+          <p>Specify when you need coverage (optional). You can add more slots after creating the opportunity.</p>
         </div>
       </div>
       
@@ -150,15 +116,15 @@
           <div class="slot-inputs">
             <div class="input-group">
               <label class="input-label">Date</label>
-              <input type="date" name="slot_date_0" class="form-input" autocomplete="off" />
+              <input type="date" name="slot_date_0" class="form-input" min="{{ today }}" />
             </div>
             <div class="input-group">
               <label class="input-label">Start Time</label>
-              <input type="time" name="slot_start_0" class="form-input" autocomplete="off" />
+              <input type="time" name="slot_start_0" class="form-input" />
             </div>
             <div class="input-group">
               <label class="input-label">End Time</label>
-              <input type="time" name="slot_end_0" class="form-input" autocomplete="off" />
+              <input type="time" name="slot_end_0" class="form-input" />
             </div>
           </div>
         </div>
@@ -182,7 +148,7 @@
         Publish Opportunity
       </button>
     </div>
-</form>
+  </form>
 </div>
 
 <style>
@@ -506,111 +472,25 @@ function addSlot() {
     <div class="slot-inputs">
       <div class="input-group">
         <label class="input-label">Date</label>
-        <input type="date" name="slot_date_${slotCount}" class="form-input" autocomplete="off" />
+        <input type="date" name="slot_date_${slotCount}" class="form-input" min="{{ today }}" />
       </div>
       <div class="input-group">
         <label class="input-label">Start Time</label>
-        <input type="time" name="slot_start_${slotCount}" class="form-input" autocomplete="off" />
+        <input type="time" name="slot_start_${slotCount}" class="form-input" />
       </div>
       <div class="input-group">
         <label class="input-label">End Time</label>
-        <input type="time" name="slot_end_${slotCount}" class="form-input" autocomplete="off" />
+        <input type="time" name="slot_end_${slotCount}" class="form-input" />
       </div>
     </div>
   `;
   
   container.appendChild(newSlot);
   slotCount++;
-  
-  // Clear the newly added inputs to prevent auto-population
-  const newInputs = newSlot.querySelectorAll('input[type="date"], input[type="time"]');
-  newInputs.forEach(input => {
-    input.value = '';
-  });
 }
 
 function removeSlot(button) {
   button.closest('.slot-card').remove();
 }
-
-// Prevent auto-population of date/time inputs
-function clearTimeSlotInputs() {
-  const timeSlotInputs = document.querySelectorAll('input[type="date"], input[type="time"]');
-  timeSlotInputs.forEach(input => {
-    // Only clear if the input doesn't have a user-entered value
-    if (!input.dataset.userModified) {
-      input.value = '';
-    }
-  });
-}
-
-// Mark inputs as user-modified when they're changed
-function markAsUserModified(input) {
-  input.dataset.userModified = 'true';
-}
-
-// Simple form validation with error display
-document.addEventListener('DOMContentLoaded', function() {
-  // Clear inputs immediately on page load
-  clearTimeSlotInputs();
-  
-  // Clear inputs periodically to prevent auto-population
-  setInterval(clearTimeSlotInputs, 500);
-  
-  // Add event listeners to mark inputs as user-modified
-  document.addEventListener('input', function(e) {
-    if (e.target.type === 'date' || e.target.type === 'time') {
-      markAsUserModified(e.target);
-    }
-  });
-  
-  // Simple form validation - just check basic required fields
-  const form = document.querySelector('.opportunity-form');
-  const errorDisplay = document.getElementById('form-errors');
-  const errorList = document.getElementById('error-list');
-  
-  if (form) {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      // Check only the main form fields, not time slots
-      const mainFields = [
-        { name: 'title', label: 'Title' },
-        { name: 'opportunity_type', label: 'Opportunity Type' },
-        { name: 'zip_code', label: 'Zip Code' },
-        { name: 'pgy_min', label: 'Training Level Minimum' },
-        { name: 'pgy_max', label: 'Training Level Maximum' },
-        { name: 'pay_per_hour', label: 'Pay per Hour' },
-        { name: 'description', label: 'Description' }
-      ];
-      
-      const emptyFields = [];
-      
-      mainFields.forEach(field => {
-        const input = form.querySelector(`[name="${field.name}"]`);
-        if (!input || !input.value || input.value.trim() === '') {
-          emptyFields.push(field.label);
-        }
-      });
-      
-      // Show errors if any main fields are empty
-      if (emptyFields.length > 0) {
-        errorList.innerHTML = '';
-        emptyFields.forEach(field => {
-          const li = document.createElement('li');
-          li.textContent = field;
-          errorList.appendChild(li);
-        });
-        errorDisplay.style.display = 'block';
-        errorDisplay.scrollIntoView({ behavior: 'smooth' });
-        return false;
-      }
-      
-      // If no errors, submit the form
-      errorDisplay.style.display = 'none';
-      form.submit();
-    });
-  }
-});
 </script>
 {% endblock %}
