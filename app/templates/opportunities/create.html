@@ -150,15 +150,15 @@
           <div class="slot-inputs">
             <div class="input-group">
               <label class="input-label">Date</label>
-              <input type="date" name="slot_date_0" class="form-input" autocomplete="off" required />
+              <input type="date" name="slot_date_0" class="form-input" autocomplete="off" />
             </div>
             <div class="input-group">
               <label class="input-label">Start Time</label>
-              <input type="time" name="slot_start_0" class="form-input" autocomplete="off" required />
+              <input type="time" name="slot_start_0" class="form-input" autocomplete="off" />
             </div>
             <div class="input-group">
               <label class="input-label">End Time</label>
-              <input type="time" name="slot_end_0" class="form-input" autocomplete="off" required />
+              <input type="time" name="slot_end_0" class="form-input" autocomplete="off" />
             </div>
           </div>
         </div>
@@ -506,15 +506,15 @@ function addSlot() {
     <div class="slot-inputs">
       <div class="input-group">
         <label class="input-label">Date</label>
-        <input type="date" name="slot_date_${slotCount}" class="form-input" autocomplete="off" required />
+        <input type="date" name="slot_date_${slotCount}" class="form-input" autocomplete="off" />
       </div>
       <div class="input-group">
         <label class="input-label">Start Time</label>
-        <input type="time" name="slot_start_${slotCount}" class="form-input" autocomplete="off" required />
+        <input type="time" name="slot_start_${slotCount}" class="form-input" autocomplete="off" />
       </div>
       <div class="input-group">
         <label class="input-label">End Time</label>
-        <input type="time" name="slot_end_${slotCount}" class="form-input" autocomplete="off" required />
+        <input type="time" name="slot_end_${slotCount}" class="form-input" autocomplete="off" />
       </div>
     </div>
   `;
@@ -564,7 +564,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Form validation
+  // Simple form validation - just check basic required fields
   const form = document.querySelector('.opportunity-form');
   const errorDisplay = document.getElementById('form-errors');
   const errorList = document.getElementById('error-list');
@@ -573,34 +573,27 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       
-      // Get all required fields
-      const requiredFields = form.querySelectorAll('[required]');
+      // Check only the main form fields, not time slots
+      const mainFields = [
+        { name: 'title', label: 'Title' },
+        { name: 'opportunity_type', label: 'Opportunity Type' },
+        { name: 'zip_code', label: 'Zip Code' },
+        { name: 'pgy_min', label: 'Training Level Minimum' },
+        { name: 'pgy_max', label: 'Training Level Maximum' },
+        { name: 'pay_per_hour', label: 'Pay per Hour' },
+        { name: 'description', label: 'Description' }
+      ];
+      
       const emptyFields = [];
       
-      console.log('Checking', requiredFields.length, 'required fields');
-      
-      // Check each required field
-      requiredFields.forEach(field => {
-        console.log('Checking field:', field.name, 'Value:', field.value);
-        if (!field.value || field.value.trim() === '') {
-          // Get field label
-          const label = form.querySelector(`label[for="${field.name}"]`) || 
-                       field.previousElementSibling ||
-                       field.closest('.form-group').querySelector('.form-label');
-          
-          let fieldName = field.name || 'field';
-          if (label && label.textContent) {
-            fieldName = label.textContent.replace(':', '').trim();
-          }
-          
-          emptyFields.push(fieldName);
-          console.log('Empty field found:', fieldName);
+      mainFields.forEach(field => {
+        const input = form.querySelector(`[name="${field.name}"]`);
+        if (!input || !input.value || input.value.trim() === '') {
+          emptyFields.push(field.label);
         }
       });
       
-      console.log('Total empty fields:', emptyFields.length);
-      
-      // Show errors if any fields are empty
+      // Show errors if any main fields are empty
       if (emptyFields.length > 0) {
         errorList.innerHTML = '';
         emptyFields.forEach(field => {
@@ -609,15 +602,11 @@ document.addEventListener('DOMContentLoaded', function() {
           errorList.appendChild(li);
         });
         errorDisplay.style.display = 'block';
-        
-        // Scroll to top to show errors
         errorDisplay.scrollIntoView({ behavior: 'smooth' });
-        
         return false;
       }
       
       // If no errors, submit the form
-      console.log('No validation errors, submitting form...');
       errorDisplay.style.display = 'none';
       form.submit();
     });
