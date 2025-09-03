@@ -1,15 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="mb-6">
-  <h1>📊 Submit Compensation Data</h1>
-  <p class="text-secondary">Share your compensation information to help the radiology community</p>
-</div>
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title page-title-animated">📊 Submit Compensation Data</h1>
+    <p class="page-subtitle page-subtitle-animated">Share your compensation information to help the radiology community</p>
+  </div>
 
   <div class="card max-w-4xl mx-auto">
     <h3 class="text-2xl font-bold mb-4">Community Compensation Submission</h3>
     <p class="text-secondary mb-8 text-lg leading-relaxed">
-      Your submission will be visible to all users to promote transparency in radiology compensation. 
-      This helps the community understand market rates across different regions, specialties, and practice types.
+      <strong>🔒 All submissions are completely anonymous</strong> - your personal information will never be shared. 
+      This helps the community understand market rates across different regions, specialties, and practice types 
+      while protecting your privacy.
     </p>
 
       <form method="POST" class="space-y-6">
@@ -25,7 +27,7 @@
           <div>
             <label for="{{ form.year.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.year.label }}</label>
             <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Year of compensation data</p>
-            {{ form.year(class="form-control", placeholder="e.g., 2024") }}
+            {{ form.year(class="input", placeholder="e.g., 2024") }}
             {% if form.year.errors %}
               <div class="text-red-500 text-sm mt-2">
                 {% for error in form.year.errors %}
@@ -38,7 +40,7 @@
           <div>
             <label for="{{ form.region.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.region.label }}</label>
             <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Geographic region of practice</p>
-            {{ form.region(class="form-control") }}
+            {{ form.region(class="input") }}
             {% if form.region.errors %}
               <div class="text-red-500 text-sm mt-2">
                 {% for error in form.region.errors %}
@@ -60,7 +62,7 @@
           <div>
             <label for="{{ form.specialty.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.specialty.label }}</label>
             <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Radiology specialty area</p>
-            {{ form.specialty(class="form-control") }}
+            {{ form.specialty(class="input") }}
             {% if form.specialty.errors %}
               <div class="text-red-500 text-sm mt-2">
                 {% for error in form.specialty.errors %}
@@ -73,7 +75,7 @@
           <div>
             <label for="{{ form.practice_type.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.practice_type.label }}</label>
             <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Type of practice setting</p>
-            {{ form.practice_type(class="form-control") }}
+            {{ form.practice_type(class="input") }}
             {% if form.practice_type.errors %}
               <div class="text-red-500 text-sm mt-2">
                 {% for error in form.practice_type.errors %}
@@ -95,7 +97,7 @@
           <div class="col-span-2">
             <label for="{{ form.total_compensation.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.total_compensation.label }}</label>
             <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Total annual compensation including all benefits</p>
-            {{ form.total_compensation(class="form-control", placeholder="e.g., 450000") }}
+            {{ form.total_compensation(class="input", placeholder="e.g., 450000") }}
             {% if form.total_compensation.errors %}
               <div class="text-red-500 text-sm mt-2">
                 {% for error in form.total_compensation.errors %}
@@ -117,7 +119,7 @@
           <div>
             <label for="{{ form.total_yearly_rvu.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.total_yearly_rvu.label }}</label>
             <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Total RVUs generated in the year</p>
-            {{ form.total_yearly_rvu(class="form-control", placeholder="e.g., 8000") }}
+            {{ form.total_yearly_rvu(class="input", placeholder="e.g., 8000") }}
             {% if form.total_yearly_rvu.errors %}
               <div class="text-red-500 text-sm mt-2">
                 {% for error in form.total_yearly_rvu.errors %}
@@ -130,7 +132,7 @@
           <div>
             <label for="{{ form.compensation_per_rvu.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.compensation_per_rvu.label }}</label>
             <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Compensation received per RVU</p>
-            {{ form.compensation_per_rvu(class="form-control", placeholder="e.g., 45.50") }}
+            {{ form.compensation_per_rvu(class="input", placeholder="e.g., 45.50") }}
             {% if form.compensation_per_rvu.errors %}
               <div class="text-red-500 text-sm mt-2">
                 {% for error in form.compensation_per_rvu.errors %}
@@ -146,13 +148,13 @@
       <div class="card bg-white shadow-md border border-gray-200">
         <div class="flex items-center mb-4">
           <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">5</div>
-          <h4 class="text-lg font-semibold text-gray-800">Work Schedule</h4>
+          <h4 class="text-lg font-semibold text-gray-800">Work Schedule <span class="text-sm font-normal text-gray-500">(Optional)</span></h4>
         </div>
         <div class="grid-2 gap-6">
           <div>
             <label for="{{ form.hours_per_week.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.hours_per_week.label }}</label>
             <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Average hours worked per week</p>
-            {{ form.hours_per_week(class="form-control", placeholder="e.g., 45.0") }}
+            {{ form.hours_per_week(class="input", placeholder="e.g., 45.0") }}
             {% if form.hours_per_week.errors %}
               <div class="text-red-500 text-sm mt-2">
                 {% for error in form.hours_per_week.errors %}
@@ -165,7 +167,7 @@
           <div>
             <label for="{{ form.weeks_vacation.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.weeks_vacation.label }} <span class="text-sm text-gray-500">(Optional)</span></label>
             <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Number of vacation weeks per year</p>
-            {{ form.weeks_vacation(class="form-control", placeholder="e.g., 4") }}
+            {{ form.weeks_vacation(class="input", placeholder="e.g., 4") }}
             {% if form.weeks_vacation.errors %}
               <div class="text-red-500 text-sm mt-2">
                 {% for error in form.weeks_vacation.errors %}
@@ -178,6 +180,23 @@
       </div>
 
 
+
+      <!-- Privacy Notice -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+        <div class="flex items-start">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-blue-600 mt-0.5 mr-3 flex-shrink-0">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div>
+            <h4 class="text-blue-800 font-semibold mb-1">Privacy Protected</h4>
+            <p class="text-blue-700 text-sm">
+              Your submission is completely anonymous. Only aggregated compensation data is displayed publicly. 
+              Your personal information, name, and specific details are never shared with other users.
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div class="flex gap-4 pt-6">
         <button type="submit" class="btn px-8 py-3 text-lg">Submit Compensation Data</button>
@@ -197,4 +216,35 @@
     <li>• All submissions are reviewed for accuracy before being displayed</li>
   </ul>
 </div>
+
+<style>
+  .page-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+  }
+
+  .page-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2.5rem;
+    }
+  }
+</style>
 {% endblock %}

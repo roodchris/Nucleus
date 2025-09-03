@@ -36,6 +36,13 @@ class TrainingLevel(Enum):
     ATTENDING = "ATTENDING"
 
 
+class WorkDuration(Enum):
+    SINGLE_SHIFT = "single_shift"
+    SHORT_TERM = "short_term"
+    MEDIUM_TERM = "medium_term"
+    PERMANENT = "permanent"
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
@@ -80,19 +87,25 @@ class Opportunity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     employer_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
 
-    title = db.Column(db.String(255), nullable=False)
+    title = db.Column(db.String(255), nullable=True)
     description = db.Column(db.Text)
 
-    opportunity_type = db.Column(db.Enum(OpportunityType), nullable=False, index=True)
+    opportunity_type = db.Column(db.Enum(OpportunityType), nullable=True, index=True)
 
-    zip_code = db.Column(db.String(10), nullable=False, index=True)
+    zip_code = db.Column(db.String(10), nullable=True, index=True)
 
-    pgy_min = db.Column(db.Enum(TrainingLevel), nullable=False)  # Training level min
-    pgy_max = db.Column(db.Enum(TrainingLevel), nullable=False)  # Training level max
+    pgy_min = db.Column(db.Enum(TrainingLevel), nullable=True)  # Training level min
+    pgy_max = db.Column(db.Enum(TrainingLevel), nullable=True)  # Training level max
 
-    pay_per_hour = db.Column(db.Float, nullable=False, index=True)
-    shift_length_hours = db.Column(db.Float, nullable=False, index=True)
-    hours_per_week = db.Column(db.Float, nullable=False, index=True)
+    pay_per_hour = db.Column(db.Float, nullable=True, index=True)
+    shift_length_hours = db.Column(db.Float, nullable=True, index=True)
+    hours_per_week = db.Column(db.Float, nullable=True, index=True)
+    
+    # Timezone for the opportunity (e.g., "America/New_York", "America/Los_Angeles")
+    timezone = db.Column(db.String(50), nullable=True, index=True)
+    
+    # Work duration type
+    work_duration = db.Column(db.Enum(WorkDuration), nullable=True, index=True)
 
     is_active = db.Column(db.Boolean, default=True, nullable=False, index=True)
     is_filled = db.Column(db.Boolean, default=False, nullable=False, index=True)  # New field
@@ -188,6 +201,7 @@ class EmployerProfile(db.Model):
     modalities = db.Column(db.Text, nullable=True)  # e.g., "CT, MRI, X-ray, Ultrasound"
     location = db.Column(db.String(500), nullable=True)  # Detailed location information
     practice_description = db.Column(db.Text, nullable=True)  # General description of the practice
+    photo_filename = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
@@ -296,13 +310,14 @@ class ProgramReview(db.Model):
     research_opportunities = db.Column(db.Integer, nullable=False)  # 1-5 rating
     culture = db.Column(db.Integer, nullable=False)             # 1-5 rating
     comments = db.Column(db.Text, nullable=True)
+    anonymous = db.Column(db.Boolean, default=False, nullable=False)  # Anonymous submission
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
     user = db.relationship('User', backref='program_reviews')
     
     def __repr__(self):
-        return f'<ProgramReview {self.program_name} by {self.user.username}>'
+        return f'<ProgramReview {self.program_name} by {self.user.name}>'
 
 class CompensationData(db.Model):
     """Model for MGMA compensation survey data and anonymous submissions"""
@@ -313,11 +328,11 @@ class CompensationData(db.Model):
     total_compensation = db.Column(db.Integer, nullable=False)  # Annual compensation in USD
     base_salary = db.Column(db.Integer, nullable=False)        # Base salary in USD
     bonus = db.Column(db.Integer, nullable=False)              # Bonus/incentive pay in USD
-    rvu_total = db.Column(db.Integer, nullable=False)          # Total RVUs
-    rvu_per_work_rvu = db.Column(db.Float, nullable=False)    # Compensation per work RVU
-    work_rvus = db.Column(db.Integer, nullable=False)          # Work RVUs
-    total_rvus = db.Column(db.Integer, nullable=False)         # Total RVUs
-    hours_per_week = db.Column(db.Float, nullable=False)       # Average hours per week
+    rvu_total = db.Column(db.Integer, nullable=True)          # Total RVUs
+    rvu_per_work_rvu = db.Column(db.Float, nullable=True)    # Compensation per work RVU
+    work_rvus = db.Column(db.Integer, nullable=True)          # Work RVUs
+    total_rvus = db.Column(db.Integer, nullable=True)         # Total RVUs
+    hours_per_week = db.Column(db.Float, nullable=True)        # Average hours per week
     weeks_per_year = db.Column(db.Float, nullable=False)       # Average weeks per year
     source = db.Column(db.String(100), default='MGMA Survey')
     is_anonymous_submission = db.Column(db.Boolean, default=False)  # True for user submissions

@@ -37,6 +37,8 @@
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             {% if post.author.resident_profile and post.author.resident_profile.photo_filename %}
               <img src="/uploads/{{ post.author.resident_profile.photo_filename }}" alt="{{ post.author.name }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+            {% elif post.author.employer_profile and post.author.employer_profile.photo_filename %}
+              <img src="/uploads/{{ post.author.employer_profile.photo_filename }}" alt="{{ post.author.name }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
             {% else %}
               <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 600;">
                 {{ post.author.name[0].upper() }}
@@ -45,9 +47,9 @@
             <span>{{ post.author.name }}</span>
           </div>
           
-          <span>{{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+          <span data-timestamp="{{ post.created_at.isoformat() }}" data-format="full">{{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
           {% if post.updated_at != post.created_at %}
-            <span>(edited {{ post.updated_at.strftime('%B %d, %Y at %I:%M %p') }})</span>
+            <span>(edited <span data-timestamp="{{ post.updated_at.isoformat() }}" data-format="full">{{ post.updated_at.strftime('%B %d, %Y at %I:%M %p') }}</span>)</span>
           {% endif %}
         </div>
         
@@ -121,6 +123,8 @@
                   <div style="display: flex; align-items: center; gap: 0.5rem;">
                     {% if comment.author.resident_profile and comment.author.resident_profile.photo_filename %}
                       <img src="/uploads/{{ comment.author.resident_profile.photo_filename }}" alt="{{ comment.author.name }}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                    {% elif comment.author.employer_profile and comment.author.employer_profile.photo_filename %}
+                      <img src="/uploads/{{ comment.author.employer_profile.photo_filename }}" alt="{{ comment.author.name }}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
                     {% else %}
                       <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600;">
                         {{ comment.author.name[0].upper() }}
@@ -129,7 +133,7 @@
                     <span>{{ comment.author.name }}</span>
                   </div>
                   
-                  <span>{{ comment.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                  <span data-timestamp="{{ comment.created_at.isoformat() }}" data-format="full">{{ comment.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
                   {% if comment.is_edited %}
                     <span>(edited)</span>
                   {% endif %}

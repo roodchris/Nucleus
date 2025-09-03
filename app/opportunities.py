@@ -1,13 +1,43 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 from sqlalchemy import and_
-from .models import db, Opportunity, OpportunityType, UserRole, CalendarSlot, User, Application, ApplicationStatus, TrainingLevel
+from .models import db, Opportunity, OpportunityType, UserRole, CalendarSlot, User, Application, ApplicationStatus, TrainingLevel, WorkDuration
 from .forms import OpportunityForm, FilterForm
 from datetime import date, datetime, timedelta
 import math
 from pyzipcode import ZipCodeDatabase
 
 opp_bp = Blueprint("opportunities", __name__)
+
+
+def get_zip_location(zip_code):
+    """
+    Get city and state from zip code using comprehensive US zip code database.
+    Returns formatted string like "Los Angeles, CA" or None if not found.
+    """
+    try:
+        if not zip_code:
+            return None
+            
+        # Initialize zip code database
+        zcdb = ZipCodeDatabase()
+        
+        # Get location info for zip code
+        result = zcdb.get(zip_code)
+        
+        # Handle case where get() returns a list (multiple zip codes with same code)
+        if isinstance(result, list):
+            result = result[0] if result else None
+        
+        if result:
+            city = result.city
+            state = result.state
+            return f"{city}, {state}"
+        else:
+            return None
+    except Exception as e:
+        print(f"Error getting zip location: {e}")
+        return None
 
 
 def calculate_distance_between_zip_codes(zip1, zip2):
@@ -22,6 +52,12 @@ def calculate_distance_between_zip_codes(zip1, zip2):
         # Get coordinates for both zip codes
         result1 = zcdb.get(zip1)
         result2 = zcdb.get(zip2)
+        
+        # Handle case where get() returns a list (multiple zip codes with same code)
+        if isinstance(result1, list):
+            result1 = result1[0] if result1 else None
+        if isinstance(result2, list):
+            result2 = result2[0] if result2 else None
         
         if result1 and result2:
             # Calculate distance using Haversine formula
@@ -44,7 +80,6 @@ def calculate_distance_between_zip_codes(zip1, zip2):
             
     except Exception as e:
         # If any error occurs, return large distance
-        print(f"Error calculating distance between {zip1} and {zip2}: {e}")
         return 9999
 
 
@@ -63,7 +98,7 @@ def list_opportunities():
     if not current_user.is_authenticated:
         return render_template("auth/login_required.html")
         
-    form = FilterForm(request.args)
+    form = FilterForm(data=request.args)
     query = Opportunity.query.filter_by(is_active=True)
 
     if form.opportunity_type.data:
@@ -80,30 +115,50 @@ def list_opportunities():
     elif form.zip_code.data:
         query = query.filter(Opportunity.zip_code.ilike(f"%{form.zip_code.data}%"))
     
+    if form.pay_min.data is not None and form.pay_min.data != '':
+        query = query.filter(Opportunity.pay_per_hour >= float(form.pay_min.data))
+    if form.shift_min.data is not None and form.shift_min.data != '':
+        query = query.filter(Opportunity.shift_length_hours >= float(form.shift_min.data))
+    if form.shift_max.data is not None and form.shift_max.data != '':
+        query = query.filter(Opportunity.shift_length_hours <= float(form.shift_max.data))
+    if form.hpw_min.data is not None and form.hpw_min.data != '':
+        query = query.filter(Opportunity.hours_per_week >= float(form.hpw_min.data))
+    if form.hpw_max.data is not None and form.hpw_max.data != '':
+        query = query.filter(Opportunity.hours_per_week <= float(form.hpw_max.data))
+    if form.work_duration.data:
+        try:
+            query = query.filter(Opportunity.work_duration == WorkDuration(form.work_duration.data))
+        except Exception:
+            pass
+
+    opportunities = query.order_by(Opportunity.created_at.desc()).all()
+    
+    # Apply training level filtering after getting all opportunities
     if form.pgy_year.data and form.pgy_year.data != "":
         training_level = form.pgy_year.data
         # Convert string to TrainingLevel enum for comparison
         try:
             user_level = TrainingLevel(training_level)
-            # Use the is_training_level_eligible method for proper comparison
-            opportunities = query.all()
-            filtered_opportunities = [opp for opp in opportunities if opp.is_training_level_eligible(user_level)]
+            # Filter opportunities based on user's current training level
+            # Show opportunities where: opportunity_min <= user_level <= opportunity_max
+            # Example: If user is FELLOW, show opportunities that allow R1-R4, R1-FELLOW, R1-ATTENDING, etc.
+            # But exclude opportunities that only allow R1-R4 (since FELLOW exceeds R4)
+            level_order = {TrainingLevel.R1: 1, TrainingLevel.R2: 2, TrainingLevel.R3: 3, 
+                          TrainingLevel.R4: 4, TrainingLevel.FELLOW: 5, TrainingLevel.ATTENDING: 6}
+            user_current_level_num = level_order.get(user_level, 0)
+            
+            filtered_opportunities = []
+            for opp in opportunities:
+                opp_min_level_num = level_order.get(opp.pgy_min, 0)
+                opp_max_level_num = level_order.get(opp.pgy_max, 0)
+                # Show opportunity if user's level is within the opportunity's range
+                if opp_min_level_num <= user_current_level_num <= opp_max_level_num:
+                    filtered_opportunities.append(opp)
+            
             opportunities = filtered_opportunities
         except ValueError:
             # Invalid training level, return empty results
             opportunities = []
-    if form.pay_min.data is not None:
-        query = query.filter(Opportunity.pay_per_hour >= float(form.pay_min.data))
-    if form.shift_min.data is not None:
-        query = query.filter(Opportunity.shift_length_hours >= float(form.shift_min.data))
-    if form.shift_max.data is not None:
-        query = query.filter(Opportunity.shift_length_hours <= float(form.shift_max.data))
-    if form.hpw_min.data is not None:
-        query = query.filter(Opportunity.hours_per_week >= float(form.hpw_min.data))
-    if form.hpw_max.data is not None:
-        query = query.filter(Opportunity.hours_per_week <= float(form.hpw_max.data))
-
-    opportunities = query.order_by(Opportunity.created_at.desc()).all()
     
     # Apply distance filtering if zip code and radius are specified
     if search_zip and radius_miles:
@@ -116,6 +171,20 @@ def list_opportunities():
                 filtered_opportunities.append(opp)
         opportunities = filtered_opportunities
     
+    # Clean up form data for template rendering - convert empty strings to None for numeric fields
+    if form.pay_min.data == '':
+        form.pay_min.data = None
+    if form.shift_min.data == '':
+        form.shift_min.data = None
+    if form.shift_max.data == '':
+        form.shift_max.data = None
+    if form.hpw_min.data == '':
+        form.hpw_min.data = None
+    if form.hpw_max.data == '':
+        form.hpw_max.data = None
+    if form.radius_miles.data == '':
+        form.radius_miles.data = None
+    
     return render_template("opportunities/list.html", form=form, opportunities=opportunities, OpportunityType=OpportunityType)
 
 
@@ -126,24 +195,21 @@ def create_opportunity():
         abort(403)
     form = OpportunityForm()
     
-    # Debug: Print form validation status
-    if request.method == "POST":
-        print(f"DEBUG: Form validation status: {form.validate()}")
-        print(f"DEBUG: Form errors: {form.errors}")
-        print(f"DEBUG: Form data: {form.data}")
-    
+
     if form.validate_on_submit():
         opp = Opportunity(
             employer_id=current_user.id,
-            title=form.title.data,
-            description=form.description.data,
-            opportunity_type=OpportunityType(form.opportunity_type.data),
-            zip_code=form.zip_code.data,
-            pgy_min=TrainingLevel(form.pgy_min.data),
-            pgy_max=TrainingLevel(form.pgy_max.data),
-            pay_per_hour=float(form.pay_per_hour.data),
-            shift_length_hours=float(form.shift_length_hours.data),
-            hours_per_week=float(form.hours_per_week.data),
+            title=form.title.data if form.title.data else None,
+            description=form.description.data if form.description.data else None,
+            opportunity_type=OpportunityType(form.opportunity_type.data) if form.opportunity_type.data else None,
+            zip_code=form.zip_code.data if form.zip_code.data else None,
+            pgy_min=TrainingLevel(form.pgy_min.data) if form.pgy_min.data else None,
+            pgy_max=TrainingLevel(form.pgy_max.data) if form.pgy_max.data else None,
+            pay_per_hour=float(form.pay_per_hour.data) if form.pay_per_hour.data else None,
+            shift_length_hours=float(form.shift_length_hours.data) if form.shift_length_hours.data else None,
+            hours_per_week=float(form.hours_per_week.data) if form.hours_per_week.data else None,
+            timezone=form.timezone.data if form.timezone.data else None,
+            work_duration=WorkDuration(form.work_duration.data) if form.work_duration.data else None,
         )
         db.session.add(opp)
         db.session.commit()
@@ -193,6 +259,52 @@ def create_opportunity():
     return render_template("opportunities/create.html", form=form, today=date.today())
 
 
+@opp_bp.route("/opportunities/<int:opportunity_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_opportunity(opportunity_id):
+    if current_user.role != UserRole.EMPLOYER:
+        abort(403)
+    
+    # Get the opportunity and ensure it belongs to the current employer
+    opportunity = Opportunity.query.filter_by(id=opportunity_id, employer_id=current_user.id).first_or_404()
+    
+    form = OpportunityForm()
+    
+    if request.method == "GET":
+        # Pre-populate the form with existing data
+        form.title.data = opportunity.title
+        form.description.data = opportunity.description
+        form.opportunity_type.data = opportunity.opportunity_type.value if opportunity.opportunity_type else ""
+        form.zip_code.data = opportunity.zip_code
+        form.pgy_min.data = opportunity.pgy_min.value if opportunity.pgy_min else ""
+        form.pgy_max.data = opportunity.pgy_max.value if opportunity.pgy_max else ""
+        form.pay_per_hour.data = opportunity.pay_per_hour
+        form.shift_length_hours.data = opportunity.shift_length_hours
+        form.hours_per_week.data = opportunity.hours_per_week
+        form.timezone.data = opportunity.timezone
+        form.work_duration.data = opportunity.work_duration.value if opportunity.work_duration else ""
+    
+    if form.validate_on_submit():
+        # Update the opportunity with new data
+        opportunity.title = form.title.data if form.title.data else None
+        opportunity.description = form.description.data if form.description.data else None
+        opportunity.opportunity_type = OpportunityType(form.opportunity_type.data) if form.opportunity_type.data else None
+        opportunity.zip_code = form.zip_code.data if form.zip_code.data else None
+        opportunity.pgy_min = TrainingLevel(form.pgy_min.data) if form.pgy_min.data else None
+        opportunity.pgy_max = TrainingLevel(form.pgy_max.data) if form.pgy_max.data else None
+        opportunity.pay_per_hour = float(form.pay_per_hour.data) if form.pay_per_hour.data else None
+        opportunity.shift_length_hours = float(form.shift_length_hours.data) if form.shift_length_hours.data else None
+        opportunity.hours_per_week = float(form.hours_per_week.data) if form.hours_per_week.data else None
+        opportunity.timezone = form.timezone.data if form.timezone.data else None
+        opportunity.work_duration = WorkDuration(form.work_duration.data) if form.work_duration.data else None
+        
+        db.session.commit()
+        flash('Opportunity updated successfully!', 'success')
+        return redirect(url_for("opportunities.employer_listings"))
+    
+    return render_template("opportunities/edit.html", form=form, opportunity=opportunity)
+
+
 @opp_bp.route("/opportunities/<int:opportunity_id>")
 def show_opportunity(opportunity_id: int):
     from .models import Opportunity
@@ -236,15 +348,13 @@ def add_calendar_slot(opportunity_id: int):
     if current_user.role != UserRole.EMPLOYER or current_user.id != opp.employer_id:
         abort(403)
     
-    # Debug: Print all form data
-    print(f"DEBUG: Form data received: {dict(request.form)}")
+
     
     # Get form data
     date_str = request.form.get("date")
     start_time_str = request.form.get("start_time")
     end_time_str = request.form.get("end_time")
-    
-    print(f"DEBUG: Parsed values - Date: {date_str}, Start: {start_time_str}, End: {end_time_str}")
+
     
     # Check if all required fields are present
     if not date_str or not start_time_str or not end_time_str:
@@ -255,8 +365,7 @@ def add_calendar_slot(opportunity_id: int):
         slot_date = datetime.strptime(date_str, "%Y-%m-%d").date()
         start_time = datetime.strptime(start_time_str, "%H:%M").time()
         end_time = datetime.strptime(end_time_str, "%H:%M").time()
-        
-        print(f"DEBUG: Parsed successfully - Date: {slot_date}, Start: {start_time}, End: {end_time}")
+
         
         # Validate time range
         if start_time >= end_time:
@@ -323,7 +432,19 @@ def global_calendar():
         Opportunity.is_active == True
     ).order_by(CalendarSlot.date, CalendarSlot.start_time).all()
     
-    return render_template("opportunities/global_calendar.html", calendar_slots=calendar_slots, start_date=start_date, timedelta=timedelta)
+    # Get opportunities without specific calendar slots (flexible scheduling)
+    all_opportunities = Opportunity.query.filter_by(is_active=True).all()
+    opportunities_with_slots = db.session.query(Opportunity).join(CalendarSlot).filter(
+        Opportunity.is_active == True,
+        CalendarSlot.is_available == True
+    ).distinct().all()
+    flexible_opportunities = [opp for opp in all_opportunities if opp not in opportunities_with_slots]
+    
+    return render_template("opportunities/global_calendar.html", 
+                         calendar_slots=calendar_slots, 
+                         flexible_opportunities=flexible_opportunities,
+                         start_date=start_date, 
+                         timedelta=timedelta)
 
 
 # Resident Profile Routes
@@ -416,6 +537,27 @@ def employer_profile():
         profile.modalities = request.form.get("modalities", "").strip()
         profile.location = request.form.get("location", "").strip()
         profile.practice_description = request.form.get("practice_description", "").strip()
+        
+        # Handle photo upload
+        if "photo" in request.files:
+            photo = request.files["photo"]
+            if photo and photo.filename:
+                import os
+                import uuid
+                from werkzeug.utils import secure_filename
+                
+                # Generate unique filename
+                file_ext = os.path.splitext(photo.filename)[1]
+                unique_filename = f"{uuid.uuid4().hex}{file_ext}"
+                
+                # Save file to uploads directory
+                uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+                os.makedirs(uploads_dir, exist_ok=True)
+                file_path = os.path.join(uploads_dir, unique_filename)
+                photo.save(file_path)
+                
+                # Store unique filename in database
+                profile.photo_filename = unique_filename
         
         db.session.commit()
         flash("Practice profile updated successfully!", "success")

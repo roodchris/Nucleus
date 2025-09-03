@@ -123,6 +123,9 @@ def submit_compensation():
     
     if form.validate_on_submit():
         # Create new compensation data entry
+        # Calculate weeks per year based on vacation weeks (52 - vacation weeks)
+        weeks_per_year = 52.0 - (form.weeks_vacation.data if form.weeks_vacation.data else 0)
+        
         compensation_data = CompensationData(
             year=form.year.data,
             region=form.region.data,
@@ -130,12 +133,12 @@ def submit_compensation():
             total_compensation=form.total_compensation.data,  # Already converted to int by validator
             base_salary=form.total_compensation.data,  # Set to total compensation for compatibility
             bonus=0,  # Set to 0 for compatibility
-            rvu_total=int(form.total_yearly_rvu.data) if form.total_yearly_rvu.data else None,
-            rvu_per_work_rvu=float(form.compensation_per_rvu.data) if form.compensation_per_rvu.data else None,
-            work_rvus=int(form.total_yearly_rvu.data) if form.total_yearly_rvu.data else None,
-            total_rvus=int(form.total_yearly_rvu.data) if form.total_yearly_rvu.data else None,
-            hours_per_week=form.hours_per_week.data,
-            weeks_per_year=48.0,  # Default to 48 weeks per year
+            rvu_total=form.total_yearly_rvu.data if form.total_yearly_rvu.data else None,
+            rvu_per_work_rvu=form.compensation_per_rvu.data if form.compensation_per_rvu.data else None,
+            work_rvus=form.total_yearly_rvu.data if form.total_yearly_rvu.data else None,
+            total_rvus=form.total_yearly_rvu.data if form.total_yearly_rvu.data else None,
+            hours_per_week=form.hours_per_week.data if form.hours_per_week.data else None,
+            weeks_per_year=weeks_per_year,
             practice_type=form.practice_type.data,
             experience_years=None,  # No longer collected
             source='Community Submission',
@@ -150,6 +153,6 @@ def submit_compensation():
         except Exception as e:
             db.session.rollback()
             flash('An error occurred while submitting your data. Please try again.', 'error')
-            print(f"Error submitting compensation data: {e}")
+            # Error submitting compensation data
     
     return render_template('compensation/submit.html', form=form)

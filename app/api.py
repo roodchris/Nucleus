@@ -110,6 +110,35 @@ def recent_conversations():
         current_app.logger.error(f"Error fetching recent conversations: {str(e)}")
         return jsonify({'error': 'Failed to fetch conversations'}), 500
 
+@api_bp.route('/user/profile')
+@login_required
+def current_user_profile():
+    """Get current user's profile information including photo"""
+    try:
+        current_user_photo = None
+        if current_user.role.value == 'resident':
+            from .models import ResidentProfile
+            resident_profile = ResidentProfile.query.filter_by(user_id=current_user.id).first()
+            if resident_profile and resident_profile.photo_filename:
+                current_user_photo = resident_profile.photo_filename
+        elif current_user.role.value == 'employer':
+            from .models import EmployerProfile
+            employer_profile = EmployerProfile.query.filter_by(user_id=current_user.id).first()
+            if employer_profile and employer_profile.photo_filename:
+                current_user_photo = employer_profile.photo_filename
+        
+        return jsonify({
+            'id': current_user.id,
+            'name': current_user.name,
+            'role': current_user.role.value,
+            'photo_filename': current_user_photo
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error fetching current user profile: {str(e)}")
+        return jsonify({'error': 'Failed to fetch profile'}), 500
+
+
 @api_bp.route('/conversations/<int:conversation_id>/messages')
 @login_required
 def conversation_messages(conversation_id):
@@ -164,12 +193,26 @@ def conversation_messages(conversation_id):
         
         db.session.commit()
         
+        # Get profile photo for other user
+        other_user_photo = None
+        if other_user.role.value == 'resident':
+            from .models import ResidentProfile
+            resident_profile = ResidentProfile.query.filter_by(user_id=other_user.id).first()
+            if resident_profile and resident_profile.photo_filename:
+                other_user_photo = resident_profile.photo_filename
+        elif other_user.role.value == 'employer':
+            from .models import EmployerProfile
+            employer_profile = EmployerProfile.query.filter_by(user_id=other_user.id).first()
+            if employer_profile and employer_profile.photo_filename:
+                other_user_photo = employer_profile.photo_filename
+        
         return jsonify({
             'messages': all_messages,
             'other_user': {
                 'id': other_user.id,
                 'name': other_user.name,
-                'role': other_user.role.value
+                'role': other_user.role.value,
+                'photo_filename': other_user_photo
             }
         })
         

@@ -3,7 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SelectField, Integ
 from wtforms.validators import DataRequired, Email, Length, EqualTo, NumberRange, Optional
 from wtforms import ValidationError
 from flask_wtf import FlaskForm
-from .models import OpportunityType, TrainingLevel
+from .models import OpportunityType, TrainingLevel, WorkDuration
 
 
 def comma_separated_number(min_val=None, max_val=None):
@@ -26,6 +26,19 @@ def comma_separated_number(min_val=None, max_val=None):
 
 
 ROLE_CHOICES: List[Tuple[str, str]] = [("employer", "Employer"), ("resident", "Radiologist")]
+
+# Common US timezones for radiology opportunities
+TIMEZONE_CHOICES: List[Tuple[str, str]] = [
+    ("", "Select Timezone"),
+    ("America/New_York", "Eastern Time (ET)"),
+    ("America/Chicago", "Central Time (CT)"),
+    ("America/Denver", "Mountain Time (MT)"),
+    ("America/Los_Angeles", "Pacific Time (PT)"),
+    ("America/Anchorage", "Alaska Time (AKT)"),
+    ("Pacific/Honolulu", "Hawaii Time (HST)"),
+    ("America/Phoenix", "Arizona Time (MST)"),
+]
+
 OPP_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("", "Any Type"),
     (OpportunityType.IN_PERSON_CONTRAST.value, "In-person contrast coverage"),
@@ -41,6 +54,14 @@ TRAINING_LEVEL_CHOICES: List[Tuple[str, str]] = [
     (TrainingLevel.R4.value, "R4"),
     (TrainingLevel.FELLOW.value, "FELLOW"),
     (TrainingLevel.ATTENDING.value, "ATTENDING"),
+]
+
+WORK_DURATION_CHOICES: List[Tuple[str, str]] = [
+    ("", "Select Work Duration"),
+    (WorkDuration.SINGLE_SHIFT.value, "Single Shift"),
+    (WorkDuration.SHORT_TERM.value, "Short-term (less than 1 month)"),
+    (WorkDuration.MEDIUM_TERM.value, "Medium-term (1 month to 6 months)"),
+    (WorkDuration.PERMANENT.value, "Permanent Employment"),
 ]
 
 
@@ -60,27 +81,24 @@ class LoginForm(FlaskForm):
 
 
 class OpportunityForm(FlaskForm):
-    title = StringField("Title", validators=[DataRequired(), Length(max=255)])
+    title = StringField("Title", validators=[Optional(), Length(max=255)])
     description = TextAreaField("Description", validators=[Optional(), Length(max=5000)])
-    opportunity_type = SelectField("Type", choices=[(t.value, t.name.replace("_", " ").title()) for t in OpportunityType], validators=[DataRequired()])
-    zip_code = StringField("Zip Code", validators=[DataRequired(), Length(min=5, max=10)])
-    pgy_min = SelectField("Training Level Minimum", choices=TRAINING_LEVEL_CHOICES, validators=[DataRequired()])
-    pgy_max = SelectField("Training Level Maximum", choices=TRAINING_LEVEL_CHOICES, validators=[DataRequired()])
-    pay_per_hour = DecimalField("Pay per hour ($)", validators=[DataRequired(), NumberRange(min=0)], places=2)
-    shift_length_hours = DecimalField("Shift length (hours)", validators=[DataRequired(), NumberRange(min=0)], places=1)
-    hours_per_week = DecimalField("Hours per week", validators=[DataRequired(), NumberRange(min=0)], places=1)
+    opportunity_type = SelectField("Type", choices=[("", "Select Type")] + [(t.value, t.name.replace("_", " ").title()) for t in OpportunityType], validators=[Optional()])
+    zip_code = StringField("Zip Code", validators=[Optional(), Length(min=5, max=10)])
+    pgy_min = SelectField("Training Level Minimum", choices=[("", "Select Minimum")] + TRAINING_LEVEL_CHOICES[1:], validators=[Optional()])
+    pgy_max = SelectField("Training Level Maximum", choices=[("", "Select Maximum")] + TRAINING_LEVEL_CHOICES[1:], validators=[Optional()])
+    pay_per_hour = DecimalField("Pay per hour ($)", validators=[Optional(), NumberRange(min=0)], places=2)
+    shift_length_hours = DecimalField("Shift length (hours)", validators=[Optional(), NumberRange(min=0)], places=1)
+    hours_per_week = DecimalField("Hours per week", validators=[Optional(), NumberRange(min=0)], places=1)
+    timezone = SelectField("Timezone", choices=TIMEZONE_CHOICES, validators=[Optional()])
+    work_duration = SelectField("Work Duration", choices=WORK_DURATION_CHOICES, validators=[Optional()])
 
     def validate(self, extra_validators=None):
         if not super().validate(extra_validators=extra_validators):
             return False
-        if self.pgy_min.data and self.pgy_min.data == "":
-            self.pgy_min.errors.append("Training level min must be selected")
-            return False
-        if self.pgy_max.data and self.pgy_max.data == "":
-            self.pgy_max.errors.append("Training level max must be selected")
-            return False
-        # Ensure min <= max
-        if self.pgy_min.data and self.pgy_max.data and self.pgy_min.data != "" and self.pgy_max.data != "":
+        
+        # Only validate training level logic if both fields are provided
+        if self.pgy_min.data and self.pgy_min.data != "" and self.pgy_max.data and self.pgy_max.data != "":
             level_order = {TrainingLevel.R1: 1, TrainingLevel.R2: 2, TrainingLevel.R3: 3, 
                           TrainingLevel.R4: 4, TrainingLevel.FELLOW: 5, TrainingLevel.ATTENDING: 6}
             min_level = level_order.get(TrainingLevel(self.pgy_min.data), 0)
@@ -95,12 +113,13 @@ class FilterForm(FlaskForm):
     opportunity_type = SelectField("Type", choices=OPP_TYPE_CHOICES, validators=[Optional()])
     zip_code = StringField("Zip Code", validators=[Optional(), Length(min=5, max=10)])
     radius_miles = IntegerField("Radius (miles)", validators=[Optional(), NumberRange(min=1)])
-    pgy_year = SelectField("Training Level Minimum", choices=TRAINING_LEVEL_CHOICES, validators=[Optional()])
+    pgy_year = SelectField("Your Current Training Level", choices=TRAINING_LEVEL_CHOICES, validators=[Optional()])
     pay_min = DecimalField("Min $/hr", validators=[Optional(), NumberRange(min=0)], places=2)
     shift_min = DecimalField("Min shift hours", validators=[Optional(), NumberRange(min=0)], places=1)
     shift_max = DecimalField("Max shift hours", validators=[Optional(), NumberRange(min=0)], places=1)
     hpw_min = DecimalField("Min hours/week", validators=[Optional(), NumberRange(min=0)], places=1)
     hpw_max = DecimalField("Max hours/week", validators=[Optional(), NumberRange(min=0)], places=1)
+    work_duration = SelectField("Work Duration", choices=[("", "Any Duration")] + WORK_DURATION_CHOICES[1:], validators=[Optional()])
 
 
 class CompensationSubmissionForm(FlaskForm):
@@ -128,12 +147,12 @@ class CompensationSubmissionForm(FlaskForm):
         ('1099 Contractor', '1099 Contractor'),
         ('Other', 'Other')
     ], validators=[DataRequired()])
-    hours_per_week = DecimalField("Hours per Week", validators=[DataRequired(), NumberRange(min=10, max=100)], places=1)
+    hours_per_week = DecimalField("Hours per Week", validators=[Optional(), NumberRange(min=10, max=100)], places=1)
     
     # Optional fields
     total_yearly_rvu = StringField("Total Yearly RVU", validators=[Optional(), comma_separated_number(min_val=1000, max_val=20000)])
     compensation_per_rvu = StringField("Compensation per RVU ($)", validators=[Optional(), comma_separated_number(min_val=0)])
-    weeks_vacation = IntegerField("Weeks of Vacation", validators=[Optional(), NumberRange(min=0, max=12)])
+    weeks_vacation = IntegerField("Weeks of Vacation", validators=[Optional(), NumberRange(min=0, max=50)])
 
 
 class JobReviewForm(FlaskForm):

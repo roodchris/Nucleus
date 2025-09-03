@@ -58,7 +58,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            Training Level Minimum
+            Your Current Training Level
           </label>
           {{ form.pgy_year(class="filter-input") }}
         </div>
@@ -119,6 +119,17 @@
             Max hours/week
           </label>
           {{ form.hpw_max(class="filter-input") }}
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12,6 12,12 16,14"/>
+            </svg>
+            Work Duration
+          </label>
+          {{ form.work_duration(class="filter-input") }}
         </div>
       </div>
       
@@ -189,7 +200,7 @@
                   <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2"/>
                   <path d="M7 20c1.5-2 3.5-3 5-3s3.5 1 5 3" stroke="currentColor" stroke-width="2"/>
                 </svg>
-                <span>{{ opp.zip_code }}
+                <span>{{ opp.zip_code }}{% if get_zip_location(opp.zip_code) %} ({{ get_zip_location(opp.zip_code) }}){% endif %}
                   {% if opp.distance is defined %}
                     · {{ opp.distance }} miles away
                   {% endif %}
@@ -215,8 +226,28 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span>Min: {{ opp.pgy_max.value }}</span>
+                <span>{{ opp.pgy_min.value }} - {{ opp.pgy_max.value }}</span>
               </div>
+              
+              {% if opp.timezone %}
+              <div class="detail-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12,6 12,12 16,14"/>
+                </svg>
+                <span>{{ opp.timezone.replace('_', ' ').replace('/', ' - ') }}</span>
+              </div>
+              {% endif %}
+              
+              {% if opp.work_duration %}
+              <div class="detail-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12,6 12,12 16,14"/>
+                </svg>
+                <span>{% if opp.work_duration.value == 'single_shift' %}Single Shift{% elif opp.work_duration.value == 'short_term' %}Short-term (less than 1 month){% elif opp.work_duration.value == 'medium_term' %}Medium-term (1 month to 6 months){% elif opp.work_duration.value == 'permanent' %}Permanent Employment{% else %}{{ opp.work_duration.value.replace('_', ' ').title() }}{% endif %}</span>
+              </div>
+              {% endif %}
             </div>
             
             {% if opp.description %}

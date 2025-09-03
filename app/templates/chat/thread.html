@@ -46,7 +46,7 @@
               {% endif %}
             </div>
             <div style="flex-grow:1;">
-              <div class="muted" style="font-size:12px; margin-bottom:4px;">{{ m.created_at }}</div>
+              <div class="muted" style="font-size:12px; margin-bottom:4px;" data-timestamp="{{ m.created_at.isoformat() }}" data-format="time">{{ m.created_at.strftime('%I:%M %p') }}</div>
               <div>
                 {% if m.sender_id == current_user.id %}
                   <strong>You:</strong>

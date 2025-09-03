@@ -26,6 +26,7 @@ def create_app(config_class: type = Config) -> Flask:
     from .program_reviews import program_reviews_bp
     from .knowledge_base import knowledge_base_bp
     from .job_reviews import job_reviews_bp
+    from .wrvu_calculator import wrvu_bp
     from .api import api_bp
 
     app.register_blueprint(auth_bp)
@@ -36,6 +37,7 @@ def create_app(config_class: type = Config) -> Flask:
     app.register_blueprint(program_reviews_bp)
     app.register_blueprint(knowledge_base_bp)
     app.register_blueprint(job_reviews_bp)
+    app.register_blueprint(wrvu_bp)
     app.register_blueprint(api_bp)
     
     # Register additional message routes
@@ -44,7 +46,8 @@ def create_app(config_class: type = Config) -> Flask:
     # Make helper functions available in templates
     @app.context_processor
     def utility_processor():
-        return dict(get_unread_count=get_unread_count)
+        from .opportunities import get_zip_location
+        return dict(get_unread_count=get_unread_count, get_zip_location=get_zip_location)
     
     # Serve uploaded files
     @app.route('/uploads/<path:filename>')

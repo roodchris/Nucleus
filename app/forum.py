@@ -358,6 +358,15 @@ def delete_post(post_id):
         flash("You can only delete your own posts", "error")
         return redirect(url_for("forum.view_post", post_id=post_id))
     
+    # Delete all votes associated with this post first
+    ForumVote.query.filter_by(post_id=post_id).delete()
+    
+    # Delete all comments and their votes
+    for comment in post.comments:
+        ForumVote.query.filter_by(comment_id=comment.id).delete()
+        db.session.delete(comment)
+    
+    # Finally delete the post
     db.session.delete(post)
     db.session.commit()
     
@@ -376,6 +385,11 @@ def delete_comment(comment_id):
         return redirect(url_for("forum.view_post", post_id=comment.post_id))
     
     post_id = comment.post_id
+    
+    # Delete all votes associated with this comment first
+    ForumVote.query.filter_by(comment_id=comment_id).delete()
+    
+    # Delete the comment
     db.session.delete(comment)
     db.session.commit()
     

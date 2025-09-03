@@ -1,0 +1,584 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title page-title-animated">wRVU Earnings Calculator</h1>
+    <p class="page-subtitle page-subtitle-animated">Calculate your expected revenue based on work RVU values and compensation rates. Perfect for evaluating moonlighting opportunities and contract negotiations.</p>
+  </div>
+
+<div class="container mx-auto px-4 py-8">
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Left Column: Global Settings -->
+    <div class="lg:col-span-1">
+      <div class="glass-card">
+        <h2 class="text-xl font-semibold text-white mb-4">
+          Global Settings
+        </h2>
+        
+        <div class="space-y-4">
+          <div>
+            <label for="compensation-rate" class="block text-sm font-medium text-gray-300 mb-2">
+              Compensation Rate ($ per wRVU)
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-400 sm:text-sm">$</span>
+              </div>
+              <input 
+                type="number" 
+                id="compensation-rate" 
+                class="glass-input" 
+                placeholder="0.00" 
+                step="0.01" 
+                min="0"
+                value="50"
+              >
+            </div>
+            <p class="text-xs text-gray-400 mt-1">Enter your compensation rate per wRVU</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue Summary -->
+      <div class="glass-card mt-6" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(147, 51, 234, 0.1)); border: 1px solid rgba(0, 212, 255, 0.2);">
+        <h3 class="text-lg font-semibold text-white mb-4">Revenue Summary</h3>
+        
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-300">Total Studies</span>
+            <span id="total-studies" class="text-2xl font-bold text-blue-400">0</span>
+          </div>
+          
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-300">Total wRVUs</span>
+            <span id="total-wrvus" class="text-2xl font-bold text-purple-400">0.0</span>
+          </div>
+          
+          <div class="border-t border-gray-600 pt-4">
+            <div class="flex justify-between items-center">
+              <span class="text-lg font-semibold text-white">Expected Revenue</span>
+              <span id="expected-revenue" class="text-3xl font-bold text-green-400">$0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Study Selection -->
+    <div class="lg:col-span-2">
+      <div class="glass-card">
+        <h2 class="text-xl font-semibold text-white mb-4">
+          Add Study Types
+        </h2>
+        
+        <!-- Searchable Dropdown -->
+        <div class="mb-6">
+          <div class="relative">
+            <input 
+              type="text" 
+              id="study-search" 
+              class="glass-input" 
+              placeholder="Type to search for study types..."
+              autocomplete="off"
+            >
+            <!-- Dropdown Results -->
+            <div id="search-results" class="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
+              <!-- Search results will be populated here -->
+            </div>
+          </div>
+          <p class="text-xs text-gray-400 mt-2">Start typing to search through 170+ radiology procedures</p>
+        </div>
+      </div>
+
+      <!-- Selected Studies -->
+      <div class="glass-card mt-6">
+        <h3 class="text-lg font-semibold text-white mb-4">
+          Selected Studies
+        </h3>
+        
+        <div id="selected-studies" class="space-y-2">
+          <div class="text-center text-gray-400 py-8">
+            <p>No studies selected</p>
+            <p class="text-sm">Use the search above to add study types to your revenue calculation</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information Section -->
+  <div class="mt-12 glass-card" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(147, 51, 234, 0.1)); border: 1px solid rgba(0, 212, 255, 0.2);">
+    <h3 class="text-lg font-semibold text-white mb-3">About wRVU Values</h3>
+    <div class="text-sm text-gray-300 space-y-2">
+      <p>
+        <strong class="text-blue-400">Work RVU (wRVU)</strong> values are based on the relative value units assigned by CMS to different medical procedures. 
+        These values reflect the physician work component of each procedure, including time, skill, and intensity.
+      </p>
+      <p>
+        This calculator includes <strong class="text-blue-400">115+ radiology procedures</strong> with their corresponding CPT codes and wRVU values, 
+        all based on <strong class="text-blue-400">RVU25b from CMS</strong>. Each study includes the official CPT code, wRVU value, and procedure description.
+      </p>
+      <p>
+        <strong class="text-blue-400">Multiple Quantities:</strong> You can add multiple instances of the same study type using the + and - buttons. 
+        This is useful for calculating revenue when performing multiple studies of the same type during a shift or contract period.
+      </p>
+      <p>
+        <strong class="text-blue-400">Data Sources:</strong> All wRVU values are sourced from the Centers for Medicare & Medicaid Services (CMS) 
+        Physician Fee Schedule and represent the work component only. CPT codes are the official Current Procedural Terminology codes.
+      </p>
+      <p>
+        <strong class="text-blue-400">Note:</strong> This calculator is for educational and planning purposes. Your actual compensation may vary based on 
+        your contract terms, practice setting, and geographic location. Always consult with your practice administrator 
+        or contract specialist for accurate compensation calculations.
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Glass Morphism Components */
+.glass-card {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+  border-radius: 24px 24px 0 0;
+}
+
+.glass-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  width: 100%;
+  transition: all 0.3s ease;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+  background: var(--surface-2);
+}
+
+.glass-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Search Results Dropdown */
+.search-result-item {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.search-result-item:hover {
+  background: var(--surface-2);
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item .study-name {
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+
+.search-result-item .study-details {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.search-result-item .wrvu-badge {
+  background: var(--accent-light);
+  color: var(--accent);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Selected Study Items */
+.selected-study {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+}
+
+.selected-study:hover {
+  background: var(--surface-3);
+  border-color: var(--accent);
+}
+
+.selected-study .study-name {
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+
+.selected-study .study-details {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.remove-btn {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #dc2626;
+}
+
+.quantity-btn {
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantity-btn:hover {
+  background: rgba(var(--accent-rgb), 0.2);
+  border-color: rgba(var(--accent-rgb), 0.5);
+  color: var(--accent-hover);
+}
+
+.quantity-display {
+  font-weight: 600;
+  color: var(--text);
+  min-width: 24px;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .glass-card {
+    padding: 1.5rem;
+    margin: 0 1rem;
+  }
+  
+  .container {
+    padding: 1rem;
+  }
+}
+</style>
+
+<script>
+// wRVU Calculator JavaScript
+class WRVUCalculator {
+  constructor() {
+    this.wrvuData = {{ wrvu_data | tojson }};
+    this.selectedStudies = []; // Array of objects: {name, quantity}
+    this.compensationRate = 50;
+    this.searchTerm = '';
+    this.searchResults = [];
+    
+    this.initializeEventListeners();
+    this.updateSummary();
+  }
+
+  initializeEventListeners() {
+    // Compensation rate input
+    document.getElementById('compensation-rate').addEventListener('input', (e) => {
+      this.compensationRate = parseFloat(e.target.value) || 0;
+      this.updateSummary();
+    });
+
+    // Search input with debouncing
+    const searchInput = document.getElementById('study-search');
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      this.searchTerm = e.target.value.toLowerCase();
+      
+      searchTimeout = setTimeout(() => {
+        this.performSearch();
+      }, 150);
+    });
+
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#study-search') && !e.target.closest('#search-results')) {
+        this.hideSearchResults();
+      }
+    });
+
+    // Handle escape key
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.hideSearchResults();
+        searchInput.blur();
+      }
+    });
+  }
+
+  performSearch() {
+    if (this.searchTerm.length < 2) {
+      this.hideSearchResults();
+      return;
+    }
+
+    this.searchResults = this.getSearchResults();
+    this.displaySearchResults();
+  }
+
+  getSearchResults() {
+    const allStudies = Object.entries(this.wrvuData).map(([name, data]) => ({
+      name,
+      wrvu: data.wrvu,
+      cpt: data.cpt,
+      description: data.description
+    }));
+
+    // Filter studies that match search term
+    const filtered = allStudies.filter(study => 
+      study.name.toLowerCase().includes(this.searchTerm) ||
+      study.cpt.includes(this.searchTerm) ||
+      study.description.toLowerCase().includes(this.searchTerm)
+    );
+
+    // Sort by relevance (exact matches first, then partial matches)
+    return filtered.sort((a, b) => {
+      const aExact = a.name.toLowerCase().startsWith(this.searchTerm);
+      const bExact = b.name.toLowerCase().startsWith(this.searchTerm);
+      
+      if (aExact && !bExact) return -1;
+      if (!aExact && bExact) return 1;
+      
+      return a.name.localeCompare(b.name);
+    }).slice(0, 10); // Limit to 10 results
+  }
+
+  displaySearchResults() {
+    const resultsContainer = document.getElementById('search-results');
+    
+    if (this.searchResults.length === 0) {
+      resultsContainer.innerHTML = `
+        <div class="search-result-item">
+          <div>
+            <div class="study-name">No studies found</div>
+            <div class="study-details">Try a different search term</div>
+          </div>
+        </div>
+      `;
+    } else {
+      resultsContainer.innerHTML = this.searchResults.map(study => `
+        <div class="search-result-item" data-study="${study.name}">
+          <div>
+            <div class="study-name">${study.name}</div>
+            <div class="study-details">CPT: ${study.cpt} • ${study.description}</div>
+          </div>
+          <div class="wrvu-badge">${study.wrvu} wRVU</div>
+        </div>
+      `).join('');
+
+      // Add click event listeners
+      resultsContainer.querySelectorAll('.search-result-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          const studyName = e.currentTarget.dataset.study;
+          if (studyName && studyName !== 'No studies found') {
+            this.addStudy(studyName);
+            document.getElementById('study-search').value = '';
+            this.hideSearchResults();
+          }
+        });
+      });
+    }
+
+    resultsContainer.classList.remove('hidden');
+  }
+
+  hideSearchResults() {
+    document.getElementById('search-results').classList.add('hidden');
+  }
+
+  addStudy(studyName) {
+    // Check if study already exists
+    const existingStudy = this.selectedStudies.find(study => study.name === studyName);
+    
+    if (existingStudy) {
+      // Increment quantity if study already exists
+      existingStudy.quantity += 1;
+    } else {
+      // Add new study with quantity 1
+      this.selectedStudies.push({ name: studyName, quantity: 1 });
+    }
+    
+    this.updateSelectedStudies();
+    this.updateSummary();
+  }
+
+  removeStudy(studyName) {
+    this.selectedStudies = this.selectedStudies.filter(study => study.name !== studyName);
+    this.updateSelectedStudies();
+    this.updateSummary();
+  }
+
+  decrementStudy(studyName) {
+    const existingStudy = this.selectedStudies.find(study => study.name === studyName);
+    
+    if (existingStudy) {
+      if (existingStudy.quantity > 1) {
+        existingStudy.quantity -= 1;
+      } else {
+        // Remove study if quantity becomes 0
+        this.selectedStudies = this.selectedStudies.filter(study => study.name !== studyName);
+      }
+      this.updateSelectedStudies();
+      this.updateSummary();
+    }
+  }
+
+  updateSelectedStudies() {
+    const container = document.getElementById('selected-studies');
+    
+    if (this.selectedStudies.length === 0) {
+      container.innerHTML = `
+        <div class="text-center text-gray-400 py-8">
+          <p>No studies selected</p>
+          <p class="text-sm">Use the search above to add study types to your revenue calculation</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = this.selectedStudies.map(study => {
+      const studyData = this.wrvuData[study.name];
+      const totalWRVU = studyData.wrvu * study.quantity;
+      return `
+        <div class="selected-study">
+          <div>
+            <div class="study-name">${study.name}</div>
+            <div class="study-details">CPT: ${studyData.cpt} • ${studyData.wrvu} wRVU each • Qty: ${study.quantity} • Total: ${totalWRVU.toFixed(1)} wRVU</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button 
+              class="quantity-btn"
+              data-study="${study.name}"
+              data-action="decrement"
+              title="Decrease quantity"
+            >
+              −
+            </button>
+            <span class="quantity-display">${study.quantity}</span>
+            <button 
+              class="quantity-btn"
+              data-study="${study.name}"
+              data-action="increment"
+              title="Increase quantity"
+            >
+              +
+            </button>
+            <button 
+              class="remove-btn"
+              data-study="${study.name}"
+              title="Remove completely"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Add event listeners for remove buttons
+    container.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        this.removeStudy(e.target.dataset.study);
+      });
+    });
+
+    // Add event listeners for quantity buttons
+    container.querySelectorAll('.quantity-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const studyName = e.target.dataset.study;
+        const action = e.target.dataset.action;
+        
+        if (action === 'increment') {
+          this.addStudy(studyName);
+        } else if (action === 'decrement') {
+          this.decrementStudy(studyName);
+        }
+      });
+    });
+  }
+
+  updateSummary() {
+    const totalStudies = this.selectedStudies.length;
+    const totalQuantity = this.selectedStudies.reduce((sum, study) => sum + study.quantity, 0);
+    const totalWRVUs = this.selectedStudies.reduce((sum, study) => {
+      const studyData = this.wrvuData[study.name];
+      return sum + (studyData?.wrvu || 0) * study.quantity;
+    }, 0);
+    const expectedRevenue = totalWRVUs * this.compensationRate;
+
+    document.getElementById('total-studies').textContent = totalStudies;
+    document.getElementById('total-wrvus').textContent = totalWRVUs.toFixed(1);
+    document.getElementById('expected-revenue').textContent = `$${expectedRevenue.toFixed(2)}`;
+    
+    // Update the summary text to show total quantity
+    const summaryText = document.querySelector('#revenue-summary .text-gray-400');
+    if (summaryText) {
+      summaryText.textContent = `Total: ${totalQuantity} studies • ${totalWRVUs.toFixed(1)} wRVUs • $${this.compensationRate}/wRVU`;
+    }
+  }
+}
+
+// Initialize calculator when page loads
+document.addEventListener('DOMContentLoaded', () => {
+  new WRVUCalculator();
+});
+</script>
+{% endblock %}

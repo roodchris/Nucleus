@@ -217,7 +217,7 @@
           </div>
           <div class="detail-row">
             <span class="detail-label">Hours/Week</span>
-            <span class="detail-value">{{ "{:.1f}".format(item.hours_per_week) }}</span>
+            <span class="detail-value">{{ "{:.1f}".format(item.hours_per_week) if item.hours_per_week else "N/A" }}</span>
           </div>
         </div>
         

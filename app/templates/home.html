@@ -40,6 +40,43 @@
     </div>
   </section>
 
+  <!-- Mission Statement Section -->
+  <section class="mission-section">
+    <div class="container">
+      <div class="mission-card">
+        <div class="mission-content">
+          <p class="mission-text">
+            <strong>The thesis? A rising tide lifts all boats.</strong>
+          </p>
+          <p class="mission-text">
+            <strong>The mechanism? Radical transparency.</strong>
+          </p>
+          <br>
+          <p class="mission-text">
+            It's not a secret that radiology is being impacted by the rapid consolidation of radiology groups, short-sighted private equity takeovers, and ever-declining reimbursements. How can we fight back against this? Radical transparency.
+          </p>
+          <p class="mission-text">
+            Nucleus provides you with job opportunities ranging from contrast coverage to reading studies, opportunities for residents through attendings, and from single shifts to full-time employment. But that's not enough – you should be able to assess if the offers you're considering are competitive. With compensation data sourced from members like you, you're able to assess how your offer stacks up and if it's worth pursuing.
+          </p>
+          <p class="mission-text">
+            For those earlier in their career, potentially deciding their residency rank list or where to accept their first job, there are residency program and job review sections that allow users to share their experiences at their residency and prior practices. Historically, this information has been siloed and gatekept, but we hope that through transparency users can use this data to make informed decisions.
+          </p>
+          <p class="mission-text">
+            This platform will only be as useful as its userbase, and I hope you will feel compelled to contribute to it by submitting job reviews, residency reviews, compensation data, or just by having a good time in the forum with fellow radiologists.
+          </p>
+          <br>
+          <p class="mission-text">
+            To new friends and the betterment of the field of radiology.
+          </p>
+          <p class="mission-text">
+            Cheers!<br>
+            <strong>– The Nucleus Team</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Features Section -->
   <section class="features-section">
     <div class="container">
@@ -321,6 +358,59 @@
       border-top: 8px solid var(--accent);
     }
 
+    /* Mission Section */
+    .mission-section {
+      padding: 4rem 0;
+      background: var(--bg);
+    }
+
+    .mission-card {
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 3rem;
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .mission-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+      border-radius: 24px 24px 0 0;
+    }
+
+    .mission-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .mission-text {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+      font-weight: 400;
+    }
+
+    .mission-text:last-child {
+      margin-bottom: 0;
+    }
+
+    .mission-text strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
     /* Features Section */
     .features-section {
       padding: 6rem 0;
@@ -445,6 +535,16 @@
 
       .section-title {
         font-size: 2.5rem;
+      }
+
+      .mission-card {
+        padding: 2rem 1.5rem;
+        margin: 0 1rem;
+      }
+
+      .mission-text {
+        font-size: 1rem;
+        line-height: 1.6;
       }
     }
   </style>

@@ -99,8 +99,14 @@
     <div class="border-b border-border pb-6 last:border-b-0">
       <div class="flex items-start justify-between mb-4">
         <div>
-          <h4 class="font-medium">{{ review.user.username }}</h4>
-          <p class="text-sm text-secondary">{{ review.created_at.strftime('%B %Y') }}</p>
+          <h4 class="font-medium">
+            {% if review.anonymous %}
+              Anonymous
+            {% else %}
+              {{ review.user.username }}
+            {% endif %}
+          </h4>
+          <p class="text-sm text-secondary" data-timestamp="{{ review.created_at.isoformat() }}" data-format="date">{{ review.created_at.strftime('%B %Y') }}</p>
         </div>
         <div class="text-right">
           {% set review_overall = (review.educational_quality + review.work_life_balance + review.attending_quality + review.facilities_quality + review.research_opportunities + review.culture) / 6 %}

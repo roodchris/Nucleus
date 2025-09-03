@@ -178,9 +178,9 @@
             <h3 class="practice-name">{{ review.practice_name }}</h3>
             <p class="reviewer-info">
               {% if review.is_anonymous %}
-                Anonymous • {{ review.created_at.strftime('%B %d, %Y') }}
+                Anonymous • <span data-timestamp="{{ review.created_at.isoformat() }}" data-format="date">{{ review.created_at.strftime('%B %d, %Y') }}</span>
               {% else %}
-                {{ review.user.name }} • {{ review.created_at.strftime('%B %d, %Y') }}
+                {{ review.user.name }} • <span data-timestamp="{{ review.created_at.isoformat() }}" data-format="date">{{ review.created_at.strftime('%B %d, %Y') }}</span>
               {% endif %}
             </p>
           </div>

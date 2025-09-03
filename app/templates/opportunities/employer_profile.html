@@ -21,7 +21,7 @@
       </div>
     </div>
     
-    <form method="POST" class="profile-form">
+    <form method="POST" enctype="multipart/form-data" class="profile-form">
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label">Practice Setting</label>
@@ -31,7 +31,6 @@
             <option value="Private Practice" {% if profile and profile.practice_setting == 'Private Practice' %}selected{% endif %}>Private Practice</option>
             <option value="Hospital-based" {% if profile and profile.practice_setting == 'Hospital-based' %}selected{% endif %}>Hospital-based</option>
             <option value="Teleradiology" {% if profile and profile.practice_setting == 'Teleradiology' %}selected{% endif %}>Teleradiology</option>
-            <option value="Urgent Care" {% if profile and profile.practice_setting == 'Urgent Care' %}selected{% endif %}>Urgent Care</option>
             <option value="Other" {% if profile and profile.practice_setting == 'Other' %}selected{% endif %}>Other</option>
           </select>
         </div>
@@ -49,6 +48,26 @@
         <div class="form-group full-width">
           <label class="form-label">Practice Description</label>
           <textarea name="practice_description" class="form-input" rows="6" placeholder="Describe your practice, work environment, team culture, and what makes your practice unique...">{{ profile.practice_description or '' }}</textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Profile Photo</label>
+          <div class="file-upload-container">
+            <input type="file" name="photo" accept="image/*" class="file-input" id="photo-upload" />
+            <label for="photo-upload" class="file-upload-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="7,10 12,15 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Choose Photo
+            </label>
+            {% if profile and profile.photo_filename %}
+              <div class="current-photo">
+                <span>Current: {{ profile.photo_filename }}</span>
+              </div>
+            {% endif %}
+          </div>
         </div>
       </div>
       
@@ -81,6 +100,15 @@
     </div>
     
     <div class="preview-content">
+      {% if profile.photo_filename %}
+        <div class="preview-photo">
+          <h4>Profile Photo</h4>
+          <div style="text-align:center;">
+            <img src="/uploads/{{ profile.photo_filename }}" alt="{{ current_user.name }}" style="width:150px; height:150px; border-radius:50%; object-fit:cover; border:3px solid var(--accent);">
+          </div>
+        </div>
+      {% endif %}
+      
       <div class="preview-details">
         {% if profile.practice_setting %}
         <div class="detail-row">

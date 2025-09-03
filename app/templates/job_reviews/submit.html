@@ -1,199 +1,236 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-4xl">
-  <div class="text-center mb-12">
-    <h1 class="text-4xl font-bold text-gray-900 mb-4">Submit a Job Review</h1>
-    <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-      Share your experience working at a radiology practice. Help other users make informed decisions about their careers.
-    </p>
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title page-title-animated">⭐ Submit Job Review</h1>
+    <p class="page-subtitle page-subtitle-animated">Share your experience working at a radiology practice to help the community</p>
   </div>
 
-  <div class="bg-white rounded-lg shadow-lg p-8">
-    <form method="POST" class="space-y-8">
-      {{ form.hidden_tag() }}
+<div class="card max-w-4xl mx-auto">
+  <h3 class="text-2xl font-bold mb-4">Practice/Organization Review</h3>
+  <p class="text-secondary mb-8 text-lg leading-relaxed">
+    Your review will help other radiologists make informed decisions about their careers. 
+    Share your honest experience about work-life balance, compensation, culture, and growth opportunities.
+  </p>
+
+  <form method="POST" class="space-y-6">
+    {{ form.hidden_tag() }}
+    
+    <!-- Tile 1: Practice Information Section -->
+    <div class="card bg-white shadow-md border border-gray-200">
+      <div class="flex items-center mb-4">
+        <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</div>
+        <h4 class="text-lg font-semibold text-gray-800">Practice Information</h4>
+      </div>
+      <div class="grid-2 gap-6">
+        <div>
+          <label for="{{ form.practice_name.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.practice_name.label }}</label>
+          <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Name of the practice or organization</p>
+          {{ form.practice_name(class="input", placeholder="e.g., University Hospital, Private Practice Group") }}
+          {% if form.practice_name.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.practice_name.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="{{ form.location.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.location.label }}</label>
+          <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">City and state of the practice</p>
+          {{ form.location(class="input", placeholder="e.g., New York, NY") }}
+          {% if form.location.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.location.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
       
-      <!-- Practice Information -->
-      <div class="space-y-6">
-        <h2 class="text-2xl font-bold text-gray-900 border-b pb-2">Practice/Organization Information</h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label for="{{ form.practice_name.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-              Practice/Organization Name
-            </label>
-            {{ form.practice_name(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder="e.g., University Hospital, Private Practice Group") }}
-            {% if form.practice_name.errors %}
-              <div class="text-red-600 text-sm mt-1">
-                {% for error in form.practice_name.errors %}
-                  {{ error }}
-                {% endfor %}
-              </div>
-            {% endif %}
+      <div class="mt-6">
+        <label for="{{ form.practice_type.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.practice_type.label }}</label>
+        <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Type of practice setting</p>
+        {{ form.practice_type(class="input") }}
+        {% if form.practice_type.errors %}
+          <div class="text-red-500 text-sm mt-2">
+            {% for error in form.practice_type.errors %}
+              {{ error }}
+            {% endfor %}
           </div>
-          
-          <div>
-            <label for="{{ form.location.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ form.location.label }}
-            </label>
-            {{ form.location(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder="e.g., New York, NY") }}
-            {% if form.location.errors %}
-              <div class="text-red-600 text-sm mt-1">
-                {% for error in form.location.errors %}
-                  {{ error }}
-                {% endfor %}
-              </div>
-            {% endif %}
-          </div>
-          
-          <div>
-            <label for="{{ form.practice_type.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ form.practice_type.label }}
-            </label>
-            {{ form.practice_type(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-            {% if form.practice_type.errors %}
-              <div class="text-red-600 text-sm mt-1">
-                {% for error in form.practice_type.errors %}
-                  {{ error }}
-                {% endfor %}
-              </div>
-            {% endif %}
-          </div>
-        </div>
+        {% endif %}
       </div>
+    </div>
 
-      <!-- Ratings -->
-      <div class="space-y-6">
-        <h2 class="text-2xl font-bold text-gray-900 border-b pb-2">Practice Ratings</h2>
-        <p class="text-gray-600">Rate different aspects of the practice/organization on a scale of 1-5 (1 = Poor, 5 = Excellent)</p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label for="{{ form.work_life_balance.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ form.work_life_balance.label }}
-            </label>
-            {{ form.work_life_balance(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-            {% if form.work_life_balance.errors %}
-              <div class="text-red-600 text-sm mt-1">
-                {% for error in form.work_life_balance.errors %}
-                  {{ error }}
-                {% endfor %}
-              </div>
-            {% endif %}
-          </div>
-          
-          <div>
-            <label for="{{ form.compensation.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ form.compensation.label }}
-            </label>
-            {{ form.compensation(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-            {% if form.compensation.errors %}
-              <div class="text-red-600 text-sm mt-1">
-                {% for error in form.compensation.errors %}
-                  {{ error }}
-                {% endfor %}
-              </div>
-            {% endif %}
-          </div>
-          
-          <div>
-            <label for="{{ form.culture.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ form.culture.label }}
-            </label>
-            {{ form.culture(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-            {% if form.culture.errors %}
-              <div class="text-red-600 text-sm mt-1">
-                {% for error in form.culture.errors %}
-                  {{ error }}
-                {% endfor %}
-              </div>
-            {% endif %}
-          </div>
-          
-          <div>
-            <label for="{{ form.growth_opportunities.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ form.growth_opportunities.label }}
-            </label>
-            {{ form.growth_opportunities(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-            {% if form.growth_opportunities.errors %}
-              <div class="text-red-600 text-sm mt-1">
-                {% for error in form.growth_opportunities.errors %}
-                  {{ error }}
-                {% endfor %}
-              </div>
-            {% endif %}
-          </div>
+    <!-- Tile 2: Practice Ratings Section -->
+    <div class="card bg-white shadow-md border border-gray-200">
+      <div class="flex items-center mb-4">
+        <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</div>
+        <h4 class="text-lg font-semibold text-gray-800">Practice Ratings</h4>
+      </div>
+      <p class="text-secondary mb-6">Rate different aspects of the practice on a scale of 1-5 (1 = Poor, 5 = Excellent)</p>
+      
+      <div class="grid-2 gap-6">
+        <div>
+          <label for="{{ form.work_life_balance.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.work_life_balance.label }}</label>
+          <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">How well does the practice support work-life balance?</p>
+          {{ form.work_life_balance(class="input") }}
+          {% if form.work_life_balance.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.work_life_balance.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
         
         <div>
-          <label for="{{ form.overall_rating.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ form.overall_rating.label }}
-          </label>
-          {{ form.overall_rating(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-          {% if form.overall_rating.errors %}
-            <div class="text-red-600 text-sm mt-1">
-              {% for error in form.overall_rating.errors %}
+          <label for="{{ form.compensation.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.compensation.label }}</label>
+          <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">How competitive is the compensation package?</p>
+          {{ form.compensation(class="input") }}
+          {% if form.compensation.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.compensation.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="{{ form.culture.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.culture.label }}</label>
+          <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">How would you rate the workplace culture?</p>
+          {{ form.culture(class="input") }}
+          {% if form.culture.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.culture.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="{{ form.growth_opportunities.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.growth_opportunities.label }}</label>
+          <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Are there opportunities for professional growth?</p>
+          {{ form.growth_opportunities(class="input") }}
+          {% if form.growth_opportunities.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.growth_opportunities.errors %}
                 {{ error }}
               {% endfor %}
             </div>
           {% endif %}
         </div>
       </div>
-
-      <!-- Detailed Review -->
-      <div class="space-y-6">
-        <h2 class="text-2xl font-bold text-gray-900 border-b pb-2">Detailed Review</h2>
-        
-        <div>
-          <label for="{{ form.review_text.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ form.review_text.label }}
-          </label>
-          {{ form.review_text(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", rows="6", placeholder="Share your detailed experience, pros and cons, and any advice for other radiologists...") }}
-          {% if form.review_text.errors %}
-            <div class="text-red-600 text-sm mt-1">
-              {% for error in form.review_text.errors %}
-                {{ error }}
-              {% endfor %}
-            </div>
-          {% endif %}
-          <p class="text-sm text-gray-500 mt-1">Optional but highly valuable for other users</p>
-        </div>
+      
+      <div class="mt-6">
+        <label for="{{ form.overall_rating.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.overall_rating.label }}</label>
+        <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Overall rating for this practice</p>
+        {{ form.overall_rating(class="input") }}
+        {% if form.overall_rating.errors %}
+          <div class="text-red-500 text-sm mt-2">
+            {% for error in form.overall_rating.errors %}
+              {{ error }}
+            {% endfor %}
+          </div>
+        {% endif %}
       </div>
+    </div>
 
-      <!-- Privacy Options -->
-      <div class="space-y-6">
-        <h2 class="text-2xl font-bold text-gray-900 border-b pb-2">Privacy Options</h2>
-        
-        <div class="flex items-center">
-          {{ form.is_anonymous(class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded") }}
-          <label for="{{ form.is_anonymous.id }}" class="ml-2 block text-sm text-gray-900">
-            {{ form.is_anonymous.label }}
-          </label>
-        </div>
-        <p class="text-sm text-gray-600 ml-6">
-          Check this box if you'd like to submit your review anonymously. Your name will not be displayed publicly.
-        </p>
+    <!-- Tile 3: Detailed Review Section -->
+    <div class="card bg-white shadow-md border border-gray-200">
+      <div class="flex items-center mb-4">
+        <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</div>
+        <h4 class="text-lg font-semibold text-gray-800">Detailed Review</h4>
       </div>
-
-      <!-- Submit Button -->
-      <div class="flex justify-center pt-6">
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors duration-200">
-          Submit Review
-        </button>
+      <div>
+        <label for="{{ form.review_text.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.review_text.label }}</label>
+        <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Share your detailed experience, pros and cons, and advice for other radiologists</p>
+        {{ form.review_text(class="input", rows="6", placeholder="Share your detailed experience, pros and cons, and any advice for other radiologists...") }}
+        {% if form.review_text.errors %}
+          <div class="text-red-500 text-sm mt-2">
+            {% for error in form.review_text.errors %}
+              {{ error }}
+            {% endfor %}
+          </div>
+        {% endif %}
+        <p class="text-sm text-gray-500 mt-2">Optional but highly valuable for other users</p>
       </div>
-    </form>
-  </div>
+    </div>
 
-  <!-- Back to Reviews -->
-  <div class="text-center mt-8">
-    <a href="{{ url_for('job_reviews.index') }}" class="text-blue-600 hover:text-blue-800 font-medium hover:underline">
-      ← Back to Job Reviews
-    </a>
-  </div>
+    <!-- Tile 4: Privacy Options Section -->
+    <div class="card bg-white shadow-md border border-gray-200">
+      <div class="flex items-center mb-4">
+        <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">4</div>
+        <h4 class="text-lg font-semibold text-gray-800">Privacy Options</h4>
+      </div>
+      <div class="flex items-center">
+        {{ form.is_anonymous(class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded") }}
+        <label for="{{ form.is_anonymous.id }}" class="ml-2 block text-sm text-gray-900">
+          {{ form.is_anonymous.label }}
+        </label>
+      </div>
+      <p class="text-sm text-gray-600 ml-6 mt-2">
+        Check this box if you'd like to submit your review anonymously. Your name will not be displayed publicly.
+      </p>
+    </div>
+
+    <div class="flex gap-4 pt-6">
+      <button type="submit" class="btn px-8 py-3 text-lg">Submit Review</button>
+      <a href="{{ url_for('job_reviews.index') }}" class="btn btn-secondary px-8 py-3 text-lg">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<div class="card mt-6 max-w-4xl mx-auto">
+  <h3>Community Review Guidelines</h3>
+  <ul class="text-secondary space-y-2">
+    <li>• Be honest and constructive in your feedback</li>
+    <li>• Focus on facts and your personal experience</li>
+    <li>• Avoid personal attacks or inappropriate language</li>
+    <li>• Your review helps other radiologists make informed career decisions</li>
+    <li>• All reviews are moderated for quality and appropriateness</li>
+    <li>• You can choose to submit anonymously if preferred</li>
+  </ul>
 </div>
 
 <style>
-  .container {
-    max-width: 1200px;
+  /* Page Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent) 0%, #00b8e6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+
+  .page-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2.5rem;
+    }
+    
+    .page-subtitle {
+      font-size: 1.1rem;
+    }
   }
 </style>
 {% endblock %}

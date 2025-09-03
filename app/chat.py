@@ -21,6 +21,9 @@ def inbox():
 		# Get the other user's profile photo
 		if convo.other_user.role.value == 'resident':
 			convo.other_user_profile = ResidentProfile.query.filter_by(user_id=convo.other_user.id).first()
+		elif convo.other_user.role.value == 'employer':
+			from .models import EmployerProfile
+			convo.other_user_profile = EmployerProfile.query.filter_by(user_id=convo.other_user.id).first()
 		else:
 			convo.other_user_profile = None
 	
@@ -72,6 +75,9 @@ def direct():
 		# Get the other user's profile photo
 		if convo.other_user.role.value == 'resident':
 			convo.other_user_profile = ResidentProfile.query.filter_by(user_id=convo.other_user.id).first()
+		elif convo.other_user.role.value == 'employer':
+			from .models import EmployerProfile
+			convo.other_user_profile = EmployerProfile.query.filter_by(user_id=convo.other_user.id).first()
 		else:
 			convo.other_user_profile = None
 	

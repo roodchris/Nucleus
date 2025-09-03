@@ -223,6 +223,7 @@ def new_review():
         research_opportunities = int(request.form.get('research_opportunities'))
         culture = int(request.form.get('culture'))
         comments = request.form.get('comments')
+        anonymous = bool(request.form.get('anonymous'))  # Checkbox value
         
         # Validate ratings
         if not all(1 <= rating <= 5 for rating in [educational_quality, work_life_balance, attending_quality, 
@@ -240,7 +241,8 @@ def new_review():
             facilities_quality=facilities_quality,
             research_opportunities=research_opportunities,
             culture=culture,
-            comments=comments
+            comments=comments,
+            anonymous=anonymous
         )
         
         db.session.add(review)

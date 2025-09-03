@@ -74,7 +74,7 @@
     {% if posts.items %}
     <div class="posts-grid">
       {% for post in posts.items %}
-      <div class="post-card">
+      <div class="post-card" onclick="navigateToPost({{ post.id }})">
         <div class="post-header">
           <div class="post-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -83,7 +83,7 @@
           </div>
           <div class="post-title">
             <h3 class="post-title-text">
-              <a href="/forum/post/{{ post.id }}" class="post-link">{{ post.title }}</a>
+              <span class="post-link">{{ post.title }}</span>
             </h3>
             <div class="post-badges">
               <span class="category-badge">{{ post.category.value.replace('_', ' ').title() }}</span>
@@ -95,7 +95,7 @@
               {% endif %}
             </div>
           </div>
-          <div class="post-votes">
+          <div class="post-votes" onclick="event.stopPropagation()">
             <div class="vote-container">
                              <button class="vote-btn upvote{% if post._user_vote == 'upvote' %} voted{% endif %}" data-post-id="{{ post.id }}" data-vote-type="upvote">
                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -129,7 +129,7 @@
             </div>
             <div class="author-info">
               <span class="author-name">{{ post.author.name }}</span>
-              <span class="post-date">{{ post.created_at.strftime('%B %d, %Y') }}</span>
+              <span class="post-date" data-timestamp="{{ post.created_at.isoformat() }}" data-format="date">{{ post.created_at.strftime('%B %d, %Y') }}</span>
             </div>
           </div>
           
@@ -145,7 +145,7 @@
         
         <!-- Action Buttons -->
         {% if current_user.is_authenticated and current_user.id == post.author_id %}
-        <div class="post-actions">
+        <div class="post-actions" onclick="event.stopPropagation()">
           <a href="/forum/post/{{ post.id }}/edit" class="btn secondary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -369,6 +369,7 @@
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    cursor: pointer;
   }
 
   .post-card::before {
@@ -784,6 +785,11 @@
       });
     });
   });
+
+  // Navigate to post functionality
+  function navigateToPost(postId) {
+    window.location.href = '/forum/post/' + postId;
+  }
 
   // Delete post functionality
   function deletePost(postId) {

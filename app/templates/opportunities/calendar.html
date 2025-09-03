@@ -27,7 +27,7 @@
   <!-- Page Header -->
   <div class="page-header">
     <h1 class="page-title page-title-animated">📅 {{ opp.title }} - Calendar</h1>
-    <p class="page-subtitle page-subtitle-animated">{{ opp.zip_code }} · {{ opp.opportunity_type.value|replace('_',' ') }} · ${{ opp.pay_per_hour }}/hr · {{ opp.shift_length_hours }}h shifts</p>
+    <p class="page-subtitle page-subtitle-animated">{{ opp.zip_code }}{% if get_zip_location(opp.zip_code) %} ({{ get_zip_location(opp.zip_code) }}){% endif %} · {{ opp.opportunity_type.value|replace('_',' ') }} · ${{ opp.pay_per_hour }}/hr · {{ opp.shift_length_hours }}h shifts{% if opp.work_duration %} · {% if opp.work_duration.value == 'single_shift' %}Single Shift{% elif opp.work_duration.value == 'short_term' %}Short-term (less than 1 month){% elif opp.work_duration.value == 'medium_term' %}Medium-term (1 month to 6 months){% elif opp.work_duration.value == 'permanent' %}Permanent Employment{% else %}{{ opp.work_duration.value.replace('_', ' ').title() }}{% endif %}{% endif %}</p>
   </div>
 
   <!-- Back Button -->
@@ -68,7 +68,7 @@
           </div>
           <button type="submit" class="btn">Add Slot</button>
         </form>
-        <div id="debug-info" style="margin-top:12px; font-size:12px; color:#666;"></div>
+
       </div>
     {% endif %}
 
@@ -89,6 +89,12 @@
             <div style="background:rgba(17,24,39,0.6); padding:12px; border-radius:8px; border:1px solid var(--border);">
               <strong>{{ slot.date.strftime('%A, %B %d, %Y') }}</strong>
               <div class="muted">{{ slot.start_time.strftime('%I:%M %p') }} - {{ slot.end_time.strftime('%I:%M %p') }}</div>
+              {% if opp.timezone %}
+                <div class="muted">🕐 {{ opp.timezone.replace('_', ' ').replace('/', ' - ') }}</div>
+              {% endif %}
+              {% if opp.work_duration %}
+                <div class="muted">⏱️ {% if opp.work_duration.value == 'single_shift' %}Single Shift{% elif opp.work_duration.value == 'short_term' %}Short-term (less than 1 month){% elif opp.work_duration.value == 'medium_term' %}Medium-term (1 month to 6 months){% elif opp.work_duration.value == 'permanent' %}Permanent Employment{% else %}{{ opp.work_duration.value.replace('_', ' ').title() }}{% endif %}</div>
+              {% endif %}
             </div>
           {% endfor %}
         </div>
@@ -115,10 +121,7 @@
         return false;
       });
       
-      // Update debug info on input
-      input.addEventListener('input', function() {
-        updateDebugInfo();
-      });
+
       
       // Prevent form submission validation
       input.addEventListener('submit', function(e) {
@@ -128,23 +131,10 @@
     });
   });
 
-  function updateDebugInfo() {
-    const date = document.getElementById('slot_date')?.value || '';
-    const startTime = document.getElementById('slot_start_time')?.value || '';
-    const endTime = document.getElementById('slot_end_time')?.value || '';
-    
-    const debugDiv = document.getElementById('debug-info');
-    if (debugDiv) {
-      debugDiv.innerHTML = `Debug: Date="${date}", Start="${startTime}", End="${endTime}"`;
-    }
-  }
-
   function validateForm() {
     const date = document.getElementById('slot_date').value;
     const startTime = document.getElementById('slot_start_time').value;
     const endTime = document.getElementById('slot_end_time').value;
-    
-    console.log('Form validation - Date:', date, 'Start:', startTime, 'End:', endTime);
     
     if (!date || !startTime || !endTime) {
       alert('Please fill in all fields');

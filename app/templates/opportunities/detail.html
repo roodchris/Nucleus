@@ -2,9 +2,15 @@
 {% block content %}
   <div class="job-card" style="padding:24px; {% if opp.is_filled or not opp.is_active %}opacity:0.6;{% endif %}">
     <h2 style="margin-top:0;">{{ opp.title }}</h2>
-    <div class="muted">{{ opp.zip_code }} · {{ opp.opportunity_type.value|replace('_',' ') }}</div>
+    <div class="muted">{{ opp.zip_code }}{% if get_zip_location(opp.zip_code) %} ({{ get_zip_location(opp.zip_code) }}){% endif %} · {{ opp.opportunity_type.value|replace('_',' ') }}</div>
     <div style="margin-top:8px;">$ {{ opp.pay_per_hour }}/hr · shift {{ opp.shift_length_hours }}h · {{ opp.hours_per_week }} hrs/week</div>
-            <div>Training Level Minimum: {{ opp.pgy_max.value }}</div>
+    <div>Training Level: {{ opp.pgy_min.value }} - {{ opp.pgy_max.value }}</div>
+    {% if opp.timezone %}
+      <div class="muted">🕐 Timezone: {{ opp.timezone.replace('_', ' ').replace('/', ' - ') }}</div>
+    {% endif %}
+    {% if opp.work_duration %}
+      <div class="muted">⏱️ Work Duration: {% if opp.work_duration.value == 'single_shift' %}Single Shift{% elif opp.work_duration.value == 'short_term' %}Short-term (less than 1 month){% elif opp.work_duration.value == 'medium_term' %}Medium-term (1 month to 6 months){% elif opp.work_duration.value == 'permanent' %}Permanent Employment{% else %}{{ opp.work_duration.value.replace('_', ' ').title() }}{% endif %}</div>
+    {% endif %}
     
     {% if opp.is_filled or not opp.is_active %}
       <div style="margin-top:16px; padding:12px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:8px; color:#ef4444;">

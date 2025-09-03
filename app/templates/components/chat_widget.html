@@ -26,11 +26,13 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/>
             </svg>
+            <span class="chat-new-message-text">New conversation</span>
           </button>
           <button onclick="minimizeChatWidget()" class="chat-minimize-btn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M19 13H5V11H19V13Z" fill="currentColor"/>
             </svg>
+            <span class="chat-minimize-text">Minimize window</span>
           </button>
         </div>
       </div>
@@ -98,7 +100,7 @@
           <form id="chat-message-form" class="chat-message-form">
             <input type="hidden" id="chat-conversation-id" name="conversation_id">
             <div class="chat-input-wrapper">
-              <input type="text" id="chat-message-input" class="chat-message-input" placeholder="Type a message..." autocomplete="off">
+              <textarea id="chat-message-input" class="chat-message-input" placeholder="Type a message..." autocomplete="off" rows="1"></textarea>
               <button type="submit" class="chat-send-btn">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M2.01 21L23 12L2.01 3L2 10L17 12L2 14L2.01 21Z" fill="currentColor"/>
@@ -280,13 +282,23 @@
   border: none;
   color: white;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .chat-minimize-btn:hover {
   background: rgba(255, 255, 255, 0.1);
+}
+
+.chat-minimize-text {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .chat-new-message-btn {
@@ -294,18 +306,19 @@
   border: none;
   color: white;
   cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
   transition: all 0.2s ease;
   margin-right: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
 }
 
 .chat-new-message-btn:hover {
   background: rgba(255, 255, 255, 0.15);
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .chat-new-message-btn svg {
@@ -314,6 +327,12 @@
 
 .chat-new-message-btn:hover svg {
   transform: rotate(90deg);
+}
+
+.chat-new-message-text {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .chat-content {
@@ -597,14 +616,15 @@
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  border-bottom: 1px solid #333;
-  background: #2a2a2a;
+  border-bottom: 1px solid #E5E5EA;
+  background: #F2F2F7;
+  border-radius: 12px 12px 0 0;
 }
 
 .chat-back-btn {
   background: none;
   border: none;
-  color: #a0a0a0;
+  color: #007AFF;
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -612,7 +632,7 @@
 }
 
 .chat-back-btn:hover {
-  background: #333;
+  background: rgba(0, 122, 255, 0.1);
 }
 
 .chat-recipient-info {
@@ -622,7 +642,7 @@
 .chat-recipient-name {
   font-weight: 500;
   font-size: 14px;
-  color: #ffffff;
+  color: #000;
 }
 
 .chat-recipient-status {
@@ -637,94 +657,156 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  background: #1a1a1a;
+  background: #F2F2F7;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
 }
 
+/* iMessage-style message bubbles */
 .chat-message {
   display: flex;
-  gap: 8px;
+  margin-bottom: 8px;
+  max-width: 85%;
+  position: relative;
   align-items: flex-end;
-  max-width: 80%;
-  margin-bottom: 4px;
 }
 
 .chat-message.sent {
-  align-self: flex-end !important;
-  flex-direction: row-reverse !important;
-  margin-left: auto !important;
-  margin-right: 0 !important;
+  align-self: flex-end;
+  margin-left: auto;
+  margin-right: 0;
+  flex-direction: row-reverse;
 }
 
 .chat-message.received {
-  align-self: flex-start !important;
-  margin-right: auto !important;
-  margin-left: 0 !important;
+  align-self: flex-start;
+  margin-right: auto;
+  margin-left: 0;
 }
 
 .chat-message-content {
-  padding: 10px 14px;
+  position: relative;
+  padding: 8px 12px;
   border-radius: 18px;
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.3;
   word-wrap: break-word;
-  color: #ffffff;
-  position: relative;
+  max-width: 100%;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  max-width: 280px;
 }
 
+/* Sent messages - Blue bubbles on the right */
 .chat-message.sent .chat-message-content {
-  background: #007AFF !important;
-  color: white !important;
+  background: #007AFF;
+  color: white;
   border-bottom-right-radius: 4px;
+  margin-left: 8px;
 }
 
+/* Received messages - Gray bubbles on the left */
 .chat-message.received .chat-message-content {
-  background: #2a2a2a !important;
-  color: white !important;
+  background: #E5E5EA;
+  color: #000;
   border-bottom-left-radius: 4px;
+  margin-right: 8px;
 }
 
-/* Add tail effect for iMessage style */
-.chat-message.sent .chat-message-content::after {
-  content: '' !important;
+/* Message tails for iMessage effect */
+.chat-message.sent .chat-message-content::before {
+  content: '';
   position: absolute;
   bottom: 0;
   right: -8px;
   width: 0;
   height: 0;
-  border-left: 8px solid #007AFF !important;
-  border-top: 8px solid transparent !important;
-  border-bottom: 8px solid transparent !important;
+  border: 8px solid transparent;
+  border-left-color: #007AFF;
+  border-bottom: none;
 }
 
-.chat-message.received .chat-message-content::after {
-  content: '' !important;
+.chat-message.received .chat-message-content::before {
+  content: '';
   position: absolute;
   bottom: 0;
   left: -8px;
   width: 0;
   height: 0;
-  border-right: 8px solid #2a2a2a !important;
-  border-top: 8px solid transparent !important;
-  border-bottom: 8px solid transparent !important;
+  border: 8px solid transparent;
+  border-right-color: #E5E5EA;
+  border-bottom: none;
 }
 
+/* Message timestamps */
 .chat-message-time {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-top: 4px;
+  color: rgba(0, 0, 0, 0.4);
+  margin-top: 2px;
+  text-align: right;
+  font-weight: 400;
+}
+
+.chat-message.sent .chat-message-time {
+  color: rgba(255, 255, 255, 0.7);
   text-align: right;
 }
 
 .chat-message.received .chat-message-time {
+  color: rgba(0, 0, 0, 0.4);
   text-align: left;
 }
 
+/* Message grouping - reduce spacing for consecutive messages */
+.chat-message + .chat-message.sent {
+  margin-top: 2px;
+}
+
+.chat-message + .chat-message.received {
+  margin-top: 2px;
+}
+
+/* First message in a group */
+.chat-message:not(.sent) + .chat-message.sent,
+.chat-message:not(.received) + .chat-message.received {
+  margin-top: 8px;
+}
+
+/* Avatar for all messages */
+.chat-message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+/* Avatar for sent messages (blue) */
+.chat-message.sent .chat-message-avatar {
+  background: #007AFF;
+  margin-right: 0;
+  margin-left: 8px;
+  order: 2;
+}
+
+/* Avatar for received messages (gray) */
+.chat-message.received .chat-message-avatar {
+  background: #8E8E93;
+  margin-right: 8px;
+  margin-left: 0;
+}
+
 .chat-input-container {
-  padding: 16px;
-  border-top: 1px solid #333;
-  background: #1a1a1a;
+  padding: 12px 16px;
+  border-top: 1px solid #E5E5EA;
+  background: #F2F2F7;
+  border-radius: 0 0 12px 12px;
 }
 
 .chat-message-form {
@@ -734,46 +816,54 @@
 .chat-input-wrapper {
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: flex-end;
+  background: white;
+  border-radius: 20px;
+  padding: 8px 12px;
+  border: 1px solid #E5E5EA;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .chat-message-input {
   flex: 1;
-  border: 1px solid #333;
-  border-radius: 20px;
-  padding: 8px 16px;
-  font-size: 14px;
+  border: none;
+  background: transparent;
+  padding: 8px 4px;
+  font-size: 16px;
+  color: #000;
   outline: none;
-  transition: border-color 0.2s ease;
-  background: #2a2a2a;
-  color: #ffffff;
+  resize: none;
+  min-height: 20px;
+  max-height: 100px;
+  line-height: 20px;
 }
 
 .chat-message-input:focus {
-  border-color: var(--accent, #3b82f6);
+  outline: none;
 }
 
 .chat-message-input::placeholder {
-  color: #666666;
+  color: #8E8E93;
 }
 
 .chat-send-btn {
-  background: var(--accent, #3b82f6);
+  background: #007AFF;
   color: white;
   border: none;
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 .chat-send-btn:hover {
-  background: var(--accent-dark, #1d4ed8);
+  background: #0056CC;
+  transform: scale(1.05);
 }
 
 .chat-send-btn:disabled {
@@ -824,13 +914,27 @@ let chatWidgetState = {
   currentConversation: null,
   conversations: [],
   unreadCount: 0,
-  lastUnreadCount: 0  // Track previous unread count for notifications
+  lastUnreadCount: 0,  // Track previous unread count for notifications
+  currentUser: null
 };
+
+// Load current user profile
+async function loadCurrentUserProfile() {
+  try {
+    const response = await fetch('/api/user/profile');
+    if (response.ok) {
+      chatWidgetState.currentUser = await response.json();
+    }
+  } catch (error) {
+    console.error('Error loading current user profile:', error);
+  }
+}
 
 // Initialize chat widget
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded, initializing chat widget...');
-  setTimeout(() => {
+  setTimeout(async () => {
+    await loadCurrentUserProfile(); // Load profile first
     initializeChatWidget();
   }, 1000); // Small delay to ensure everything is loaded
 });
@@ -846,6 +950,23 @@ function initializeChatWidget() {
   if (messageForm) {
     messageForm.addEventListener('submit', handleMessageSubmit);
     console.log('Message form event listener added');
+  }
+  
+  // Set up auto-resize for message input
+  const messageInput = document.getElementById('chat-message-input');
+  if (messageInput) {
+    messageInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+    });
+    
+    // Handle Enter key (send message) vs Shift+Enter (new line)
+    messageInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleMessageSubmit(e);
+      }
+    });
   }
   
   // Set up user search
@@ -968,6 +1089,11 @@ async function loadRecentConversations() {
 
 async function loadConversationMessages(conversationId) {
   try {
+    // Ensure current user profile is loaded before displaying messages
+    if (!chatWidgetState.currentUser) {
+      await loadCurrentUserProfile();
+    }
+    
     const response = await fetch(`/api/conversations/${conversationId}/messages`);
     if (response.ok) {
       const data = await response.json();
@@ -1019,10 +1145,40 @@ function displayMessages(messages, otherUser) {
   
   recipientName.textContent = otherUser.name;
   
-  container.innerHTML = messages.map(message => {
-    const isSent = message.user_id === currentUserId;
+
+  
+  container.innerHTML = messages.map((message, index) => {
+    // Use current user ID from profile data if available, fallback to window variable
+    const currentUserID = chatWidgetState.currentUser?.id || currentUserId;
+    const isSent = message.user_id === currentUserID;
+    const prevMessage = index > 0 ? messages[index - 1] : null;
+    const isConsecutive = prevMessage && prevMessage.user_id === message.user_id;
+    
+    // Get user initials for avatar
+    const userName = isSent ? 'You' : otherUser.name;
+    const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+    
+    // Get profile photo for the message sender
+    let avatarHtml;
+    if (isSent) {
+      // For sent messages, use current user's profile photo if available
+      if (chatWidgetState.currentUser && chatWidgetState.currentUser.photo_filename) {
+        avatarHtml = `<div class="chat-message-avatar"><img src="/uploads/${chatWidgetState.currentUser.photo_filename}" alt="${chatWidgetState.currentUser.name}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div>`;
+      } else {
+        avatarHtml = `<div class="chat-message-avatar">${initials}</div>`;
+      }
+    } else {
+      // For received messages, use other user's profile photo if available
+      if (otherUser.photo_filename) {
+        avatarHtml = `<div class="chat-message-avatar"><img src="/uploads/${otherUser.photo_filename}" alt="${otherUser.name}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div>`;
+      } else {
+        avatarHtml = `<div class="chat-message-avatar">${initials}</div>`;
+      }
+    }
+    
     return `
-      <div class="chat-message ${isSent ? 'sent' : 'received'}">
+      <div class="chat-message ${isSent ? 'sent' : 'received'}" style="margin-top: ${isConsecutive ? '2px' : '8px'}">
+        ${avatarHtml}
         <div class="chat-message-content">
           ${message.content}
           <div class="chat-message-time">${formatTime(message.timestamp)}</div>
@@ -1062,6 +1218,7 @@ async function handleMessageSubmit(event) {
     
     if (response.ok) {
       input.value = '';
+      input.style.height = 'auto';
       
       // Reload messages to show the new one
       await loadConversationMessages(conversationId);
@@ -1441,6 +1598,12 @@ async function startConversationWithUser(userId) {
 }
 
 function formatTime(timestamp) {
+  // Use the global timezone utilities if available, otherwise fallback to original logic
+  if (window.TimezoneUtils) {
+    return TimezoneUtils.formatTimestamp(timestamp, 'chat');
+  }
+  
+  // Fallback to original logic
   const date = new Date(timestamp);
   const now = new Date();
   const diffMs = now - date;

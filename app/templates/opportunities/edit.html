@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block content %}
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title page-title-animated">✏️ Edit Opportunity</h1>
+    <p class="page-subtitle page-subtitle-animated">Update your job opportunity details</p>
+  </div>
+
+<div class="card max-w-4xl mx-auto">
+  <h3 class="text-2xl font-bold mb-4">Edit Job Opportunity</h3>
+  <p class="text-secondary mb-8 text-lg leading-relaxed">
+    Update the details of your job opportunity. All fields are optional - you can fill in as much or as little information as needed.
+  </p>
+
+  <form method="POST" class="space-y-6">
+    {{ form.hidden_tag() }}
+    
+    <!-- Tile 1: Opportunity Details Section -->
+    <div class="card bg-white shadow-md border border-gray-200">
+      <div class="flex items-center mb-4">
+        <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</div>
+        <h4 class="text-lg font-semibold text-gray-800">Opportunity Details</h4>
+      </div>
+      <div class="grid-2 gap-6">
+        <div>
+          <label for="{{ form.title.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ form.title.label }}
+            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
+          </label>
+          {{ form.title(class="input", placeholder="e.g., Weekend Radiology Coverage") }}
+          {% if form.title.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.title.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="{{ form.opportunity_type.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ form.opportunity_type.label }}
+            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
+          </label>
+          {{ form.opportunity_type(class="input") }}
+          {% if form.opportunity_type.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.opportunity_type.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <label for="{{ form.description.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+          {{ form.description.label }}
+          <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
+        </label>
+        {{ form.description(class="input", placeholder="Describe the opportunity, requirements, and any additional details...", rows="4") }}
+        {% if form.description.errors %}
+          <div class="text-red-500 text-sm mt-2">
+            {% for error in form.description.errors %}
+              <span class="error-message">{{ error }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Tile 2: Location Section -->
+    <div class="card bg-white shadow-md border border-gray-200">
+      <div class="flex items-center mb-4">
+        <div class="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</div>
+        <h4 class="text-lg font-semibold text-gray-800">Location</h4>
+      </div>
+      <div>
+        <label for="{{ form.zip_code.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+          {{ form.zip_code.label }}
+          <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
+        </label>
+        {{ form.zip_code(class="input", placeholder="e.g., 90210") }}
+        {% if form.zip_code.errors %}
+          <div class="text-red-500 text-sm mt-2">
+            {% for error in form.zip_code.errors %}
+              <span class="error-message">{{ error }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Tile 3: Training Requirements Section -->
+    <div class="card bg-white shadow-md border border-gray-200">
+      <div class="flex items-center mb-4">
+        <div class="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</div>
+        <h4 class="text-lg font-semibold text-gray-800">Training Requirements</h4>
+      </div>
+      <div class="grid-2 gap-6">
+        <div>
+          <label for="{{ form.pgy_min.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ form.pgy_min.label }}
+            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
+          </label>
+          {{ form.pgy_min(class="input") }}
+          {% if form.pgy_min.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.pgy_min.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="{{ form.pgy_max.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ form.pgy_max.label }}
+            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
+          </label>
+          {{ form.pgy_max(class="input") }}
+          {% if form.pgy_max.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.pgy_max.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Tile 4: Compensation & Schedule Section -->
+    <div class="card bg-white shadow-md border border-gray-200">
+      <div class="flex items-center mb-4">
+        <div class="bg-orange-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">4</div>
+        <h4 class="text-lg font-semibold text-gray-800">Compensation & Schedule</h4>
+      </div>
+      <div class="grid-3 gap-6">
+        <div>
+          <label for="{{ form.pay_per_hour.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ form.pay_per_hour.label }}
+            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
+          </label>
+          {{ form.pay_per_hour(class="input", placeholder="e.g., 150.00") }}
+          {% if form.pay_per_hour.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.pay_per_hour.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="{{ form.shift_length_hours.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ form.shift_length_hours.label }}
+            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
+          </label>
+          {{ form.shift_length_hours(class="input", placeholder="e.g., 8.0") }}
+          {% if form.shift_length_hours.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.shift_length_hours.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="{{ form.hours_per_week.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ form.hours_per_week.label }}
+            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
+          </label>
+          {{ form.hours_per_week(class="input", placeholder="e.g., 40.0") }}
+          {% if form.hours_per_week.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.hours_per_week.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="{{ form.timezone.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ form.timezone.label }}
+            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
+          </label>
+          {{ form.timezone(class="input") }}
+          <p class="text-sm text-gray-500 mt-1">Select the timezone for this opportunity's shifts</p>
+          {% if form.timezone.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.timezone.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="{{ form.work_duration.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ form.work_duration.label }}
+            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
+          </label>
+          {{ form.work_duration(class="input") }}
+          <p class="text-sm text-gray-500 mt-1">Specify the duration of work for this opportunity</p>
+          {% if form.work_duration.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.work_duration.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex gap-4 pt-6">
+      <button type="submit" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="17,21 17,13 7,13 7,21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="7,3 7,8 15,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Update Opportunity
+      </button>
+      
+      <a href="{{ url_for('opportunities.employer_listings') }}" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+
+<style>
+  .page-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+  }
+
+  .page-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2.5rem;
+    }
+  }
+</style>
+{% endblock %}
