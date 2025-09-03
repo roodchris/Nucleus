@@ -564,7 +564,7 @@ class WRVUCalculator {
     }, 0);
     const expectedRevenue = totalWRVUs * this.compensationRate;
 
-    document.getElementById('total-studies').textContent = totalStudies;
+    document.getElementById('total-studies').textContent = totalQuantity;
     document.getElementById('total-wrvus').textContent = totalWRVUs.toFixed(1);
     document.getElementById('expected-revenue').textContent = `$${expectedRevenue.toFixed(2)}`;
     
