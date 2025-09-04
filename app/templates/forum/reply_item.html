@@ -1,0 +1,311 @@
+<div class="reply-item" data-comment-id="{{ reply.id }}">
+  <div class="reply-content-wrapper">
+    <!-- Vote Column for Reply -->
+    <div class="reply-votes">
+      <button class="vote-btn upvote" data-comment-id="{{ reply.id }}" data-vote-type="upvote" data-user-vote="{{ reply._user_vote or '' }}">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <span class="vote-count" id="comment-votes-{{ reply.id }}">{{ reply._total_votes }}</span>
+      <button class="vote-btn downvote" data-comment-id="{{ reply.id }}" data-vote-type="downvote" data-user-vote="{{ reply._user_vote or '' }}">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Reply Content -->
+    <div class="reply-main">
+      <div class="reply-header">
+        <div class="reply-author">
+          {% if reply.author.resident_profile and reply.author.resident_profile.photo_filename %}
+            <img src="/uploads/{{ reply.author.resident_profile.photo_filename }}" alt="{{ reply.author.name }}" class="author-avatar-small">
+          {% elif reply.author.employer_profile and reply.author.employer_profile.photo_filename %}
+            <img src="/uploads/{{ reply.author.employer_profile.photo_filename }}" alt="{{ reply.author.name }}" class="author-avatar-small">
+          {% else %}
+            <div class="author-avatar-small">
+              {{ reply.author.name[0].upper() }}
+            </div>
+          {% endif %}
+          <span class="author-name">{{ reply.author.name }}</span>
+        </div>
+        <div class="reply-meta">
+          <span class="reply-date" data-timestamp="{{ reply.created_at.isoformat() }}" data-format="full">
+            {{ reply.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+          </span>
+          {% if reply.is_edited %}
+            <span class="edited-badge">(edited)</span>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="reply-body">
+        {% if reply.is_deleted %}
+          <div class="deleted-comment">[deleted]</div>
+        {% else %}
+          <div class="reply-text" id="comment-content-{{ reply.id }}">{{ reply.content }}</div>
+        {% endif %}
+      </div>
+      
+      <!-- Reply Actions -->
+      {% if not reply.is_deleted %}
+        <div class="reply-actions">
+          {% if current_user.is_authenticated and not post.is_locked %}
+            <button class="action-btn reply-btn" onclick="toggleReplyForm({{ reply.id }})">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Reply
+            </button>
+          {% endif %}
+          {% if current_user.is_authenticated and current_user.id == reply.author_id %}
+            <button class="action-btn edit-btn" onclick="showEditComment({{ reply.id }})">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Edit
+            </button>
+            <button class="action-btn delete-btn" onclick="deleteComment({{ reply.id }})">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Delete
+            </button>
+          {% endif %}
+        </div>
+      {% endif %}
+      
+      <!-- Edit Comment Form (Hidden by default) -->
+      {% if current_user.is_authenticated and current_user.id == reply.author_id %}
+        <div id="edit-comment-{{ reply.id }}" class="edit-form" style="display: none;">
+          <form onsubmit="submitEditComment({{ reply.id }}, event)">
+            <div class="form-group">
+              <textarea name="content" rows="2" required>{{ reply.content }}</textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Save</button>
+              <button type="button" class="btn-secondary" onclick="hideEditComment({{ reply.id }})">Cancel</button>
+            </div>
+          </form>
+        </div>
+      {% endif %}
+      
+      <!-- Reply Form for Nested Reply (Hidden by default) -->
+      {% if current_user.is_authenticated and not post.is_locked %}
+        <div id="reply-form-{{ reply.id }}" class="reply-form" style="display: none;">
+          <div class="reply-header">
+            <span>Replying to <strong>{{ reply.author.name }}</strong></span>
+          </div>
+          <form onsubmit="submitReply({{ reply.id }}, event)">
+            <div class="form-group">
+              <textarea name="content" rows="2" placeholder="Write your reply..." required></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Post Reply</button>
+              <button type="button" class="btn-secondary" onclick="toggleReplyForm({{ reply.id }})">Cancel</button>
+            </div>
+          </form>
+        </div>
+      {% endif %}
+      
+      <!-- Nested Replies (Recursive) -->
+      {% if reply.replies %}
+        <div class="nested-replies">
+          {% for nested_reply in reply.replies %}
+            {% set reply = nested_reply %}
+            {% include 'forum/reply_item.html' %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+/* Reply Item Styling */
+.reply-item {
+  background: var(--surface-3);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reply-item:hover {
+  border-color: var(--border);
+  transform: translateY(-1px);
+}
+
+.reply-content-wrapper {
+  display: flex;
+  gap: 8px;
+}
+
+.reply-votes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 28px;
+}
+
+.reply-votes .vote-btn {
+  padding: 2px;
+  font-size: 9px;
+}
+
+.reply-votes .vote-count {
+  font-size: 10px;
+  min-width: 14px;
+}
+
+.reply-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.reply-author {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reply-author .author-avatar-small {
+  width: 18px;
+  height: 18px;
+  font-size: 7px;
+}
+
+.reply-author .author-name {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.reply-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.reply-date {
+  font-size: 10px;
+}
+
+.reply-body {
+  margin-bottom: 4px;
+}
+
+.reply-text {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.deleted-comment {
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.reply-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.reply-actions .action-btn {
+  padding: 3px 6px;
+  font-size: 10px;
+}
+
+/* Edit and Reply Forms for Replies */
+.reply-item .edit-form,
+.reply-item .reply-form {
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--surface);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.reply-item .reply-form {
+  border-left: 2px solid var(--accent);
+}
+
+.reply-item .reply-header {
+  margin-bottom: 6px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.reply-item .form-group {
+  margin-bottom: 6px;
+}
+
+.reply-item textarea {
+  font-size: 12px;
+  padding: 4px 6px;
+  min-height: 50px;
+}
+
+.reply-item .form-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.reply-item .btn-primary,
+.reply-item .btn-secondary {
+  padding: 4px 8px;
+  font-size: 10px;
+}
+
+/* Nested Replies */
+.nested-replies {
+  margin-top: 8px;
+  margin-left: 12px;
+  border-left: 2px solid var(--border);
+  padding-left: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .reply-content-wrapper {
+    gap: 6px;
+  }
+  
+  .reply-votes {
+    min-width: 24px;
+  }
+  
+  .reply-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+  
+  .reply-actions {
+    flex-wrap: wrap;
+  }
+  
+  .nested-replies {
+    margin-left: 8px;
+    padding-left: 6px;
+  }
+}
+</style>

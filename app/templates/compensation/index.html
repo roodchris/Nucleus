@@ -20,9 +20,9 @@
   <div class="stats-grid">
     <div class="stat-card stat-green">
       <div class="stat-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
       </div>
       <div class="stat-content">
         <h3 class="stat-title">
@@ -38,9 +38,9 @@
     
     <div class="stat-card stat-blue">
       <div class="stat-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
       </div>
       <div class="stat-content">
         <h3 class="stat-title">
@@ -56,9 +56,9 @@
     
     <div class="stat-card stat-purple">
       <div class="stat-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
       </div>
       <div class="stat-content">
         <h3 class="stat-title">
@@ -188,7 +188,7 @@
       <div class="compensation-card {% if item.is_anonymous_submission %}anonymous{% endif %}">
         <div class="compensation-header">
           <div class="compensation-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
@@ -223,7 +223,7 @@
         
         {% if item.is_anonymous_submission %}
         <div class="anonymous-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           Anonymous Submission
@@ -235,7 +235,7 @@
     {% else %}
     <div class="empty-state">
       <div class="empty-icon">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
@@ -309,9 +309,9 @@
   /* Stats Grid */
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-bottom: 3rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
   }
 
   .stat-card {
@@ -319,8 +319,8 @@
     backdrop-filter: var(--blur);
     -webkit-backdrop-filter: var(--blur);
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 2rem;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
     box-shadow: var(--shadow);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -333,8 +333,8 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    border-radius: 20px 20px 0 0;
+    height: 3px;
+    border-radius: 12px 12px 0 0;
   }
 
   .stat-green::before { background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%); }
@@ -342,7 +342,6 @@
   .stat-purple::before { background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%); }
 
   .stat-card:hover {
-    transform: translateY(-8px);
     box-shadow: var(--shadow-lg);
     border-color: var(--accent);
   }
@@ -350,14 +349,14 @@
   .stat-header {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
   }
 
   .stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -373,22 +372,22 @@
   }
 
   .stat-title {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--text);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
   }
 
   .stat-filter {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     color: var(--text-secondary);
     font-weight: 400;
   }
 
   .stat-value {
-    font-size: 2.5rem;
+    font-size: 1.75rem;
     font-weight: 900;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
   }
 
   .stat-green .stat-value { color: #22c55e; }
@@ -397,7 +396,7 @@
 
   .stat-description {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 
   /* Filters Card */
@@ -406,9 +405,9 @@
     backdrop-filter: var(--blur);
     -webkit-backdrop-filter: var(--blur);
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 2rem;
-    margin-bottom: 3rem;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
     box-shadow: var(--shadow);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -422,11 +421,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
   }
 
   .filters-header h3 {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--text);
     margin: 0;
@@ -437,8 +436,8 @@
     border: none;
     color: var(--text-secondary);
     cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 8px;
+    padding: 0.375rem;
+    border-radius: 6px;
     transition: all 0.3s ease;
   }
 
@@ -450,14 +449,14 @@
   .filter-notice {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.375rem;
     background: var(--accent-light);
     border: 1px solid var(--accent);
     border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 2rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
     color: var(--text);
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 
   .clear-link {
@@ -472,33 +471,38 @@
 
   .filters-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
   }
 
   .filter-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
   }
 
   .filter-label {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.375rem;
     font-weight: 600;
     color: var(--text);
-    font-size: 0.95rem;
+    font-size: 0.8rem;
+  }
+
+  .filter-label svg {
+    width: 14px;
+    height: 14px;
   }
 
   .filter-input {
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem;
     background: var(--glass-light);
     border: 1px solid var(--glass-border-light);
     border-radius: 8px;
     color: var(--text);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     transition: all 0.3s ease;
   }
 
@@ -510,27 +514,28 @@
 
   .filter-actions {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     align-items: end;
   }
 
   .filter-actions .btn {
     flex: 1;
     justify-content: center;
-    min-width: 140px;
+    min-width: 120px;
   }
 
   .btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
+    gap: 0.375rem;
+    padding: 0.5rem 1rem;
     border-radius: 8px;
     font-weight: 600;
     text-decoration: none;
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
+    font-size: 0.85rem;
   }
 
   .btn.primary {
@@ -540,7 +545,7 @@
 
   .btn.primary:hover {
     background: var(--accent-dark);
-    transform: translateY(-2px);
+    box-shadow: var(--accent-glow);
   }
 
   .btn.secondary {
@@ -552,7 +557,7 @@
   .btn.secondary:hover {
     background: var(--accent-light);
     border-color: var(--accent);
-    transform: translateY(-2px);
+    box-shadow: var(--accent-glow);
   }
 
   /* Data Section */
@@ -580,8 +585,8 @@
   /* Compensation Grid */
   .compensation-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
   }
 
   .compensation-card {
@@ -589,8 +594,8 @@
     backdrop-filter: var(--blur);
     -webkit-backdrop-filter: var(--blur);
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 2rem;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
     box-shadow: var(--shadow);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -603,9 +608,9 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 3px;
     background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
-    border-radius: 20px 20px 0 0;
+    border-radius: 12px 12px 0 0;
   }
 
   .compensation-card.anonymous::before {
@@ -613,7 +618,6 @@
   }
 
   .compensation-card:hover {
-    transform: translateY(-8px);
     box-shadow: var(--shadow-lg);
     border-color: var(--accent);
   }
@@ -621,15 +625,15 @@
   .compensation-header {
     display: flex;
     align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
   }
 
   .compensation-icon {
-    width: 48px;
-    height: 48px;
+    width: 32px;
+    height: 32px;
     background: var(--accent-light);
-    border-radius: 12px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -647,28 +651,28 @@
   }
 
   .compensation-amount {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 900;
     color: var(--text);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.125rem;
   }
 
   .compensation-year {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 
   .compensation-details {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.5rem;
   }
 
   .detail-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem;
+    padding: 0.5rem 0.75rem;
     background: var(--glass-light);
     border-radius: 8px;
     border: 1px solid var(--glass-border-light);
@@ -677,26 +681,26 @@
   .detail-label {
     font-weight: 600;
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 
   .detail-value {
     font-weight: 600;
     color: var(--text);
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 
   .anonymous-badge {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.375rem;
     background: rgba(139, 92, 246, 0.1);
     color: #8b5cf6;
-    padding: 0.5rem 1rem;
+    padding: 0.375rem 0.75rem;
     border-radius: 8px;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
   }
 
   /* Info Card */
@@ -705,17 +709,17 @@
     backdrop-filter: var(--blur);
     -webkit-backdrop-filter: var(--blur);
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 2rem;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
     box-shadow: var(--shadow);
   }
 
   .info-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   .info-header h3 {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--text);
     margin: 0;
@@ -723,8 +727,9 @@
 
   .info-content p {
     color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 1rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
   }
 
   .info-content p:last-child {
@@ -734,36 +739,36 @@
   /* Empty State */
   .empty-state {
     text-align: center;
-    padding: 4rem 2rem;
+    padding: 2rem 1.5rem;
     background: var(--glass);
     backdrop-filter: var(--blur);
     -webkit-backdrop-filter: var(--blur);
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
+    border-radius: 12px;
   }
 
   .empty-icon {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     background: var(--accent-light);
-    border-radius: 20px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 2rem;
+    margin: 0 auto 1.5rem;
     color: var(--accent);
   }
 
   .empty-state h3 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--text);
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
   }
 
   .empty-state p {
     color: var(--text-secondary);
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin: 0;
   }
 

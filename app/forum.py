@@ -111,7 +111,7 @@ def view_post(post_id):
     post = ForumPost.query.get_or_404(post_id)
     sort_by = request.args.get("sort", "most_voted")
     
-    # Get comments with proper sorting
+    # Get top-level comments (no parent) with proper sorting
     if sort_by == "most_voted":
         # For now, just show most recent since we can't use properties in queries
         comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
@@ -125,8 +125,18 @@ def view_post(post_id):
     else:
         comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
     
-    # Add vote counts and user vote states to comments after fetching
+    # Get all replies for each comment (recursively)
+    def get_replies_with_nesting(comment):
+        replies = ForumComment.query.filter_by(parent_comment_id=comment.id).order_by(ForumComment.created_at.asc()).all()
+        for reply in replies:
+            reply.replies = get_replies_with_nesting(reply)
+        return replies
+    
     for comment in comments:
+        comment.replies = get_replies_with_nesting(comment)
+    
+    # Add vote counts and user vote states to comments and replies (recursively)
+    def add_vote_data(comment):
         upvotes = ForumVote.query.filter_by(comment_id=comment.id, vote_type="upvote").count()
         downvotes = ForumVote.query.filter_by(comment_id=comment.id, vote_type="downvote").count()
         comment._total_votes = upvotes - downvotes
@@ -140,6 +150,13 @@ def view_post(post_id):
             comment._user_vote = user_vote.vote_type if user_vote else None
         else:
             comment._user_vote = None
+        
+        # Process replies recursively
+        for reply in comment.replies:
+            add_vote_data(reply)
+    
+    for comment in comments:
+        add_vote_data(comment)
     
     # Add vote count and user vote state for the main post
     upvotes = ForumVote.query.filter_by(post_id=post.id, vote_type="upvote").count()
@@ -169,6 +186,8 @@ def add_comment(post_id):
     post = ForumPost.query.get_or_404(post_id)
     
     if post.is_locked:
+        if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+            return jsonify({"success": False, "error": "This post is locked and cannot be commented on"})
         flash("This post is locked and cannot be commented on", "error")
         return redirect(url_for("forum.view_post", post_id=post_id))
     
@@ -176,6 +195,8 @@ def add_comment(post_id):
     parent_comment_id = request.form.get("parent_comment_id", type=int)
     
     if not content:
+        if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+            return jsonify({"success": False, "error": "Comment cannot be empty"})
         flash("Comment cannot be empty", "error")
         return redirect(url_for("forum.view_post", post_id=post_id))
     
@@ -189,8 +210,69 @@ def add_comment(post_id):
     db.session.add(comment)
     db.session.commit()
     
+        # Check if this is an AJAX request - use query parameter for reliability
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({
+            "success": True,
+            "comment": {
+                "id": comment.id,
+                "content": comment.content,
+                "author_name": comment.author.name,
+                "created_at": comment.created_at.isoformat(),
+                "is_deleted": comment.is_deleted
+            }
+        })
+    
     flash("Comment added successfully!", "success")
     return redirect(url_for("forum.view_post", post_id=post_id))
+
+
+@forum_bp.route("/forum/comment/<int:comment_id>/reply", methods=["POST"])
+@login_required
+def reply_to_comment(comment_id):
+    """Reply to a specific comment"""
+    parent_comment = ForumComment.query.get_or_404(comment_id)
+    post = parent_comment.post
+    
+    if post.is_locked:
+        if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+            return jsonify({"success": False, "error": "This post is locked and cannot be commented on"})
+        flash("This post is locked and cannot be commented on", "error")
+        return redirect(url_for("forum.view_post", post_id=post.id))
+    
+    content = request.form.get("content", "").strip()
+    
+    if not content:
+        if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+            return jsonify({"success": False, "error": "Reply cannot be empty"})
+        flash("Reply cannot be empty", "error")
+        return redirect(url_for("forum.view_post", post_id=post.id))
+    
+    reply = ForumComment(
+        post_id=post.id,
+        author_id=current_user.id,
+        parent_comment_id=comment_id,
+        content=content
+    )
+    
+    db.session.add(reply)
+    db.session.commit()
+    
+        # Check if this is an AJAX request - use query parameter for reliability
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({
+            "success": True,
+            "reply": {
+                "id": reply.id,
+                "content": reply.content,
+                "author_name": reply.author.name,
+                "created_at": reply.created_at.isoformat(),
+                "is_deleted": reply.is_deleted
+            }
+        })
+    
+    flash("Reply posted successfully!", "success")
+    return redirect(url_for("forum.view_post", post_id=post.id))
 
 
 @forum_bp.route("/forum/vote", methods=["POST"])
@@ -284,42 +366,6 @@ def vote():
         })
 
 
-@forum_bp.route("/forum/post/<int:post_id>/edit", methods=["GET", "POST"])
-@login_required
-def edit_post(post_id):
-    """Edit a forum post"""
-    post = ForumPost.query.get_or_404(post_id)
-    
-    if post.author_id != current_user.id:
-        flash("You can only edit your own posts", "error")
-        return redirect(url_for("forum.view_post", post_id=post_id))
-    
-    if request.method == "POST":
-        title = request.form.get("title", "").strip()
-        content = request.form.get("content", "").strip()
-        category = request.form.get("category", "")
-        
-        if not title or not content or not category:
-            flash("Please fill in all fields", "error")
-            return render_template("forum/edit_post.html", post=post, categories=ForumCategory)
-        
-        try:
-            category_enum = ForumCategory(category)
-        except ValueError:
-            flash("Invalid category selected", "error")
-            return render_template("forum/edit_post.html", post=post, categories=ForumCategory)
-        
-        post.title = title
-        post.content = content
-        post.category = category_enum
-        post.updated_at = datetime.utcnow()
-        
-        db.session.commit()
-        
-        flash("Post updated successfully!", "success")
-        return redirect(url_for("forum.view_post", post_id=post_id))
-    
-    return render_template("forum/edit_post.html", post=post, categories=ForumCategory)
 
 
 @forum_bp.route("/forum/comment/<int:comment_id>/edit", methods=["POST"])
@@ -329,12 +375,18 @@ def edit_comment(comment_id):
     comment = ForumComment.query.get_or_404(comment_id)
     
     if comment.author_id != current_user.id:
+        if (request.headers.get('Content-Type') == 'application/x-www-form-urlencoded' or 
+            request.headers.get('X-Requested-With') == 'XMLHttpRequest'):
+            return jsonify({"success": False, "error": "You can only edit your own comments"})
         flash("You can only edit your own comments", "error")
         return redirect(url_for("forum.view_post", post_id=comment.post_id))
     
     content = request.form.get("content", "").strip()
     
     if not content:
+        if (request.headers.get('Content-Type') == 'application/x-www-form-urlencoded' or 
+            request.headers.get('X-Requested-With') == 'XMLHttpRequest'):
+            return jsonify({"success": False, "error": "Comment cannot be empty"})
         flash("Comment cannot be empty", "error")
         return redirect(url_for("forum.view_post", post_id=comment.post_id))
     
@@ -344,7 +396,44 @@ def edit_comment(comment_id):
     
     db.session.commit()
     
+    # Check if this is an AJAX request - use query parameter for reliability
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({
+            "success": True,
+            "comment": {
+                "id": comment.id,
+                "content": comment.content,
+                "is_edited": comment.is_edited
+            }
+        })
+    
     flash("Comment updated successfully!", "success")
+    return redirect(url_for("forum.view_post", post_id=comment.post_id))
+
+
+@forum_bp.route("/forum/comment/<int:comment_id>/delete", methods=["POST"])
+@login_required
+def delete_comment(comment_id):
+    """Delete a comment"""
+    comment = ForumComment.query.get_or_404(comment_id)
+    
+    if comment.author_id != current_user.id:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "error": "You can only delete your own comments"})
+        flash("You can only delete your own comments", "error")
+        return redirect(url_for("forum.view_post", post_id=comment.post_id))
+    
+    # Soft delete - mark as deleted instead of actually deleting
+    comment.is_deleted = True
+    comment.updated_at = datetime.utcnow()
+    
+    db.session.commit()
+    
+    # Check if this is an AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({"success": True})
+    
+    flash("Comment deleted successfully!", "success")
     return redirect(url_for("forum.view_post", post_id=comment.post_id))
 
 
@@ -355,6 +444,8 @@ def delete_post(post_id):
     post = ForumPost.query.get_or_404(post_id)
     
     if post.author_id != current_user.id:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "error": "You can only delete your own posts"})
         flash("You can only delete your own posts", "error")
         return redirect(url_for("forum.view_post", post_id=post_id))
     
@@ -370,28 +461,108 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     
+    # Check if this is an AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({"success": True})
+    
     flash("Post deleted successfully!", "success")
     return redirect(url_for("forum.forum_index"))
 
 
-@forum_bp.route("/forum/comment/<int:comment_id>/delete", methods=["POST"])
+@forum_bp.route("/forum/post/<int:post_id>/edit", methods=["GET", "POST"])
 @login_required
-def delete_comment(comment_id):
-    """Delete a comment"""
-    comment = ForumComment.query.get_or_404(comment_id)
+def edit_post(post_id):
+    """Edit a forum post"""
+    post = ForumPost.query.get_or_404(post_id)
     
-    if comment.author_id != current_user.id:
-        flash("You can only delete your own comments", "error")
-        return redirect(url_for("forum.view_post", post_id=comment.post_id))
+    if post.author_id != current_user.id:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "error": "You can only edit your own posts"})
+        flash("You can only edit your own posts", "error")
+        return redirect(url_for("forum.view_post", post_id=post_id))
     
-    post_id = comment.post_id
+    if request.method == "POST":
+        title = request.form.get('title', '').strip()
+        content = request.form.get('content', '').strip()
+        
+        if not title or not content:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"success": False, "error": "Title and content cannot be empty"})
+            flash("Title and content cannot be empty", "error")
+            return render_template("forum/edit_post.html", post=post, categories=ForumCategory)
+        
+        post.title = title
+        post.content = content
+        post.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": True})
+        
+        flash("Post updated successfully!", "success")
+        return redirect(url_for("forum.view_post", post_id=post_id))
     
-    # Delete all votes associated with this comment first
-    ForumVote.query.filter_by(comment_id=comment_id).delete()
+    return render_template("forum/edit_post.html", post=post, categories=ForumCategory)
+
+
+
+
+@forum_bp.route("/forum/post/<int:post_id>/comments")
+def get_comments(post_id):
+    """Get just the comments section for a post (for AJAX reload)"""
+    post = ForumPost.query.get_or_404(post_id)
+    sort_by = request.args.get("sort", "most_voted")
     
-    # Delete the comment
-    db.session.delete(comment)
-    db.session.commit()
+    # Get top-level comments (no parent) with proper sorting
+    if sort_by == "most_voted":
+        # For now, just show most recent since we can't use properties in queries
+        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
+    elif sort_by == "most_downvoted":
+        # For now, just show most recent since we can't use properties in queries
+        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
+    elif sort_by == "most_recent":
+        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
+    elif sort_by == "oldest":
+        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.asc()).all()
+    else:
+        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
     
-    flash("Comment deleted successfully!", "success")
-    return redirect(url_for("forum.view_post", post_id=post_id))
+    # Get all replies for each comment (recursively)
+    def get_replies_with_nesting(comment):
+        replies = ForumComment.query.filter_by(parent_comment_id=comment.id).order_by(ForumComment.created_at.asc()).all()
+        for reply in replies:
+            reply.replies = get_replies_with_nesting(reply)
+        return replies
+    
+    for comment in comments:
+        comment.replies = get_replies_with_nesting(comment)
+    
+    # Add vote counts and user vote states to comments and replies (recursively)
+    def add_vote_data(comment):
+        upvotes = ForumVote.query.filter_by(comment_id=comment.id, vote_type="upvote").count()
+        downvotes = ForumVote.query.filter_by(comment_id=comment.id, vote_type="downvote").count()
+        comment._total_votes = upvotes - downvotes
+        
+        # Add user's current vote state if logged in
+        if current_user.is_authenticated:
+            user_vote = ForumVote.query.filter_by(
+                user_id=current_user.id,
+                comment_id=comment.id
+            ).first()
+            comment._user_vote = user_vote.vote_type if user_vote else None
+        else:
+            comment._user_vote = None
+        
+        # Process replies recursively
+        for reply in comment.replies:
+            add_vote_data(reply)
+    
+    for comment in comments:
+        add_vote_data(comment)
+    
+    # Render just the comments section
+    return render_template("forum/comments_section.html", 
+                         post=post, 
+                         comments=comments,
+                         current_sort=sort_by)

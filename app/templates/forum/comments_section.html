@@ -1,0 +1,443 @@
+<!-- Comments List -->
+<div class="comments-list">
+{% if comments %}
+    {% for comment in comments %}
+      <div class="comment-item" data-comment-id="{{ comment.id }}">
+        <div class="comment-content-wrapper">
+          <!-- Vote Column -->
+          <div class="comment-votes">
+            <button class="vote-btn upvote" data-comment-id="{{ comment.id }}" data-vote-type="upvote" data-user-vote="{{ comment._user_vote or '' }}">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <span class="vote-count" id="comment-votes-{{ comment.id }}">{{ comment._total_votes }}</span>
+            <button class="vote-btn downvote" data-comment-id="{{ comment.id }}" data-vote-type="downvote" data-user-vote="{{ comment._user_vote or '' }}">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Comment Content -->
+          <div class="comment-main">
+            <div class="comment-header">
+              <div class="comment-author">
+                {% if comment.author.resident_profile and comment.author.resident_profile.photo_filename %}
+                  <img src="/uploads/{{ comment.author.resident_profile.photo_filename }}" alt="{{ comment.author.name }}" class="author-avatar-small">
+                {% elif comment.author.employer_profile and comment.author.employer_profile.photo_filename %}
+                  <img src="/uploads/{{ comment.author.employer_profile.photo_filename }}" alt="{{ comment.author.name }}" class="author-avatar-small">
+                {% else %}
+                  <div class="author-avatar-small">
+                    {{ comment.author.name[0].upper() }}
+                  </div>
+                {% endif %}
+                <span class="author-name">{{ comment.author.name }}</span>
+              </div>
+              <div class="comment-meta">
+                <span class="comment-date" data-timestamp="{{ comment.created_at.isoformat() }}" data-format="full">
+                  {{ comment.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                </span>
+                {% if comment.is_edited %}
+                  <span class="edited-badge">(edited)</span>
+                {% endif %}
+              </div>
+            </div>
+            
+            <div class="comment-body">
+              {% if comment.is_deleted %}
+                <div class="deleted-comment">[deleted]</div>
+              {% else %}
+                <div class="comment-text" id="comment-content-{{ comment.id }}">{{ comment.content }}</div>
+              {% endif %}
+            </div>
+            
+            <!-- Comment Actions -->
+            {% if not comment.is_deleted %}
+              <div class="comment-actions">
+                {% if current_user.is_authenticated and not post.is_locked %}
+                  <button class="action-btn reply-btn" onclick="toggleReplyForm({{ comment.id }})">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Reply
+                  </button>
+                {% endif %}
+                {% if current_user.is_authenticated and current_user.id == comment.author_id %}
+                  <button class="action-btn edit-btn" onclick="showEditComment({{ comment.id }})">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Edit
+                  </button>
+                  <button class="action-btn delete-btn" onclick="deleteComment({{ comment.id }})">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Delete
+                  </button>
+                {% endif %}
+              </div>
+            {% endif %}
+            
+            <!-- Edit Comment Form (Hidden by default) -->
+            {% if current_user.is_authenticated and current_user.id == comment.author_id %}
+              <div id="edit-comment-{{ comment.id }}" class="edit-form" style="display: none;">
+                <form onsubmit="submitEditComment({{ comment.id }}, event)">
+                  <div class="form-group">
+                    <textarea name="content" rows="3" required>{{ comment.content }}</textarea>
+                  </div>
+                  <div class="form-actions">
+                    <button type="submit" class="btn-primary">Save</button>
+                    <button type="button" class="btn-secondary" onclick="hideEditComment({{ comment.id }})">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            {% endif %}
+            
+            <!-- Reply Form (Hidden by default) -->
+            {% if current_user.is_authenticated and not post.is_locked %}
+              <div id="reply-form-{{ comment.id }}" class="reply-form" style="display: none;">
+                <div class="reply-header">
+                  <span>Replying to <strong>{{ comment.author.name }}</strong></span>
+                </div>
+                <form onsubmit="submitReply({{ comment.id }}, event)">
+                  <div class="form-group">
+                    <textarea name="content" rows="3" placeholder="Write your reply..." required></textarea>
+                  </div>
+                  <div class="form-actions">
+                    <button type="submit" class="btn-primary">Post Reply</button>
+                    <button type="button" class="btn-secondary" onclick="toggleReplyForm({{ comment.id }})">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            {% endif %}
+            
+            <!-- Replies Section -->
+            {% if comment.replies %}
+              <div class="replies-section">
+                {% for reply in comment.replies %}
+                  {% include 'forum/reply_item.html' %}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+{% else %}
+  <div class="no-comments">
+    <div class="no-comments-icon">💬</div>
+    <p>No comments yet. Be the first to share your thoughts!</p>
+  </div>
+{% endif %}
+</div>
+
+<style>
+/* Comments List Styling */
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comment-item {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.comment-item:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.comment-content-wrapper {
+  display: flex;
+  gap: 12px;
+}
+
+.comment-votes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 32px;
+}
+
+.vote-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 3px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vote-btn:hover {
+  background: var(--surface-3);
+}
+
+.vote-btn.upvote {
+  color: var(--text-muted);
+}
+
+.vote-btn.upvote:hover,
+.vote-btn.upvote.active {
+  color: var(--accent);
+}
+
+.vote-btn.downvote {
+  color: var(--text-muted);
+}
+
+.vote-btn.downvote:hover,
+.vote-btn.downvote.active {
+  color: var(--notification);
+}
+
+.vote-count {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text);
+  min-width: 16px;
+  text-align: center;
+}
+
+.comment-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.comment-author {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.author-avatar-small {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bg);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.author-name {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.comment-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.comment-date {
+  font-size: 11px;
+}
+
+.edited-badge {
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.comment-body {
+  margin-bottom: 6px;
+}
+
+.comment-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.deleted-comment {
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: var(--surface-3);
+  color: var(--text-secondary);
+}
+
+.action-btn:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.reply-btn:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.edit-btn:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.delete-btn:hover {
+  background: rgba(255, 71, 87, 0.1);
+  color: var(--notification);
+  border-color: var(--notification);
+}
+
+/* Edit and Reply Forms */
+.edit-form,
+.reply-form {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--surface-3);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.reply-form {
+  border-left: 3px solid var(--accent);
+}
+
+.reply-header {
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.edit-form .form-group,
+.reply-form .form-group {
+  margin-bottom: 8px;
+}
+
+.edit-form textarea,
+.reply-form textarea {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.edit-form textarea:focus,
+.reply-form textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+.edit-form .form-actions,
+.reply-form .form-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.edit-form .btn-primary,
+.edit-form .btn-secondary,
+.reply-form .btn-primary,
+.reply-form .btn-secondary {
+  padding: 6px 12px;
+  font-size: 11px;
+}
+
+/* Replies Section */
+.replies-section {
+  margin-top: 12px;
+  margin-left: 20px;
+  border-left: 2px solid var(--border);
+  padding-left: 12px;
+}
+
+/* No Comments State */
+.no-comments {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text-muted);
+}
+
+.no-comments-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.no-comments p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .comment-content-wrapper {
+    gap: 8px;
+  }
+  
+  .comment-votes {
+    min-width: 28px;
+  }
+  
+  .comment-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .comment-actions {
+    flex-wrap: wrap;
+  }
+  
+  .replies-section {
+    margin-left: 12px;
+    padding-left: 8px;
+  }
+}
+</style>
