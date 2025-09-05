@@ -35,25 +35,10 @@ def forum_index():
         query = query.order_by(ForumPost.created_at.asc())
     elif sort_by == "most_voted":
         # Sort by net votes (upvotes - downvotes) descending
-        # Use subqueries to calculate vote counts - this is SQLite compatible
-        from sqlalchemy import text
-        
-        # Create subqueries for upvotes and downvotes
-        upvote_subquery = db.session.query(
-            ForumVote.post_id,
-            func.count(ForumVote.id).label('upvotes')
-        ).filter(ForumVote.vote_type == "upvote").group_by(ForumVote.post_id).subquery()
-        
-        downvote_subquery = db.session.query(
-            ForumVote.post_id,
-            func.count(ForumVote.id).label('downvotes')
-        ).filter(ForumVote.vote_type == "downvote").group_by(ForumVote.post_id).subquery()
-        
-        # Join with subqueries and calculate net votes
-        query = query.outerjoin(upvote_subquery, ForumPost.id == upvote_subquery.c.post_id)
-        query = query.outerjoin(downvote_subquery, ForumPost.id == downvote_subquery.c.post_id)
-        query = query.order_by(
-            (func.coalesce(upvote_subquery.c.upvotes, 0) - func.coalesce(downvote_subquery.c.downvotes, 0)).desc()
+        # Use a simpler approach that's more compatible with SQLite
+        query = query.outerjoin(ForumVote, ForumPost.id == ForumVote.post_id).group_by(ForumPost.id).order_by(
+            (func.sum(func.case([(ForumVote.vote_type == "upvote", 1)], else_=0)) - 
+             func.sum(func.case([(ForumVote.vote_type == "downvote", 1)], else_=0))).desc()
         )
     elif sort_by == "most_commented":
         # Sort by comment count descending

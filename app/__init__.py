@@ -4,13 +4,16 @@ from flask_mail import Mail
 from .models import db, User
 from config import Config
 
+# Global mail instance
+mail = Mail()
+
 
 def create_app(config_class: type = Config) -> Flask:
     app = Flask(__name__)
     app.config.from_object(config_class)
 
     db.init_app(app)
-    mail = Mail(app)
+    mail.init_app(app)
 
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"

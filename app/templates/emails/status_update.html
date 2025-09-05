@@ -146,7 +146,7 @@
                 </div>
                 <div class="info-row">
                     <span class="info-label">Decision Date:</span>
-                    <span class="info-value">{{ application.decision_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                    <span class="info-value">{% if application.decision_at %}{{ application.decision_at.strftime('%B %d, %Y at %I:%M %p') }}{% else %}Just now{% endif %}</span>
                 </div>
                 {% if opportunity.opportunity_type %}
                 <div class="info-row">

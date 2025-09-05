@@ -7,8 +7,7 @@ from datetime import datetime
 def send_application_notification(application_id):
     """Send email notification to employer when a radiologist applies for a position"""
     try:
-        from flask_mail import Mail
-        mail = Mail(current_app)
+        from . import mail
         
         # Get application details
         application = Application.query.get(application_id)
@@ -51,8 +50,7 @@ def send_application_notification(application_id):
 def send_status_notification(application_id, status):
     """Send email notification to radiologist when application status changes"""
     try:
-        from flask_mail import Mail
-        mail = Mail(current_app)
+        from . import mail
         
         # Get application details
         application = Application.query.get(application_id)
@@ -97,8 +95,7 @@ def send_status_notification(application_id, status):
 def send_bulk_status_notifications(application_ids, status):
     """Send email notifications to multiple radiologists when their applications are rejected due to position being filled"""
     try:
-        from flask_mail import Mail
-        mail = Mail(current_app)
+        from . import mail
         
         messages = []
         
