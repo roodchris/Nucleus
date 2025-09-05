@@ -3,7 +3,7 @@
   <div class="job-card" style="padding:24px; {% if opp.is_filled or not opp.is_active %}opacity:0.6;{% endif %}">
     <h2 style="margin-top:0;">{{ opp.title }}</h2>
     <div class="muted">{{ opp.zip_code }}{% if get_zip_location(opp.zip_code) %} ({{ get_zip_location(opp.zip_code) }}){% endif %} · {{ opp.opportunity_type.value|replace('_',' ') }}</div>
-    <div style="margin-top:8px;">$ {{ opp.pay_per_hour }}/hr · shift {{ opp.shift_length_hours }}h · {{ opp.hours_per_week }} hrs/week</div>
+    <div style="margin-top:8px;">$ {{ opp.pay_amount }}{% if opp.pay_type %}{% if opp.pay_type.value == 'per_hour' %}/hr{% elif opp.pay_type.value == 'per_rvu' %}/RVU{% endif %}{% else %}/hr{% endif %}</div>
     <div>Training Level: {{ opp.pgy_min.value }} - {{ opp.pgy_max.value }}</div>
     {% if opp.timezone %}
       <div class="muted">🕐 Timezone: {{ opp.timezone.replace('_', ' ').replace('/', ' - ') }}</div>

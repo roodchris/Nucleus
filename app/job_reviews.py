@@ -1,8 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, jsonify
 from flask_login import login_required, current_user
 from .models import db, UserRole, JobReview
 from .forms import JobReviewForm
-from sqlalchemy import desc
+from sqlalchemy import desc, distinct
 
 job_reviews_bp = Blueprint("job_reviews", __name__, url_prefix="/job-reviews")
 
@@ -139,3 +139,24 @@ def delete_review(review_id):
     
     flash("Your review has been deleted successfully.", "success")
     return redirect(url_for("job_reviews.index"))
+
+
+@job_reviews_bp.route("/api/practice-names")
+@login_required
+def get_practice_names():
+    """API endpoint to get practice names for autocomplete"""
+    query = request.args.get('q', '').strip()
+    
+    if not query:
+        return jsonify([])
+    
+    # Get distinct practice names that contain the query string
+    practice_names = db.session.query(distinct(JobReview.practice_name))\
+        .filter(JobReview.practice_name.ilike(f'%{query}%'))\
+        .limit(10)\
+        .all()
+    
+    # Convert to list of strings
+    names = [name[0] for name in practice_names]
+    
+    return jsonify(names)

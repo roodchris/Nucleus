@@ -26,7 +26,10 @@
         <div>
           <label for="{{ form.practice_name.id }}" class="block text-sm font-medium text-gray-700 mb-2">{{ form.practice_name.label }}</label>
           <p class="text-sm text-blue-600 bg-blue-100 px-3 py-2 rounded-lg mb-3">Name of the practice or organization</p>
-          {{ form.practice_name(class="input", placeholder="e.g., University Hospital, Private Practice Group") }}
+          <div class="relative">
+            {{ form.practice_name(class="input", placeholder="e.g., University Hospital, Private Practice Group", id="practice-name-input", autocomplete="off") }}
+            <div id="practice-suggestions" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-y-auto"></div>
+          </div>
           {% if form.practice_name.errors %}
             <div class="text-red-500 text-sm mt-2">
               {% for error in form.practice_name.errors %}
@@ -233,4 +236,111 @@
     }
   }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const practiceInput = document.getElementById('practice-name-input');
+    const suggestionsDiv = document.getElementById('practice-suggestions');
+    let currentTimeout = null;
+    let selectedIndex = -1;
+
+    practiceInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Clear previous timeout
+        if (currentTimeout) {
+            clearTimeout(currentTimeout);
+        }
+        
+        // Hide suggestions if query is too short
+        if (query.length < 2) {
+            suggestionsDiv.classList.add('hidden');
+            return;
+        }
+        
+        // Debounce the API call
+        currentTimeout = setTimeout(() => {
+            fetchPracticeNames(query);
+        }, 300);
+    });
+
+    practiceInput.addEventListener('keydown', function(e) {
+        const suggestions = suggestionsDiv.querySelectorAll('.suggestion-item');
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = Math.min(selectedIndex + 1, suggestions.length - 1);
+            updateSelection();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = Math.max(selectedIndex - 1, -1);
+            updateSelection();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+                selectSuggestion(suggestions[selectedIndex]);
+            }
+        } else if (e.key === 'Escape') {
+            suggestionsDiv.classList.add('hidden');
+            selectedIndex = -1;
+        }
+    });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!practiceInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+            suggestionsDiv.classList.add('hidden');
+            selectedIndex = -1;
+        }
+    });
+
+    function fetchPracticeNames(query) {
+        fetch(`/job-reviews/api/practice-names?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                displaySuggestions(data);
+            })
+            .catch(error => {
+                console.error('Error fetching practice names:', error);
+            });
+    }
+
+    function displaySuggestions(suggestions) {
+        suggestionsDiv.innerHTML = '';
+        
+        if (suggestions.length === 0) {
+            suggestionsDiv.classList.add('hidden');
+            return;
+        }
+        
+        suggestions.forEach((suggestion, index) => {
+            const item = document.createElement('div');
+            item.className = 'suggestion-item px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0';
+            item.textContent = suggestion;
+            item.addEventListener('click', () => selectSuggestion(item));
+            suggestionsDiv.appendChild(item);
+        });
+        
+        suggestionsDiv.classList.remove('hidden');
+        selectedIndex = -1;
+    }
+
+    function updateSelection() {
+        const suggestions = suggestionsDiv.querySelectorAll('.suggestion-item');
+        suggestions.forEach((item, index) => {
+            if (index === selectedIndex) {
+                item.classList.add('bg-blue-100');
+            } else {
+                item.classList.remove('bg-blue-100');
+            }
+        });
+    }
+
+    function selectSuggestion(item) {
+        practiceInput.value = item.textContent;
+        suggestionsDiv.classList.add('hidden');
+        selectedIndex = -1;
+    }
+});
+</script>
 {% endblock %}

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Status Update</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+        }
+        .email-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            {% if status == 'accepted' %}
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            {% else %}
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            {% endif %}
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .content {
+            padding: 30px;
+        }
+        .info-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .info-value {
+            color: #2d3748;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+        .cta-button:hover {
+            background: #5a67d8;
+        }
+        .footer {
+            background: #f8fafc;
+            padding: 20px;
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+        }
+        .status-message {
+            {% if status == 'accepted' %}
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            {% else %}
+            background: #fed7d7;
+            border-left: 4px solid #f56565;
+            {% endif %}
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .decision-notes {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            {% if status == 'accepted' %}
+            <h1>🎉 Congratulations!</h1>
+            <p>Your application has been accepted</p>
+            {% else %}
+            <h1>Application Update</h1>
+            <p>Your application status has been updated</p>
+            {% endif %}
+        </div>
+        
+        <div class="content">
+            <div class="status-message">
+                {% if status == 'accepted' %}
+                <strong>Great news!</strong> Your application for <strong>{{ opportunity.title }}</strong> has been accepted by {{ employer.name }}.
+                {% else %}
+                <strong>Thank you for your interest.</strong> Unfortunately, your application for <strong>{{ opportunity.title }}</strong> was not selected this time.
+                {% endif %}
+            </div>
+            
+            <h2>Application Details</h2>
+            
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="info-label">Position:</span>
+                    <span class="info-value">{{ opportunity.title }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Employer:</span>
+                    <span class="info-value">{{ employer.name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Employer Email:</span>
+                    <span class="info-value">{{ employer.email }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Applied:</span>
+                    <span class="info-value">{{ application.applied_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Decision Date:</span>
+                    <span class="info-value">{{ application.decision_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                </div>
+                {% if opportunity.opportunity_type %}
+                <div class="info-row">
+                    <span class="info-label">Type:</span>
+                    <span class="info-value">{{ opportunity.opportunity_type.value|replace('_',' ')|title }}</span>
+                </div>
+                {% endif %}
+                {% if opportunity.pay_amount %}
+                <div class="info-row">
+                    <span class="info-label">Compensation:</span>
+                    <span class="info-value">${{ opportunity.pay_amount }}{% if opportunity.pay_type %}{% if opportunity.pay_type.value == 'per_hour' %}/hr{% elif opportunity.pay_type.value == 'per_rvu' %}/RVU{% endif %}{% else %}/hr{% endif %}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if application.decision_notes %}
+            <div class="decision-notes">
+                <h3>Notes from Employer:</h3>
+                <p>{{ application.decision_notes }}</p>
+            </div>
+            {% endif %}
+            
+            {% if status == 'accepted' %}
+            <p>Congratulations! You can now coordinate with the employer to finalize the details of your position.</p>
+            {% else %}
+            <p>Don't be discouraged! There are many other opportunities available. Keep checking our job board for new positions that match your interests and availability.</p>
+            {% endif %}
+            
+            <a href="{{ url_for('opportunities.resident_applications', _external=True) }}" class="cta-button">
+                View All Applications
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated notification from the Radiology Moonlighting Job Board.</p>
+            <p>If you have any questions, please contact our support team.</p>
+        </div>
+    </div>
+</body>
+</html>

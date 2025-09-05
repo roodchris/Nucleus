@@ -31,7 +31,6 @@
         <div class="form-group">
           <label class="form-label">
             {{ form.title.label }}
-            <span class="optional-badge">Optional</span>
           </label>
           {{ form.title(class="form-input") }}
         </div>
@@ -39,7 +38,6 @@
         <div class="form-group">
           <label class="form-label">
             {{ form.opportunity_type.label }}
-            <span class="optional-badge">Optional</span>
           </label>
           {{ form.opportunity_type(class="form-input") }}
         </div>
@@ -47,7 +45,6 @@
         <div class="form-group">
           <label class="form-label">
             {{ form.zip_code.label }}
-            <span class="optional-badge">Optional</span>
           </label>
           {{ form.zip_code(class="form-input") }}
         </div>
@@ -55,7 +52,6 @@
         <div class="form-group">
           <label class="form-label">
             {{ form.pgy_min.label }}
-            <span class="optional-badge">Optional</span>
           </label>
           {{ form.pgy_min(class="form-input") }}
         </div>
@@ -63,39 +59,27 @@
         <div class="form-group">
           <label class="form-label">
             {{ form.pgy_max.label }}
-            <span class="optional-badge">Optional</span>
           </label>
           {{ form.pgy_max(class="form-input") }}
         </div>
         
         <div class="form-group">
           <label class="form-label">
-            {{ form.pay_per_hour.label }}
-            <span class="optional-badge">Optional</span>
+            {{ form.pay_amount.label }}
           </label>
-          {{ form.pay_per_hour(class="form-input") }}
+          {{ form.pay_amount(class="form-input") }}
         </div>
         
         <div class="form-group">
           <label class="form-label">
-            {{ form.shift_length_hours.label }}
-            <span class="optional-badge">Optional</span>
+            {{ form.pay_type.label }}
           </label>
-          {{ form.shift_length_hours(class="form-input") }}
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">
-            {{ form.hours_per_week.label }}
-            <span class="optional-badge">Optional</span>
-          </label>
-          {{ form.hours_per_week(class="form-input") }}
+          {{ form.pay_type(class="form-input") }}
         </div>
         
         <div class="form-group">
           <label class="form-label">
             {{ form.timezone.label }}
-            <span class="optional-badge">Optional</span>
           </label>
           {{ form.timezone(class="form-input") }}
           <small class="form-help">Select the timezone for this opportunity's shifts</small>
@@ -104,7 +88,6 @@
         <div class="form-group">
           <label class="form-label">
             {{ form.work_duration.label }}
-            <span class="optional-badge">Optional</span>
           </label>
           {{ form.work_duration(class="form-input") }}
           <small class="form-help">Specify the duration of work for this opportunity</small>
@@ -113,7 +96,6 @@
         <div class="form-group full-width">
           <label class="form-label">
             {{ form.description.label }}
-            <span class="optional-badge">Optional</span>
           </label>
           {{ form.description(class="form-input", rows="4") }}
         </div>

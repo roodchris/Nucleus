@@ -57,7 +57,7 @@
         <select onchange="window.location.href='?category={{ current_category }}&sort=' + this.value" class="filter-input">
           <option value="newest" {% if current_sort == "newest" %}selected{% endif %}>Newest First</option>
           <option value="oldest" {% if current_sort == "oldest" %}selected{% endif %}>Oldest First</option>
-          <option value="most_voted" {% if current_sort == "most_voted" %}selected{% endif %}>Most Voted</option>
+          <option value="most_voted" {% if current_sort == "most_voted" %}selected{% endif %}>Most Upvoted</option>
           <option value="most_commented" {% if current_sort == "most_commented" %}selected{% endif %}>Most Commented</option>
         </select>
       </div>

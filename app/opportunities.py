@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 from sqlalchemy import and_
-from .models import db, Opportunity, OpportunityType, UserRole, CalendarSlot, User, Application, ApplicationStatus, TrainingLevel, WorkDuration
+from .models import db, Opportunity, OpportunityType, UserRole, CalendarSlot, User, Application, ApplicationStatus, TrainingLevel, WorkDuration, PayType
 from .forms import OpportunityForm, FilterForm
 from datetime import date, datetime, timedelta
 import math
@@ -99,6 +99,23 @@ def list_opportunities():
         return render_template("auth/login_required.html")
         
     form = FilterForm(data=request.args)
+    
+    # Clean up form data early - convert string values to proper types for numeric fields
+    if form.minimum_pay.data == '':
+        form.minimum_pay.data = None
+    elif form.minimum_pay.data is not None:
+        try:
+            form.minimum_pay.data = float(form.minimum_pay.data)
+        except (ValueError, TypeError):
+            form.minimum_pay.data = None
+    if form.radius_miles.data == '':
+        form.radius_miles.data = None
+    elif form.radius_miles.data is not None:
+        try:
+            form.radius_miles.data = int(form.radius_miles.data)
+        except (ValueError, TypeError):
+            form.radius_miles.data = None
+    
     query = Opportunity.query.filter_by(is_active=True)
 
     if form.opportunity_type.data:
@@ -115,16 +132,11 @@ def list_opportunities():
     elif form.zip_code.data:
         query = query.filter(Opportunity.zip_code.ilike(f"%{form.zip_code.data}%"))
     
-    if form.pay_min.data is not None and form.pay_min.data != '':
-        query = query.filter(Opportunity.pay_per_hour >= float(form.pay_min.data))
-    if form.shift_min.data is not None and form.shift_min.data != '':
-        query = query.filter(Opportunity.shift_length_hours >= float(form.shift_min.data))
-    if form.shift_max.data is not None and form.shift_max.data != '':
-        query = query.filter(Opportunity.shift_length_hours <= float(form.shift_max.data))
-    if form.hpw_min.data is not None and form.hpw_min.data != '':
-        query = query.filter(Opportunity.hours_per_week >= float(form.hpw_min.data))
-    if form.hpw_max.data is not None and form.hpw_max.data != '':
-        query = query.filter(Opportunity.hours_per_week <= float(form.hpw_max.data))
+    if form.minimum_pay.data is not None and form.minimum_pay.data != '':
+        if form.pay_type.data:
+            # Filter by specific pay type
+            query = query.filter(Opportunity.pay_type == PayType(form.pay_type.data))
+        query = query.filter(Opportunity.pay_amount >= float(form.minimum_pay.data))
     if form.work_duration.data:
         try:
             query = query.filter(Opportunity.work_duration == WorkDuration(form.work_duration.data))
@@ -171,19 +183,6 @@ def list_opportunities():
                 filtered_opportunities.append(opp)
         opportunities = filtered_opportunities
     
-    # Clean up form data for template rendering - convert empty strings to None for numeric fields
-    if form.pay_min.data == '':
-        form.pay_min.data = None
-    if form.shift_min.data == '':
-        form.shift_min.data = None
-    if form.shift_max.data == '':
-        form.shift_max.data = None
-    if form.hpw_min.data == '':
-        form.hpw_min.data = None
-    if form.hpw_max.data == '':
-        form.hpw_max.data = None
-    if form.radius_miles.data == '':
-        form.radius_miles.data = None
     
     return render_template("opportunities/list.html", form=form, opportunities=opportunities, OpportunityType=OpportunityType)
 
@@ -205,7 +204,8 @@ def create_opportunity():
             zip_code=form.zip_code.data if form.zip_code.data else None,
             pgy_min=TrainingLevel(form.pgy_min.data) if form.pgy_min.data else None,
             pgy_max=TrainingLevel(form.pgy_max.data) if form.pgy_max.data else None,
-            pay_per_hour=float(form.pay_per_hour.data) if form.pay_per_hour.data else None,
+            pay_amount=float(form.pay_amount.data) if form.pay_amount.data else None,
+            pay_type=PayType(form.pay_type.data) if form.pay_type.data else None,
             shift_length_hours=float(form.shift_length_hours.data) if form.shift_length_hours.data else None,
             hours_per_week=float(form.hours_per_week.data) if form.hours_per_week.data else None,
             timezone=form.timezone.data if form.timezone.data else None,
@@ -278,7 +278,8 @@ def edit_opportunity(opportunity_id):
         form.zip_code.data = opportunity.zip_code
         form.pgy_min.data = opportunity.pgy_min.value if opportunity.pgy_min else ""
         form.pgy_max.data = opportunity.pgy_max.value if opportunity.pgy_max else ""
-        form.pay_per_hour.data = opportunity.pay_per_hour
+        form.pay_amount.data = opportunity.pay_amount
+        form.pay_type.data = opportunity.pay_type.value if opportunity.pay_type else ""
         form.shift_length_hours.data = opportunity.shift_length_hours
         form.hours_per_week.data = opportunity.hours_per_week
         form.timezone.data = opportunity.timezone
@@ -292,7 +293,8 @@ def edit_opportunity(opportunity_id):
         opportunity.zip_code = form.zip_code.data if form.zip_code.data else None
         opportunity.pgy_min = TrainingLevel(form.pgy_min.data) if form.pgy_min.data else None
         opportunity.pgy_max = TrainingLevel(form.pgy_max.data) if form.pgy_max.data else None
-        opportunity.pay_per_hour = float(form.pay_per_hour.data) if form.pay_per_hour.data else None
+        opportunity.pay_amount = float(form.pay_amount.data) if form.pay_amount.data else None
+        opportunity.pay_type = PayType(form.pay_type.data) if form.pay_type.data else None
         opportunity.shift_length_hours = float(form.shift_length_hours.data) if form.shift_length_hours.data else None
         opportunity.hours_per_week = float(form.hours_per_week.data) if form.hours_per_week.data else None
         opportunity.timezone = form.timezone.data if form.timezone.data else None
@@ -698,6 +700,17 @@ def update_application_decision(application_id):
     
     db.session.commit()
     
+    # Send email notifications
+    from .email_service import send_status_notification, send_bulk_status_notifications
+    
+    # Send notification to the applicant whose status changed
+    send_status_notification(application.id, status)
+    
+    # If accepted, send notifications to all rejected applicants
+    if status == "accepted" and other_applications:
+        rejected_app_ids = [app.id for app in other_applications]
+        send_bulk_status_notifications(rejected_app_ids, "rejected")
+    
     status_text = "accepted" if status == "accepted" else "rejected"
     flash(f"Application {status_text} successfully", "success")
     return redirect(url_for("opportunities.employer_applications"))
@@ -769,6 +782,10 @@ def apply_to_opportunity(opportunity_id):
     db.session.add(conversation)
     
     db.session.commit()
+    
+    # Send email notification to employer
+    from .email_service import send_application_notification
+    send_application_notification(application.id)
     
     flash("Application submitted successfully! You can now message the employer.", "success")
     return redirect(url_for("opportunities.show_opportunity", opportunity_id=opportunity_id))

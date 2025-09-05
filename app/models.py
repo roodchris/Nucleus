@@ -18,6 +18,7 @@ class OpportunityType(Enum):
     IN_PERSON_CONTRAST = "in_person_contrast"
     TELE_CONTRAST = "tele_contrast"
     DIAGNOSTIC_INTERPRETATION = "diagnostic_interpretation"
+    TELE_DIAGNOSTIC_INTERPRETATION = "tele_diagnostic_interpretation"
 
 
 class ApplicationStatus(Enum):
@@ -34,6 +35,11 @@ class TrainingLevel(Enum):
     R4 = "R4"
     FELLOW = "FELLOW"
     ATTENDING = "ATTENDING"
+
+
+class PayType(Enum):
+    PER_HOUR = "per_hour"
+    PER_RVU = "per_rvu"
 
 
 class WorkDuration(Enum):
@@ -97,7 +103,8 @@ class Opportunity(db.Model):
     pgy_min = db.Column(db.Enum(TrainingLevel), nullable=True)  # Training level min
     pgy_max = db.Column(db.Enum(TrainingLevel), nullable=True)  # Training level max
 
-    pay_per_hour = db.Column(db.Float, nullable=True, index=True)
+    pay_amount = db.Column(db.Float, nullable=True, index=True)
+    pay_type = db.Column(db.Enum(PayType), nullable=True, index=True)
     shift_length_hours = db.Column(db.Float, nullable=True, index=True)
     hours_per_week = db.Column(db.Float, nullable=True, index=True)
     
@@ -383,3 +390,35 @@ class UserSession(db.Model):
     
     def __repr__(self):
         return f'<UserSession {self.user_id}: {self.is_online}>'
+
+
+class ShiftSession(db.Model):
+    """Model for tracking shift sessions"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime, nullable=True)
+    total_rvus = db.Column(db.Float, default=0.0, nullable=False)
+    compensation_rate = db.Column(db.Float, nullable=False)
+    total_revenue = db.Column(db.Float, default=0.0, nullable=False)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    
+    # Relationships
+    user = db.relationship('User', backref='shift_sessions')
+    rvu_records = db.relationship('RVURecord', backref='shift_session', cascade='all, delete-orphan')
+    
+    def __repr__(self):
+        return f'<ShiftSession {self.user_id} {self.start_time.date()}>'
+
+
+class RVURecord(db.Model):
+    """Model for individual RVU records within a shift"""
+    id = db.Column(db.Integer, primary_key=True)
+    shift_session_id = db.Column(db.Integer, db.ForeignKey('shift_session.id'), nullable=False)
+    study_name = db.Column(db.String(200), nullable=False)
+    wrvu_value = db.Column(db.Float, nullable=False)
+    recorded_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    
+    def __repr__(self):
+        return f'<RVURecord {self.study_name} {self.wrvu_value} wRVUs>'

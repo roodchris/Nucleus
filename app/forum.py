@@ -34,11 +34,32 @@ def forum_index():
     elif sort_by == "oldest":
         query = query.order_by(ForumPost.created_at.asc())
     elif sort_by == "most_voted":
-        # For now, just show newest
-        query = query.order_by(ForumPost.created_at.desc())
+        # Sort by net votes (upvotes - downvotes) descending
+        # Use subqueries to calculate vote counts - this is SQLite compatible
+        from sqlalchemy import text
+        
+        # Create subqueries for upvotes and downvotes
+        upvote_subquery = db.session.query(
+            ForumVote.post_id,
+            func.count(ForumVote.id).label('upvotes')
+        ).filter(ForumVote.vote_type == "upvote").group_by(ForumVote.post_id).subquery()
+        
+        downvote_subquery = db.session.query(
+            ForumVote.post_id,
+            func.count(ForumVote.id).label('downvotes')
+        ).filter(ForumVote.vote_type == "downvote").group_by(ForumVote.post_id).subquery()
+        
+        # Join with subqueries and calculate net votes
+        query = query.outerjoin(upvote_subquery, ForumPost.id == upvote_subquery.c.post_id)
+        query = query.outerjoin(downvote_subquery, ForumPost.id == downvote_subquery.c.post_id)
+        query = query.order_by(
+            (func.coalesce(upvote_subquery.c.upvotes, 0) - func.coalesce(downvote_subquery.c.downvotes, 0)).desc()
+        )
     elif sort_by == "most_commented":
-        # For now, just show newest
-        query = query.order_by(ForumPost.created_at.desc())
+        # Sort by comment count descending
+        query = query.outerjoin(ForumComment, ForumPost.id == ForumComment.post_id).group_by(ForumPost.id).order_by(
+            func.count(ForumComment.id).desc()
+        )
     
     # Pagination
     posts = query.paginate(page=page, per_page=20, error_out=False)

@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_login import LoginManager
+from flask_mail import Mail
 from .models import db, User
 from config import Config
 
@@ -9,6 +10,7 @@ def create_app(config_class: type = Config) -> Flask:
     app.config.from_object(config_class)
 
     db.init_app(app)
+    mail = Mail(app)
 
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"

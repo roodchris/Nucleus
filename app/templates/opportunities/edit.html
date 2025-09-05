@@ -25,7 +25,6 @@
         <div>
           <label for="{{ form.title.id }}" class="block text-sm font-medium text-gray-700 mb-2">
             {{ form.title.label }}
-            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
           </label>
           {{ form.title(class="input", placeholder="e.g., Weekend Radiology Coverage") }}
           {% if form.title.errors %}
@@ -40,7 +39,6 @@
         <div>
           <label for="{{ form.opportunity_type.id }}" class="block text-sm font-medium text-gray-700 mb-2">
             {{ form.opportunity_type.label }}
-            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
           </label>
           {{ form.opportunity_type(class="input") }}
           {% if form.opportunity_type.errors %}
@@ -56,7 +54,6 @@
       <div class="mt-6">
         <label for="{{ form.description.id }}" class="block text-sm font-medium text-gray-700 mb-2">
           {{ form.description.label }}
-          <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
         </label>
         {{ form.description(class="input", placeholder="Describe the opportunity, requirements, and any additional details...", rows="4") }}
         {% if form.description.errors %}
@@ -78,7 +75,6 @@
       <div>
         <label for="{{ form.zip_code.id }}" class="block text-sm font-medium text-gray-700 mb-2">
           {{ form.zip_code.label }}
-          <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
         </label>
         {{ form.zip_code(class="input", placeholder="e.g., 90210") }}
         {% if form.zip_code.errors %}
@@ -101,7 +97,6 @@
         <div>
           <label for="{{ form.pgy_min.id }}" class="block text-sm font-medium text-gray-700 mb-2">
             {{ form.pgy_min.label }}
-            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
           </label>
           {{ form.pgy_min(class="input") }}
           {% if form.pgy_min.errors %}
@@ -116,7 +111,6 @@
         <div>
           <label for="{{ form.pgy_max.id }}" class="block text-sm font-medium text-gray-700 mb-2">
             {{ form.pgy_max.label }}
-            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
           </label>
           {{ form.pgy_max(class="input") }}
           {% if form.pgy_max.errors %}
@@ -138,44 +132,13 @@
       </div>
       <div class="grid-3 gap-6">
         <div>
-          <label for="{{ form.pay_per_hour.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ form.pay_per_hour.label }}
-            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
+          <label for="{{ form.pay_amount.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ form.pay_amount.label }}
           </label>
-          {{ form.pay_per_hour(class="input", placeholder="e.g., 150.00") }}
-          {% if form.pay_per_hour.errors %}
+          {{ form.pay_amount(class="input", placeholder="e.g., 150.00") }}
+          {% if form.pay_amount.errors %}
             <div class="text-red-500 text-sm mt-2">
-              {% for error in form.pay_per_hour.errors %}
-                <span class="error-message">{{ error }}</span>
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-
-        <div>
-          <label for="{{ form.shift_length_hours.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ form.shift_length_hours.label }}
-            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
-          </label>
-          {{ form.shift_length_hours(class="input", placeholder="e.g., 8.0") }}
-          {% if form.shift_length_hours.errors %}
-            <div class="text-red-500 text-sm mt-2">
-              {% for error in form.shift_length_hours.errors %}
-                <span class="error-message">{{ error }}</span>
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-
-        <div>
-          <label for="{{ form.hours_per_week.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ form.hours_per_week.label }}
-            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
-          </label>
-          {{ form.hours_per_week(class="input", placeholder="e.g., 40.0") }}
-          {% if form.hours_per_week.errors %}
-            <div class="text-red-500 text-sm mt-2">
-              {% for error in form.hours_per_week.errors %}
+              {% for error in form.pay_amount.errors %}
                 <span class="error-message">{{ error }}</span>
               {% endfor %}
             </div>
@@ -183,9 +146,22 @@
         </div>
         
         <div>
+          <label for="{{ form.pay_type.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ form.pay_type.label }}
+          </label>
+          {{ form.pay_type(class="input") }}
+          {% if form.pay_type.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.pay_type.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div>
           <label for="{{ form.timezone.id }}" class="block text-sm font-medium text-gray-700 mb-2">
             {{ form.timezone.label }}
-            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
           </label>
           {{ form.timezone(class="input") }}
           <p class="text-sm text-gray-500 mt-1">Select the timezone for this opportunity's shifts</p>
@@ -201,7 +177,6 @@
         <div>
           <label for="{{ form.work_duration.id }}" class="block text-sm font-medium text-gray-700 mb-2">
             {{ form.work_duration.label }}
-            <span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded ml-2">Optional</span>
           </label>
           {{ form.work_duration(class="input") }}
           <p class="text-sm text-gray-500 mt-1">Specify the duration of work for this opportunity</p>

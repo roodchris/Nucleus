@@ -119,7 +119,7 @@
               <p class="employer-name">{{ employer.name }}</p>
             </div>
             <div class="slot-pay">
-              <span class="pay-rate">${{ opp.pay_per_hour }}/hr</span>
+              <span class="pay-rate">${{ opp.pay_amount }}{% if opp.pay_type %}{% if opp.pay_type.value == 'per_hour' %}/hr{% elif opp.pay_type.value == 'per_rvu' %}/RVU{% endif %}{% else %}/hr{% endif %}</span>
             </div>
           </div>
           
@@ -211,7 +211,7 @@
               <p class="employer-name">{{ opp.employer.name }}</p>
             </div>
             <div class="flexible-opportunity-pay">
-              <span class="pay-rate">${{ opp.pay_per_hour }}/hr</span>
+              <span class="pay-rate">${{ opp.pay_amount }}{% if opp.pay_type %}{% if opp.pay_type.value == 'per_hour' %}/hr{% elif opp.pay_type.value == 'per_rvu' %}/RVU{% endif %}{% else %}/hr{% endif %}</span>
             </div>
           </div>
           

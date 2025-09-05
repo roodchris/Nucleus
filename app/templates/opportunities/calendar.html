@@ -27,7 +27,7 @@
   <!-- Page Header -->
   <div class="page-header">
     <h1 class="page-title page-title-animated">📅 {{ opp.title }} - Calendar</h1>
-    <p class="page-subtitle page-subtitle-animated">{{ opp.zip_code }}{% if get_zip_location(opp.zip_code) %} ({{ get_zip_location(opp.zip_code) }}){% endif %} · {{ opp.opportunity_type.value|replace('_',' ') }} · ${{ opp.pay_per_hour }}/hr · {{ opp.shift_length_hours }}h shifts{% if opp.work_duration %} · {% if opp.work_duration.value == 'single_shift' %}Single Shift{% elif opp.work_duration.value == 'short_term' %}Short-term (less than 1 month){% elif opp.work_duration.value == 'medium_term' %}Medium-term (1 month to 6 months){% elif opp.work_duration.value == 'permanent' %}Permanent Employment{% else %}{{ opp.work_duration.value.replace('_', ' ').title() }}{% endif %}{% endif %}</p>
+    <p class="page-subtitle page-subtitle-animated">{{ opp.zip_code }}{% if get_zip_location(opp.zip_code) %} ({{ get_zip_location(opp.zip_code) }}){% endif %} · {{ opp.opportunity_type.value|replace('_',' ') }} · ${{ opp.pay_amount }}{% if opp.pay_type %}{% if opp.pay_type.value == 'per_hour' %}/hr{% elif opp.pay_type.value == 'per_rvu' %}/RVU{% endif %}{% else %}/hr{% endif %}{% if opp.work_duration %} · {% if opp.work_duration.value == 'single_shift' %}Single Shift{% elif opp.work_duration.value == 'short_term' %}Short-term (less than 1 month){% elif opp.work_duration.value == 'medium_term' %}Medium-term (1 month to 6 months){% elif opp.work_duration.value == 'permanent' %}Permanent Employment{% else %}{{ opp.work_duration.value.replace('_', ' ').title() }}{% endif %}{% endif %}</p>
   </div>
 
   <!-- Back Button -->

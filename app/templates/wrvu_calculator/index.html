@@ -7,6 +7,83 @@
     <p class="page-subtitle page-subtitle-animated">Calculate your expected revenue based on work RVU values and compensation rates. Perfect for evaluating moonlighting opportunities and contract negotiations.</p>
   </div>
 
+  <!-- Shift Tracking Tile -->
+  <div class="container mx-auto px-4 py-4">
+    <div class="glass-card" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(59, 130, 246, 0.1)); border: 1px solid rgba(34, 197, 94, 0.2);">
+      <h3 class="text-lg font-semibold text-white mb-4">🕐 Shift Tracking</h3>
+      
+      <div id="shift-controls" class="space-y-4">
+        <!-- Start Shift Section -->
+        <div id="start-shift-section" class="text-center">
+          <div class="mb-3">
+            <label for="shift-compensation-rate" class="block text-sm font-medium text-gray-300 mb-2">
+              Compensation Rate ($ per wRVU)
+            </label>
+            <div class="relative max-w-xs mx-auto">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-400 text-sm">$</span>
+              </div>
+              <input 
+                type="number" 
+                id="shift-compensation-rate" 
+                class="glass-input w-full pl-8" 
+                placeholder="0.00" 
+                step="0.01" 
+                min="0"
+                value="50"
+              >
+            </div>
+          </div>
+          <button 
+            id="start-shift-btn" 
+            class="submit-btn"
+            style="background: var(--accent);"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 5v14l11-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Click to Start Shift
+          </button>
+        </div>
+
+        <!-- Active Shift Section (hidden initially) -->
+        <div id="active-shift-section" class="hidden">
+          <div class="bg-gray-800/50 rounded-lg p-4 mb-4">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm text-gray-300">Shift Started:</span>
+              <span id="shift-start-time" class="text-sm text-white font-mono"></span>
+            </div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm text-gray-300">Duration:</span>
+              <span id="shift-duration" class="text-sm text-white font-mono">00:00:00</span>
+            </div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm text-gray-300">Total wRVUs:</span>
+              <span id="shift-total-rvus" class="text-sm text-green-400 font-semibold">0.0</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-300">Total Revenue:</span>
+              <span id="shift-total-revenue" class="text-sm text-blue-400 font-semibold">$0.00</span>
+            </div>
+          </div>
+          
+          <div class="flex gap-3 justify-center">
+            <button 
+              id="end-shift-btn" 
+              class="submit-btn"
+              style="background: #dc2626;"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 6l12 12M6 18L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              End Shift
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <div class="container mx-auto px-4 py-8">
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -108,32 +185,62 @@
     </div>
   </div>
 
-  <!-- Information Section -->
+  <!-- Shift Calendar Section -->
   <div class="mt-12 glass-card" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(147, 51, 234, 0.1)); border: 1px solid rgba(0, 212, 255, 0.2);">
-    <h3 class="text-base font-semibold text-white mb-2">About wRVU Values</h3>
-    <div class="text-xs text-gray-300 space-y-1">
-      <p>
-        <strong class="text-blue-400">Work RVU (wRVU)</strong> values are based on the relative value units assigned by CMS to different medical procedures. 
-        These values reflect the physician work component of each procedure, including time, skill, and intensity.
-      </p>
-      <p>
-        This calculator includes <strong class="text-blue-400">115+ radiology procedures</strong> with their corresponding CPT codes and wRVU values, 
-        all based on <strong class="text-blue-400">RVU25b from CMS</strong>. Each study includes the official CPT code, wRVU value, and procedure description.
-      </p>
-      <p>
-        <strong class="text-blue-400">Multiple Quantities:</strong> You can add multiple instances of the same study type using the + and - buttons. 
-        This is useful for calculating revenue when performing multiple studies of the same type during a shift or contract period.
-      </p>
-      <p>
-        <strong class="text-blue-400">Data Sources:</strong> All wRVU values are sourced from the Centers for Medicare & Medicaid Services (CMS) 
-        Physician Fee Schedule and represent the work component only. CPT codes are the official Current Procedural Terminology codes.
-      </p>
-      <p>
-        <strong class="text-blue-400">Note:</strong> This calculator is for educational and planning purposes. Your actual compensation may vary based on 
-        your contract terms, practice setting, and geographic location. Always consult with your practice administrator 
-        or contract specialist for accurate compensation calculations.
-      </p>
+    <h3 class="text-lg font-semibold text-white mb-4">📅 Shift History Calendar</h3>
+    
+    <!-- Calendar Container -->
+    <div id="shift-calendar" class="mb-6">
+      <div class="calendar-section">
+        <h3 class="section-title">Shift History Calendar</h3>
+        
+        <!-- Month Navigation -->
+        <div class="month-navigation">
+          <button id="prev-month-btn" class="nav-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Previous Month
+          </button>
+          <h4 id="current-month-display" class="current-month">January 2024</h4>
+          <button id="next-month-btn" class="nav-btn">
+            Next Month
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div id="calendar-grid" class="calendar-grid">
+          <div class="calendar-header">Sun</div>
+          <div class="calendar-header">Mon</div>
+          <div class="calendar-header">Tue</div>
+          <div class="calendar-header">Wed</div>
+          <div class="calendar-header">Thu</div>
+          <div class="calendar-header">Fri</div>
+          <div class="calendar-header">Sat</div>
+          <!-- Calendar days will be populated by JavaScript -->
+        </div>
+      </div>
     </div>
+
+    <!-- Shift Details Modal -->
+    <div id="shift-details-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h4 class="text-lg font-semibold text-white">Shift Details</h4>
+          <button id="close-modal-btn" class="text-gray-400 hover:text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div id="shift-details-content">
+          <!-- Content will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -181,6 +288,181 @@
   box-shadow: 0 0 0 3px var(--accent-light);
   background: var(--surface-2);
 }
+
+/* Submit Button Styles */
+.submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow);
+  border: none;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background: var(--accent-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.submit-btn.secondary {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+}
+
+.submit-btn.secondary:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* Calendar Styles */
+.calendar-section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.calendar-header {
+  background: var(--accent);
+  color: white;
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 8px;
+}
+
+.calendar-day {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.calendar-day.empty {
+  background: transparent;
+  border: none;
+  visibility: hidden;
+}
+
+.calendar-day.has-shifts {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  cursor: pointer;
+}
+
+.calendar-day.has-shifts:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  background: var(--accent);
+  color: white;
+}
+
+.calendar-day.no-shifts {
+  background: var(--glass-light);
+  border-color: var(--glass-border-light);
+  color: var(--text-secondary);
+}
+
+.calendar-day.clickable {
+  cursor: pointer;
+}
+
+.date {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.calendar-day.has-shifts:hover .date {
+  color: white;
+}
+
+.shifts-count {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+  .calendar-day.has-shifts:hover .shifts-count {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Month Navigation */
+  .month-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--glass-light);
+    border: 1px solid var(--glass-border-light);
+    color: var(--text);
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+  }
+
+  .nav-btn:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .current-month {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+  }
 
 .glass-input::placeholder {
   color: var(--text-muted);
@@ -461,12 +743,76 @@ class WRVUCalculator {
     
     this.updateSelectedStudies();
     this.updateSummary();
+    
+    // If there's an active shift, add this study to the shift
+    if (window.shiftTracker && window.shiftTracker.activeShift) {
+      this.addStudyToActiveShift(studyName);
+    }
   }
 
   removeStudy(studyName) {
     this.selectedStudies = this.selectedStudies.filter(study => study.name !== studyName);
     this.updateSelectedStudies();
     this.updateSummary();
+  }
+
+  async addStudyToActiveShift(studyName) {
+    // Get the wRVU value for this study
+    const studyData = this.wrvuData[studyName];
+    if (!studyData) {
+      console.error('Study data not found for:', studyName);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/add-rvu', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          study_name: studyName,
+          wrvu_value: studyData.wrvu
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Update the shift tracker's active shift data
+        if (window.shiftTracker) {
+          window.shiftTracker.activeShift.total_rvus = data.total_rvus;
+          window.shiftTracker.activeShift.total_revenue = data.total_revenue;
+          window.shiftTracker.updateShiftStats();
+        }
+        console.log('Study added to shift successfully');
+      } else {
+        console.error('Failed to add study to shift:', data.error);
+      }
+    } catch (error) {
+      console.error('Error adding study to shift:', error);
+    }
+  }
+
+  async removeStudyFromActiveShift(studyName) {
+    // Note: This would require a new API endpoint to remove individual studies
+    // For now, we'll just refresh the shift data to get the current totals
+    try {
+      const response = await fetch('/api/active-shift');
+      const data = await response.json();
+      
+      if (response.ok && data.active) {
+        // Update the shift tracker's active shift data
+        if (window.shiftTracker) {
+          window.shiftTracker.activeShift.total_rvus = data.total_rvus;
+          window.shiftTracker.activeShift.total_revenue = data.total_revenue;
+          window.shiftTracker.updateShiftStats();
+        }
+        console.log('Shift data refreshed after study removal');
+      }
+    } catch (error) {
+      console.error('Error refreshing shift data:', error);
+    }
   }
 
   decrementStudy(studyName) {
@@ -481,6 +827,11 @@ class WRVUCalculator {
       }
       this.updateSelectedStudies();
       this.updateSummary();
+      
+      // If there's an active shift, remove this study from the shift
+      if (window.shiftTracker && window.shiftTracker.activeShift) {
+        this.removeStudyFromActiveShift(studyName);
+      }
     }
   }
 
@@ -504,7 +855,7 @@ class WRVUCalculator {
         <div class="selected-study">
           <div>
             <div class="study-name">${study.name}</div>
-            <div class="study-details">CPT: ${studyData.cpt} • ${studyData.wrvu} wRVU each • Qty: ${study.quantity} • Total: ${totalWRVU.toFixed(1)} wRVU</div>
+            <div class="study-details">CPT: ${studyData.cpt} • ${studyData.wrvu} wRVU each • Qty: ${study.quantity} • Total: ${totalWRVU.toFixed(2)} wRVU</div>
           </div>
           <div class="flex items-center gap-2">
             <button 
@@ -568,13 +919,13 @@ class WRVUCalculator {
     const expectedRevenue = totalWRVUs * this.compensationRate;
 
     document.getElementById('total-studies').textContent = totalQuantity;
-    document.getElementById('total-wrvus').textContent = totalWRVUs.toFixed(1);
+    document.getElementById('total-wrvus').textContent = totalWRVUs.toFixed(2);
     document.getElementById('expected-revenue').textContent = `$${expectedRevenue.toFixed(2)}`;
     
     // Update the summary text to show total quantity
     const summaryText = document.querySelector('#revenue-summary .text-gray-400');
     if (summaryText) {
-      summaryText.textContent = `Total: ${totalQuantity} studies • ${totalWRVUs.toFixed(1)} wRVUs • $${this.compensationRate}/wRVU`;
+      summaryText.textContent = `Total: ${totalQuantity} studies • ${totalWRVUs.toFixed(2)} wRVUs • $${this.compensationRate}/wRVU`;
     }
   }
 }
@@ -582,6 +933,501 @@ class WRVUCalculator {
 // Initialize calculator when page loads
 document.addEventListener('DOMContentLoaded', () => {
   new WRVUCalculator();
+});
+
+// Shift Tracking Class
+class ShiftTracker {
+  constructor() {
+    this.activeShift = null;
+    this.shiftInterval = null;
+    this.calendarData = {};
+    this.currentMonth = new Date().getMonth();
+    this.currentYear = new Date().getFullYear();
+    
+    this.initializeEventListeners();
+    this.loadActiveShift();
+    this.loadCalendarData();
+    this.renderCalendar();
+  }
+
+  initializeEventListeners() {
+    // Start shift button
+    document.getElementById('start-shift-btn').addEventListener('click', () => {
+      this.startShift();
+    });
+
+    // End shift button
+    document.getElementById('end-shift-btn').addEventListener('click', () => {
+      this.endShift();
+    });
+
+    // Month navigation buttons
+    document.getElementById('prev-month-btn').addEventListener('click', () => {
+      this.previousMonth();
+    });
+
+    document.getElementById('next-month-btn').addEventListener('click', () => {
+      this.nextMonth();
+    });
+
+    // Close modal button
+    document.getElementById('close-modal-btn').addEventListener('click', () => {
+      this.closeModal();
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('shift-details-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'shift-details-modal') {
+        this.closeModal();
+      }
+    });
+  }
+
+  async loadActiveShift() {
+    try {
+      const response = await fetch('/api/active-shift');
+      const data = await response.json();
+      
+      if (data.active) {
+        this.activeShift = data;
+        this.showActiveShift();
+        this.startShiftTimer();
+      } else {
+        this.showStartShift();
+      }
+    } catch (error) {
+      console.error('Error loading active shift:', error);
+      this.showStartShift();
+    }
+  }
+
+  async startShift() {
+    const compensationRate = parseFloat(document.getElementById('shift-compensation-rate').value);
+    
+    if (!compensationRate || compensationRate <= 0) {
+      alert('Please enter a valid compensation rate');
+      return;
+    }
+
+    try {
+      console.log('Starting shift with compensation rate:', compensationRate);
+      const response = await fetch('/api/start-shift', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ compensation_rate: compensationRate })
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
+      const data = await response.json();
+      console.log('Response data:', data);
+      
+      if (response.ok) {
+        this.activeShift = data;
+        this.showActiveShift();
+        this.startShiftTimer();
+        console.log('Shift started successfully');
+      } else {
+        console.error('API error:', data);
+        alert(data.error || 'Failed to start shift');
+      }
+    } catch (error) {
+      console.error('Error starting shift:', error);
+      alert('Failed to start shift: ' + error.message);
+    }
+  }
+
+  async endShift() {
+    if (!confirm('Are you sure you want to end this shift?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/end-shift', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        this.activeShift = null;
+        this.showStartShift();
+        this.stopShiftTimer();
+        await this.loadCalendarData();
+        alert(`Shift ended! Total wRVUs: ${data.total_rvus.toFixed(2)}, Total Revenue: $${data.total_revenue.toFixed(2)}`);
+      } else {
+        alert(data.error || 'Failed to end shift');
+      }
+    } catch (error) {
+      console.error('Error ending shift:', error);
+      alert('Failed to end shift');
+    }
+  }
+
+  showStartShift() {
+    document.getElementById('start-shift-section').classList.remove('hidden');
+    document.getElementById('active-shift-section').classList.add('hidden');
+  }
+
+  showActiveShift() {
+    document.getElementById('start-shift-section').classList.add('hidden');
+    document.getElementById('active-shift-section').classList.remove('hidden');
+    
+    if (this.activeShift) {
+      // Parse the start time as UTC and convert to local time
+      const startTime = new Date(this.activeShift.start_time + 'Z');
+      document.getElementById('shift-start-time').textContent = startTime.toLocaleString();
+      this.updateShiftStats();
+    }
+  }
+
+  startShiftTimer() {
+    this.shiftInterval = setInterval(() => {
+      this.updateShiftStats();
+    }, 1000);
+  }
+
+  stopShiftTimer() {
+    if (this.shiftInterval) {
+      clearInterval(this.shiftInterval);
+      this.shiftInterval = null;
+    }
+  }
+
+  updateShiftStats() {
+    if (!this.activeShift) return;
+
+    // Parse the start time as UTC and convert to local time
+    const startTime = new Date(this.activeShift.start_time + 'Z');
+    const now = new Date();
+    const duration = now - startTime;
+    
+    // Ensure duration is not negative
+    const positiveDuration = Math.max(0, duration);
+    
+    const hours = Math.floor(positiveDuration / 3600000);
+    const minutes = Math.floor((positiveDuration % 3600000) / 60000);
+    const seconds = Math.floor((positiveDuration % 60000) / 1000);
+    
+    document.getElementById('shift-duration').textContent = 
+      `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    document.getElementById('shift-total-rvus').textContent = this.activeShift.total_rvus.toFixed(2);
+    document.getElementById('shift-total-revenue').textContent = `$${this.activeShift.total_revenue.toFixed(2)}`;
+  }
+
+  showAddStudyModal() {
+    // Create a simple modal for adding studies
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+      <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+        <h4 class="text-lg font-semibold text-white mb-4">Add Study to Shift</h4>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Study Name</label>
+            <input type="text" id="study-name-input" class="glass-input w-full" placeholder="e.g., CT Chest without contrast">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">wRVU Value</label>
+            <input type="number" id="wrvu-value-input" class="glass-input w-full" placeholder="0.0" step="0.1" min="0">
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button id="add-study-confirm" class="submit-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Add Study
+          </button>
+          <button id="add-study-cancel" class="submit-btn secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Cancel
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    document.getElementById('add-study-confirm').addEventListener('click', () => {
+      this.addStudyToShift();
+      document.body.removeChild(modal);
+    });
+    
+    document.getElementById('add-study-cancel').addEventListener('click', () => {
+      document.body.removeChild(modal);
+    });
+  }
+
+  async addStudyToShift() {
+    const studyName = document.getElementById('study-name-input').value.trim();
+    const wrvuValue = parseFloat(document.getElementById('wrvu-value-input').value);
+    
+    if (!studyName || !wrvuValue || wrvuValue <= 0) {
+      alert('Please enter valid study name and wRVU value');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/add-rvu', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          study_name: studyName,
+          wrvu_value: wrvuValue
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        this.activeShift.total_rvus = data.total_rvus;
+        this.activeShift.total_revenue = data.total_revenue;
+        this.updateShiftStats();
+        alert('Study added successfully!');
+      } else {
+        alert(data.error || 'Failed to add study');
+      }
+    } catch (error) {
+      console.error('Error adding study:', error);
+      alert('Failed to add study');
+    }
+  }
+
+  async loadCalendarData() {
+    try {
+      const response = await fetch('/api/shift-calendar');
+      const data = await response.json();
+      
+      if (response.ok) {
+        this.calendarData = data || {};
+        console.log('Loaded calendar data:', this.calendarData);
+        this.renderCalendar();
+      } else {
+        console.error('Failed to load calendar data:', data.error);
+      }
+    } catch (error) {
+      console.error('Error loading calendar data:', error);
+    }
+  }
+
+  renderCalendar() {
+    const calendarGrid = document.getElementById('calendar-grid');
+    const firstDay = new Date(this.currentYear, this.currentMonth, 1);
+    const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    
+    // Update month display
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    document.getElementById('current-month-display').textContent = 
+      `${monthNames[this.currentMonth]} ${this.currentYear}`;
+    
+    // Clear existing calendar days (but keep headers)
+    const existingDays = calendarGrid.querySelectorAll('.calendar-day');
+    existingDays.forEach(day => day.remove());
+    
+    // Generate 42 days (6 weeks)
+    for (let i = 0; i < 42; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      
+      const dateStr = date.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+      const isCurrentMonth = date.getMonth() === this.currentMonth;
+      const isToday = date.toDateString() === new Date().toDateString();
+      
+      // Check for shifts - use direct date string comparison
+      let hasShifts = false;
+      for (const [dateKey, shiftData] of Object.entries(this.calendarData)) {
+        // The dateKey from the server should already be in the correct format
+        if (dateKey === dateStr) {
+          hasShifts = shiftData;
+          break;
+        }
+      }
+      
+      const dayElement = document.createElement('div');
+      
+      // Set base classes
+      let classes = 'calendar-day';
+      if (!isCurrentMonth) {
+        classes += ' empty';
+      } else if (hasShifts) {
+        classes += ' has-shifts clickable';
+      } else {
+        classes += ' no-shifts';
+      }
+      
+      dayElement.className = classes;
+      
+      if (isCurrentMonth) {
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'date';
+        dateDiv.textContent = date.getDate();
+        dayElement.appendChild(dateDiv);
+        
+        if (hasShifts) {
+          const shiftsDiv = document.createElement('div');
+          shiftsDiv.className = 'shifts-count';
+          shiftsDiv.textContent = `${hasShifts.total_rvus.toFixed(2)} wRVUs`;
+          dayElement.appendChild(shiftsDiv);
+          
+          dayElement.title = `Click to view details: ${hasShifts.total_rvus.toFixed(2)} wRVUs • $${hasShifts.total_revenue.toFixed(2)}`;
+          dayElement.addEventListener('click', () => {
+            this.showShiftDetails(dateStr, hasShifts);
+          });
+        }
+      }
+      
+      calendarGrid.appendChild(dayElement);
+    }
+  }
+
+  previousMonth() {
+    this.currentMonth--;
+    if (this.currentMonth < 0) {
+      this.currentMonth = 11;
+      this.currentYear--;
+    }
+    this.renderCalendar();
+  }
+
+  nextMonth() {
+    this.currentMonth++;
+    if (this.currentMonth > 11) {
+      this.currentMonth = 0;
+      this.currentYear++;
+    }
+    this.renderCalendar();
+  }
+
+  async showShiftDetails(dateStr, shiftData) {
+    const modal = document.getElementById('shift-details-modal');
+    const content = document.getElementById('shift-details-content');
+    
+    let detailsHtml = `<h5 class="text-lg font-semibold text-white mb-4">Shifts on ${new Date(dateStr).toLocaleDateString()}</h5>`;
+    detailsHtml += `<div class="mb-4 p-3 bg-gray-700 rounded">
+      <div class="flex justify-between text-sm">
+        <span class="text-gray-300">Total wRVUs:</span>
+        <span class="text-green-400 font-semibold">${shiftData.total_rvus.toFixed(2)}</span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-gray-300">Total Revenue:</span>
+        <span class="text-blue-400 font-semibold">$${shiftData.total_revenue.toFixed(2)}</span>
+      </div>
+    </div>`;
+    
+    for (const shift of shiftData.shifts) {
+      detailsHtml += `<div class="mb-4 p-3 bg-gray-700 rounded">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-sm text-gray-300">Shift ${shift.id}</span>
+          <span class="text-xs text-gray-400">${new Date(shift.start_time + 'Z').toLocaleTimeString()}</span>
+        </div>
+        <div class="flex justify-between text-sm mb-2">
+          <span class="text-gray-300">wRVUs:</span>
+          <span class="text-green-400">${shift.total_rvus.toFixed(2)}</span>
+        </div>
+        <div class="flex justify-between text-sm mb-2">
+          <span class="text-gray-300">Revenue:</span>
+          <span class="text-blue-400">$${shift.total_revenue.toFixed(2)}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-300">Rate:</span>
+          <span class="text-gray-300">$${shift.compensation_rate}/wRVU</span>
+        </div>
+        <button class="mt-2 text-xs submit-btn" style="padding: 0.5rem 1rem; font-size: 0.75rem;" onclick="shiftTracker.showShiftStudies(${shift.id})">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          View Studies
+        </button>
+      </div>`;
+    }
+    
+    content.innerHTML = detailsHtml;
+    modal.classList.remove('hidden');
+    
+    // Store current shift data for studies view
+    this.currentShiftData = shiftData;
+  }
+
+  async showShiftStudies(shiftId) {
+    try {
+      const response = await fetch(`/api/shift-details/${shiftId}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        const modal = document.getElementById('shift-details-modal');
+        const content = document.getElementById('shift-details-content');
+        
+        let studiesHtml = `<h5 class="text-lg font-semibold text-white mb-4">Studies in Shift ${shiftId}</h5>`;
+        studiesHtml += `<div class="mb-4 p-3 bg-gray-700 rounded">
+          <div class="flex justify-between text-sm mb-2">
+            <span class="text-gray-300">Total Studies:</span>
+            <span class="text-white font-semibold">${data.rvu_records.length}</span>
+          </div>
+          <div class="flex justify-between text-sm mb-2">
+            <span class="text-gray-300">Total wRVUs:</span>
+            <span class="text-green-400 font-semibold">${data.total_rvus.toFixed(2)}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-300">Total Revenue:</span>
+            <span class="text-blue-400 font-semibold">$${data.total_revenue.toFixed(2)}</span>
+          </div>
+        </div>`;
+        
+        if (data.rvu_records.length > 0) {
+          studiesHtml += `<div class="space-y-2">`;
+          data.rvu_records.forEach(record => {
+            studiesHtml += `<div class="flex justify-between items-center p-2 bg-gray-600 rounded text-sm">
+              <span class="text-gray-300">${record.study_name}</span>
+              <span class="text-green-400 font-semibold">${record.wrvu_value} wRVUs</span>
+            </div>`;
+          });
+          studiesHtml += `</div>`;
+        } else {
+          studiesHtml += `<p class="text-gray-400 text-center py-4">No studies recorded for this shift</p>`;
+        }
+        
+        studiesHtml += `<button class="mt-4 text-sm submit-btn secondary" onclick="shiftTracker.showShiftDetails('${data.start_time.split('T')[0]}', shiftTracker.currentShiftData)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back to Shifts
+        </button>`;
+        
+        content.innerHTML = studiesHtml;
+      } else {
+        alert(data.error || 'Failed to load shift details');
+      }
+    } catch (error) {
+      console.error('Error loading shift studies:', error);
+      alert('Failed to load shift studies');
+    }
+  }
+
+  closeModal() {
+    document.getElementById('shift-details-modal').classList.add('hidden');
+  }
+}
+
+// Make ShiftTracker globally accessible
+let shiftTracker;
+document.addEventListener('DOMContentLoaded', () => {
+  shiftTracker = new ShiftTracker();
+  window.shiftTracker = shiftTracker; // Make it globally accessible
 });
 </script>
 {% endblock %}
