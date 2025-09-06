@@ -423,27 +423,54 @@ def global_calendar():
     # Get calendar slots for the month
     end_date = (start_date.replace(day=1) + timedelta(days=32)).replace(day=1) - timedelta(days=1)
     
-    calendar_slots = db.session.query(CalendarSlot, Opportunity, User).join(
-        Opportunity, CalendarSlot.opportunity_id == Opportunity.id
-    ).join(
-        User, Opportunity.employer_id == User.id
-    ).filter(
-        CalendarSlot.date >= start_date.replace(day=1),
-        CalendarSlot.date <= end_date,
-        CalendarSlot.is_available == True,
-        Opportunity.is_active == True
-    ).order_by(CalendarSlot.date, CalendarSlot.start_time).all()
+    # Check if personal filter is requested
+    is_personal = request.args.get('personal') == '1'
     
-    # Get opportunities without specific calendar slots (flexible scheduling)
-    all_opportunities = Opportunity.query.filter_by(is_active=True).all()
-    opportunities_with_slots = db.session.query(Opportunity).join(CalendarSlot).filter(
-        Opportunity.is_active == True,
-        CalendarSlot.is_available == True
-    ).distinct().all()
-    flexible_opportunities = [opp for opp in all_opportunities if opp not in opportunities_with_slots]
+    if is_personal:
+        # Get accepted applications for the current user
+        from .models import Application, ApplicationStatus
+        
+        personal_slots = db.session.query(CalendarSlot, Opportunity, User).join(
+            Opportunity, CalendarSlot.opportunity_id == Opportunity.id
+        ).join(
+            User, Opportunity.employer_id == User.id
+        ).join(
+            Application, Application.opportunity_id == Opportunity.id
+        ).filter(
+            Application.resident_id == current_user.id,
+            Application.status == ApplicationStatus.ACCEPTED,
+            CalendarSlot.date >= start_date.replace(day=1),
+            CalendarSlot.date <= end_date
+        ).order_by(CalendarSlot.date, CalendarSlot.start_time).all()
+        
+        calendar_slots = []
+        flexible_opportunities = []
+    else:
+        # Get all available calendar slots
+        calendar_slots = db.session.query(CalendarSlot, Opportunity, User).join(
+            Opportunity, CalendarSlot.opportunity_id == Opportunity.id
+        ).join(
+            User, Opportunity.employer_id == User.id
+        ).filter(
+            CalendarSlot.date >= start_date.replace(day=1),
+            CalendarSlot.date <= end_date,
+            CalendarSlot.is_available == True,
+            Opportunity.is_active == True
+        ).order_by(CalendarSlot.date, CalendarSlot.start_time).all()
+        
+        # Get opportunities without specific calendar slots (flexible scheduling)
+        all_opportunities = Opportunity.query.filter_by(is_active=True).all()
+        opportunities_with_slots = db.session.query(Opportunity).join(CalendarSlot).filter(
+            Opportunity.is_active == True,
+            CalendarSlot.is_available == True
+        ).distinct().all()
+        flexible_opportunities = [opp for opp in all_opportunities if opp not in opportunities_with_slots]
+        
+        personal_slots = []
     
     return render_template("opportunities/global_calendar.html", 
                          calendar_slots=calendar_slots, 
+                         personal_slots=personal_slots,
                          flexible_opportunities=flexible_opportunities,
                          start_date=start_date, 
                          timedelta=timedelta)

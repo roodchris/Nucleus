@@ -74,4 +74,73 @@
       <button class="btn" type="submit" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Send</button>
     </form>
   </div>
+
+<script>
+// Real-time message updates for thread page
+let threadEventSource = null;
+const conversationId = {{ convo.id }};
+const currentUserId = {{ current_user.id }};
+const otherUserId = {{ other_user.id }};
+
+function startThreadMessageStream() {
+  // Close existing connection if any
+  if (threadEventSource) {
+    threadEventSource.close();
+  }
+  
+  // Create new EventSource connection
+  threadEventSource = new EventSource('/api/messages/stream');
+  
+  threadEventSource.onmessage = function(event) {
+    try {
+      const data = JSON.parse(event.data);
+      
+      if (data.type === 'new_messages') {
+        // Find messages for this conversation
+        const conversation = data.conversations.find(conv => conv.id === conversationId);
+        
+        if (conversation) {
+          // Check if there are new messages by comparing with current message count
+          const currentMessageCount = document.querySelectorAll('.message-item').length;
+          
+          // If we have new messages, reload the page to show them
+          // This is simpler than trying to dynamically add messages to the existing layout
+          if (conversation.last_message && conversation.last_message.sender_id !== currentUserId) {
+            // Only reload if the new message is from the other user
+            console.log('New message received, reloading page...');
+            window.location.reload();
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error processing real-time message in thread:', error);
+    }
+  };
+  
+  threadEventSource.onerror = function(event) {
+    console.error('Thread EventSource failed:', event);
+    // Attempt to reconnect after 5 seconds
+    setTimeout(() => {
+      console.log('Attempting to reconnect to thread message stream...');
+      startThreadMessageStream();
+    }, 5000);
+  };
+  
+  threadEventSource.onopen = function(event) {
+    console.log('Thread message stream connected');
+  };
+}
+
+// Start the message stream when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  startThreadMessageStream();
+});
+
+// Cleanup when page unloads
+window.addEventListener('beforeunload', function() {
+  if (threadEventSource) {
+    threadEventSource.close();
+  }
+});
+</script>
 {% endblock %}

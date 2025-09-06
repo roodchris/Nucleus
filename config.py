@@ -21,6 +21,10 @@ class Config:
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", "radnucleus@gmail.com")
     MAIL_SUPPRESS_SEND = os.getenv("MAIL_SUPPRESS_SEND", "false").lower() in ["true", "on", "1"]
+    
+    # CORS configuration
+    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
+    CORS_SUPPORTS_CREDENTIALS = True
 
 
 class TestConfig(Config):

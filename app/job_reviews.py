@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from .models import db, UserRole, JobReview
 from .forms import JobReviewForm
 from sqlalchemy import desc, distinct
+from datetime import datetime
 
 job_reviews_bp = Blueprint("job_reviews", __name__, url_prefix="/job-reviews")
 
@@ -30,7 +31,44 @@ def index():
     # Get filtered reviews, ordered by most recent
     reviews = query.order_by(desc(JobReview.created_at)).all()
     
-    return render_template("job_reviews/index.html", reviews=reviews)
+    # Calculate average statistics only if a specific practice is filtered and has multiple reviews
+    practice_stats = {}
+    if reviews and practice_name:
+        # Check if the filtered practice has multiple reviews
+        practice_reviews = [review for review in reviews if review.practice_name == practice_name]
+        
+        if len(practice_reviews) > 1:
+            # Calculate averages for numeric ratings
+            overall_ratings = [r.overall_rating for r in practice_reviews if r.overall_rating is not None]
+            work_life_ratings = [r.work_life_balance for r in practice_reviews if r.work_life_balance is not None]
+            compensation_ratings = [r.compensation for r in practice_reviews if r.compensation is not None]
+            culture_ratings = [r.culture for r in practice_reviews if r.culture is not None]
+            growth_ratings = [r.growth_opportunities for r in practice_reviews if r.growth_opportunities is not None]
+            
+            practice_stats[practice_name] = {
+                'review_count': len(practice_reviews),
+                'overall_avg': round(sum(overall_ratings) / len(overall_ratings), 1) if overall_ratings else None,
+                'work_life_avg': round(sum(work_life_ratings) / len(work_life_ratings), 1) if work_life_ratings else None,
+                'compensation_avg': round(sum(compensation_ratings) / len(compensation_ratings), 1) if compensation_ratings else None,
+                'culture_avg': round(sum(culture_ratings) / len(culture_ratings), 1) if culture_ratings else None,
+                'growth_avg': round(sum(growth_ratings) / len(growth_ratings), 1) if growth_ratings else None,
+                'overall_count': len(overall_ratings),
+                'work_life_count': len(work_life_ratings),
+                'compensation_count': len(compensation_ratings),
+                'culture_count': len(culture_ratings),
+                'growth_count': len(growth_ratings)
+            }
+    
+    # Get all distinct practice names for dropdown
+    practice_names = db.session.query(distinct(JobReview.practice_name))\
+        .filter(JobReview.practice_name.isnot(None))\
+        .filter(JobReview.practice_name != '')\
+        .order_by(JobReview.practice_name)\
+        .all()
+    
+    practice_names_list = [name[0] for name in practice_names if name[0]]
+    
+    return render_template("job_reviews/index.html", reviews=reviews, practice_names=practice_names_list, practice_stats=practice_stats)
 
 
 @job_reviews_bp.route("/submit", methods=["GET", "POST"])
@@ -40,6 +78,15 @@ def submit_review():
     if current_user.role not in [UserRole.RESIDENT, UserRole.EMPLOYER]:
         flash("Only registered users can submit job reviews.", "warning")
         return redirect(url_for("job_reviews.index"))
+    
+    # Get all distinct practice names for dropdown
+    practice_names = db.session.query(distinct(JobReview.practice_name))\
+        .filter(JobReview.practice_name.isnot(None))\
+        .filter(JobReview.practice_name != '')\
+        .order_by(JobReview.practice_name)\
+        .all()
+    
+    practice_names_list = [name[0] for name in practice_names if name[0]]
     
     form = JobReviewForm()
     if form.validate_on_submit():
@@ -72,9 +119,9 @@ def submit_review():
             db.session.rollback()
             current_app.logger.error(f"Error submitting job review: {str(e)}")
             flash("An error occurred while submitting your review. Please try again.", "error")
-            return render_template("job_reviews/submit.html", form=form)
+            return render_template("job_reviews/submit.html", form=form, practice_names=practice_names_list)
     
-    return render_template("job_reviews/submit.html", form=form)
+    return render_template("job_reviews/submit.html", form=form, practice_names=practice_names_list)
 
 
 @job_reviews_bp.route("/<int:review_id>")
@@ -92,6 +139,15 @@ def edit_review(review_id):
     # Only allow the author to edit their review
     if review.user_id != current_user.id:
         abort(403)
+    
+    # Get all distinct practice names for dropdown
+    practice_names = db.session.query(distinct(JobReview.practice_name))\
+        .filter(JobReview.practice_name.isnot(None))\
+        .filter(JobReview.practice_name != '')\
+        .order_by(JobReview.practice_name)\
+        .all()
+    
+    practice_names_list = [name[0] for name in practice_names if name[0]]
     
     form = JobReviewForm(obj=review)
     if form.validate_on_submit():
@@ -120,9 +176,9 @@ def edit_review(review_id):
             db.session.rollback()
             current_app.logger.error(f"Error updating job review: {str(e)}")
             flash("An error occurred while updating your review. Please try again.", "error")
-            return render_template("job_reviews/edit.html", form=form, review=review)
+            return render_template("job_reviews/edit.html", form=form, review=review, practice_names=practice_names_list)
     
-    return render_template("job_reviews/edit.html", form=form, review=review)
+    return render_template("job_reviews/edit.html", form=form, review=review, practice_names=practice_names_list)
 
 
 @job_reviews_bp.route("/<int:review_id>/delete", methods=["POST"])
@@ -145,18 +201,35 @@ def delete_review(review_id):
 @login_required
 def get_practice_names():
     """API endpoint to get practice names for autocomplete"""
-    query = request.args.get('q', '').strip()
-    
-    if not query:
-        return jsonify([])
-    
-    # Get distinct practice names that contain the query string
-    practice_names = db.session.query(distinct(JobReview.practice_name))\
-        .filter(JobReview.practice_name.ilike(f'%{query}%'))\
-        .limit(10)\
-        .all()
-    
-    # Convert to list of strings
-    names = [name[0] for name in practice_names]
-    
-    return jsonify(names)
+    try:
+        query = request.args.get('q', '').strip()
+        
+        if not query:
+            return jsonify([])
+        
+        # Get distinct practice names that contain the query string
+        practice_names = db.session.query(distinct(JobReview.practice_name))\
+            .filter(JobReview.practice_name.ilike(f'%{query}%'))\
+            .limit(10)\
+            .all()
+        
+        # Convert to list of strings
+        names = [name[0] for name in practice_names if name[0]]
+        
+        return jsonify(names)
+        
+    except Exception as e:
+        print(f"Error in get_practice_names: {e}")
+        return jsonify({"error": "Failed to fetch practice names"}), 500
+
+
+@job_reviews_bp.route("/api/test")
+@login_required
+def test_api():
+    """Test endpoint to verify API connectivity"""
+    return jsonify({
+        "status": "success",
+        "message": "API is working",
+        "user_id": current_user.id,
+        "timestamp": datetime.utcnow().isoformat()
+    })

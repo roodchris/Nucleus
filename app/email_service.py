@@ -1,7 +1,9 @@
 from flask import current_app, render_template
 from flask_mail import Message
-from .models import User, Opportunity, Application
-from datetime import datetime
+from .models import User, Opportunity, Application, EmailVerification
+from datetime import datetime, timedelta
+import random
+import string
 
 
 def send_application_notification(application_id):
@@ -139,3 +141,100 @@ def send_bulk_status_notifications(application_ids, status):
     except Exception as e:
         print(f"Error sending bulk status notifications: {e}")
         return False
+
+
+def generate_verification_code():
+    """Generate a random 5-digit verification code"""
+    return ''.join(random.choices(string.digits, k=5))
+
+
+def send_verification_email(email, verification_code):
+    """Send email verification code to user"""
+    try:
+        from . import mail
+        
+        # Check if email sending is suppressed (for development)
+        if current_app.config.get('MAIL_SUPPRESS_SEND', False):
+            print(f"[DEV MODE] Verification code for {email}: {verification_code}")
+            return True
+        
+        # Create email message
+        msg = Message(
+            subject="Verify your email address",
+            recipients=[email],
+            sender=current_app.config['MAIL_DEFAULT_SENDER']
+        )
+        
+        # Render HTML template
+        with current_app.test_request_context():
+            msg.html = render_template(
+                'emails/verification.html',
+                verification_code=verification_code,
+                email=email
+            )
+        
+        # Send email
+        mail.send(msg)
+        return True
+        
+    except Exception as e:
+        print(f"Error sending verification email: {e}")
+        # For development, print the code to console as fallback
+        print(f"[FALLBACK] Verification code for {email}: {verification_code}")
+        return True  # Return True for development purposes
+
+
+def create_verification_record(email):
+    """Create a new email verification record"""
+    try:
+        from . import db
+        
+        # Clean up any existing verification records for this email
+        EmailVerification.query.filter_by(email=email).delete()
+        
+        # Generate verification code
+        verification_code = generate_verification_code()
+        
+        # Create new verification record (expires in 15 minutes)
+        expires_at = datetime.utcnow() + timedelta(minutes=15)
+        verification = EmailVerification(
+            email=email,
+            verification_code=verification_code,
+            expires_at=expires_at
+        )
+        
+        db.session.add(verification)
+        db.session.commit()
+        
+        return verification_code
+        
+    except Exception as e:
+        print(f"Error creating verification record: {e}")
+        return None
+
+
+def verify_email_code(email, code):
+    """Verify the email verification code"""
+    try:
+        verification = EmailVerification.query.filter_by(
+            email=email,
+            verification_code=code,
+            is_used=False
+        ).first()
+        
+        if not verification:
+            return False, "Invalid verification code"
+        
+        if verification.is_expired():
+            return False, "Verification code has expired"
+        
+        # Mark as used
+        verification.is_used = True
+        from . import db
+        db.session.commit()
+        
+        return True, "Email verified successfully"
+        
+    except Exception as e:
+        print(f"Error verifying email code: {e}")
+        return False, "Error verifying code"

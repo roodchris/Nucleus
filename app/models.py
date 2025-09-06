@@ -422,3 +422,20 @@ class RVURecord(db.Model):
     
     def __repr__(self):
         return f'<RVURecord {self.study_name} {self.wrvu_value} wRVUs>'
+
+
+class EmailVerification(db.Model):
+    """Model for storing email verification codes"""
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), nullable=False, index=True)
+    verification_code = db.Column(db.String(5), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    is_used = db.Column(db.Boolean, default=False, nullable=False)
+    
+    def __repr__(self):
+        return f'<EmailVerification {self.email}: {self.verification_code}>'
+    
+    def is_expired(self):
+        """Check if the verification code has expired"""
+        return datetime.utcnow() > self.expires_at

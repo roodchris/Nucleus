@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from sqlalchemy import and_, desc, asc, func
+from sqlalchemy import and_, desc, asc, func, case
 from .models import db, ForumPost, ForumComment, ForumVote, ForumCategory, User, ResidentProfile, EmployerProfile
 from datetime import datetime
 
@@ -35,11 +35,18 @@ def forum_index():
         query = query.order_by(ForumPost.created_at.asc())
     elif sort_by == "most_voted":
         # Sort by net votes (upvotes - downvotes) descending
-        # Use a simpler approach that's more compatible with SQLite
-        query = query.outerjoin(ForumVote, ForumPost.id == ForumVote.post_id).group_by(ForumPost.id).order_by(
-            (func.sum(func.case([(ForumVote.vote_type == "upvote", 1)], else_=0)) - 
-             func.sum(func.case([(ForumVote.vote_type == "downvote", 1)], else_=0))).desc()
-        )
+        # Use subqueries to calculate vote counts
+        from sqlalchemy import select
+        
+        upvote_subquery = select(func.count(ForumVote.id)).where(
+            and_(ForumVote.post_id == ForumPost.id, ForumVote.vote_type == "upvote")
+        ).scalar_subquery()
+        
+        downvote_subquery = select(func.count(ForumVote.id)).where(
+            and_(ForumVote.post_id == ForumPost.id, ForumVote.vote_type == "downvote")
+        ).scalar_subquery()
+        
+        query = query.order_by((upvote_subquery - downvote_subquery).desc())
     elif sort_by == "most_commented":
         # Sort by comment count descending
         query = query.outerjoin(ForumComment, ForumPost.id == ForumComment.post_id).group_by(ForumPost.id).order_by(

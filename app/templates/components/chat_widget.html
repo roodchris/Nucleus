@@ -976,9 +976,9 @@ function initializeChatWidget() {
     console.log('User search event listener added');
   }
   
-  // Check for new messages periodically
-  setInterval(checkForNewMessages, 30000); // Check every 30 seconds
-  console.log('New message checker interval set');
+  // Start real-time message streaming
+  startMessageStream();
+  console.log('Real-time message stream started');
   
   // Also check for new messages when the page becomes visible
   document.addEventListener('visibilitychange', function() {
@@ -995,9 +995,13 @@ function initializeChatWidget() {
   setInterval(updateOnlineStatus, 60000); // Check every minute
   console.log('Online status updater interval set');
   
-  // Set up beforeunload to mark user as offline
+  // Set up beforeunload to mark user as offline and cleanup
   window.addEventListener('beforeunload', function() {
     markUserOffline();
+    // Close message stream
+    if (messageEventSource) {
+      messageEventSource.close();
+    }
   });
   
   // Check for messages received while logged out
@@ -1462,6 +1466,74 @@ function updateUserSearchOnlineStatus(onlineStatus) {
       }
     }
   });
+}
+
+// Real-time message streaming
+let messageEventSource = null;
+
+function startMessageStream() {
+  // Close existing connection if any
+  if (messageEventSource) {
+    messageEventSource.close();
+  }
+  
+  // Create new EventSource connection
+  messageEventSource = new EventSource('/api/messages/stream');
+  
+  messageEventSource.onmessage = function(event) {
+    try {
+      const data = JSON.parse(event.data);
+      
+      if (data.type === 'new_messages') {
+        console.log('Real-time update received:', data);
+        
+        // Update conversations data
+        chatWidgetState.conversations = data.conversations || [];
+        
+        // Calculate new unread count
+        const newUnreadCount = data.conversations.reduce((total, conv) => total + (conv.unread_count || 0), 0);
+        
+        // Check if new messages arrived
+        if (chatWidgetState.lastUnreadCount !== undefined && newUnreadCount > chatWidgetState.lastUnreadCount) {
+          const newMessageCount = newUnreadCount - chatWidgetState.lastUnreadCount;
+          console.log(`New messages detected: ${newMessageCount} new messages`);
+          
+          // Play notification sound for new messages
+          playNotificationSound();
+          // Show toast notification
+          showToastNotification(newMessageCount);
+        }
+        
+        // Update state
+        chatWidgetState.unreadCount = newUnreadCount;
+        chatWidgetState.lastUnreadCount = newUnreadCount;
+        
+        // Update UI
+        updateUnreadBadge();
+        updateTopNavigationBadge(newUnreadCount);
+        
+        // Refresh conversations display if chat is open
+        if (chatWidgetState.isOpen) {
+          displayConversations();
+        }
+      }
+    } catch (error) {
+      console.error('Error processing real-time message:', error);
+    }
+  };
+  
+  messageEventSource.onerror = function(event) {
+    console.error('EventSource failed:', event);
+    // Attempt to reconnect after 5 seconds
+    setTimeout(() => {
+      console.log('Attempting to reconnect to message stream...');
+      startMessageStream();
+    }, 5000);
+  };
+  
+  messageEventSource.onopen = function(event) {
+    console.log('Message stream connected');
+  };
 }
 
 async function checkForNewMessages() {

@@ -52,10 +52,14 @@
             </svg>
             Practice Name
           </label>
-          <input type="text" name="practice_name" id="practice_name" 
-                 value="{{ request.args.get('practice_name', '') }}"
-                 placeholder="Search practice name..."
-                 class="filter-input">
+          <select name="practice_name" id="practice_name" class="filter-input">
+            <option value="">All Practices</option>
+            {% for practice in practice_names %}
+            <option value="{{ practice }}" {% if request.args.get('practice_name') == practice %}selected{% endif %}>
+              {{ practice }}
+            </option>
+            {% endfor %}
+          </select>
         </div>
         
         <div class="filter-group">
@@ -160,6 +164,72 @@
       </div>
     </form>
   </div>
+
+  <!-- Practice Statistics -->
+  {% if practice_stats %}
+  <div class="practice-stats-container">
+    {% for practice_name, stats in practice_stats.items() %}
+    <div class="practice-stats-card">
+      <div class="practice-stats-header">
+        <h3 class="practice-stats-title">{{ practice_name }}</h3>
+        <div class="practice-stats-subtitle">{{ stats.review_count }} review{{ 's' if stats.review_count != 1 else '' }}</div>
+      </div>
+      
+      <div class="practice-stats-grid">
+        {% if stats.overall_avg %}
+        <div class="stat-item">
+          <div class="stat-label">Overall Rating</div>
+          <div class="stat-value">
+            <span class="rating-badge rating-{{ stats.overall_avg|int }}">{{ stats.overall_avg }}/5</span>
+            <span class="stat-count">({{ stats.overall_count }})</span>
+          </div>
+        </div>
+        {% endif %}
+        
+        {% if stats.work_life_avg %}
+        <div class="stat-item">
+          <div class="stat-label">Work-Life Balance</div>
+          <div class="stat-value">
+            <span class="rating-badge rating-{{ stats.work_life_avg|int }}">{{ stats.work_life_avg }}/5</span>
+            <span class="stat-count">({{ stats.work_life_count }})</span>
+          </div>
+        </div>
+        {% endif %}
+        
+        {% if stats.compensation_avg %}
+        <div class="stat-item">
+          <div class="stat-label">Compensation</div>
+          <div class="stat-value">
+            <span class="rating-badge rating-{{ stats.compensation_avg|int }}">{{ stats.compensation_avg }}/5</span>
+            <span class="stat-count">({{ stats.compensation_count }})</span>
+          </div>
+        </div>
+        {% endif %}
+        
+        {% if stats.culture_avg %}
+        <div class="stat-item">
+          <div class="stat-label">Culture</div>
+          <div class="stat-value">
+            <span class="rating-badge rating-{{ stats.culture_avg|int }}">{{ stats.culture_avg }}/5</span>
+            <span class="stat-count">({{ stats.culture_count }})</span>
+          </div>
+        </div>
+        {% endif %}
+        
+        {% if stats.growth_avg %}
+        <div class="stat-item">
+          <div class="stat-label">Growth Opportunities</div>
+          <div class="stat-value">
+            <span class="rating-badge rating-{{ stats.growth_avg|int }}">{{ stats.growth_avg }}/5</span>
+            <span class="stat-count">({{ stats.growth_count }})</span>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
   <!-- Reviews Grid -->
   {% if reviews %}
@@ -650,6 +720,93 @@
     padding: 0.75rem;
   }
 
+  /* Practice Statistics */
+  .practice-stats-container {
+    margin-bottom: 2rem;
+  }
+
+  .practice-stats-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .practice-stats-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  .practice-stats-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .practice-stats-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 0.5rem 0;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .practice-stats-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .practice-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .stat-item {
+    background: var(--glass-light);
+    border: 1px solid var(--glass-border-light);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .stat-item:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-value {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .stat-count {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
   /* Empty State */
   .empty-state {
     text-align: center;
@@ -699,6 +856,23 @@
     .filter-actions {
       flex-direction: column;
       align-items: stretch;
+    }
+
+    .practice-stats-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .practice-stats-card {
+      padding: 1rem;
+    }
+
+    .practice-stats-title {
+      font-size: 1.25rem;
+    }
+
+    .stat-item {
+      padding: 0.75rem;
     }
 
     .reviews-grid {

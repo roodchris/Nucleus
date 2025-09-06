@@ -12,140 +12,135 @@
 
 <!-- Program Statistics -->
 {% if avg_ratings.total_reviews > 0 %}
-<div class="grid-3 mb-6">
-  <div class="card">
-    <h3>Educational Quality</h3>
-    {% if avg_ratings.avg_educational %}
-      <span class="rating-badge rating-{{ avg_ratings.avg_educational|round|int }}" style="font-size: 1.5rem; padding: 0.5rem 1rem;">{{ "%.1f"|format(avg_ratings.avg_educational) }}/5</span>
-    {% else %}
-      <p class="text-2xl font-bold text-gray-400">N/A</p>
-    {% endif %}
-    <p class="text-sm text-secondary">{{ avg_ratings.total_reviews }} reviews</p>
-  </div>
-  
-  <div class="card">
-    <h3>Work-Life Balance</h3>
-    {% if avg_ratings.avg_work_life %}
-      <span class="rating-badge rating-{{ avg_ratings.avg_work_life|round|int }}" style="font-size: 1.5rem; padding: 0.5rem 1rem;">{{ "%.1f"|format(avg_ratings.avg_work_life) }}/5</span>
-    {% else %}
-      <p class="text-2xl font-bold text-gray-400">N/A</p>
-    {% endif %}
-    <p class="text-sm text-secondary">{{ avg_ratings.total_reviews }} reviews</p>
-  </div>
-  
-  <div class="card">
-    <h3>Attending Quality</h3>
-    {% if avg_ratings.avg_attending %}
-      <span class="rating-badge rating-{{ avg_ratings.avg_attending|round|int }}" style="font-size: 1.5rem; padding: 0.5rem 1rem;">{{ "%.1f"|format(avg_ratings.avg_attending) }}/5</span>
-    {% else %}
-      <p class="text-2xl font-bold text-gray-400">N/A</p>
-    {% endif %}
-    <p class="text-sm text-secondary">{{ avg_ratings.total_reviews }} reviews</p>
-  </div>
-  
-  <div class="card">
-    <h3>Facilities Quality</h3>
-    {% if avg_ratings.avg_facilities %}
-      <span class="rating-badge rating-{{ avg_ratings.avg_facilities|round|int }}" style="font-size: 1.5rem; padding: 0.5rem 1rem;">{{ "%.1f"|format(avg_ratings.avg_facilities) }}/5</span>
-    {% else %}
-      <p class="text-2xl font-bold text-gray-400">N/A</p>
-    {% endif %}
-    <p class="text-sm text-secondary">{{ avg_ratings.total_reviews }} reviews</p>
-  </div>
-  
-  <div class="card">
-    <h3>Research Opportunities</h3>
-    {% if avg_ratings.avg_research %}
-      <span class="rating-badge rating-{{ avg_ratings.avg_research|round|int }}" style="font-size: 1.5rem; padding: 0.5rem 1rem;">{{ "%.1f"|format(avg_ratings.avg_research) }}/5</span>
-    {% else %}
-      <p class="text-2xl font-bold text-gray-400">N/A</p>
-    {% endif %}
-    <p class="text-sm text-secondary">{{ avg_ratings.total_reviews }} reviews</p>
-  </div>
-  
-  <div class="card">
-    <h3>Culture</h3>
-    {% if avg_ratings.avg_culture %}
-      <span class="rating-badge rating-{{ avg_ratings.avg_culture|round|int }}" style="font-size: 1.5rem; padding: 0.5rem 1rem;">{{ "%.1f"|format(avg_ratings.avg_culture) }}/5</span>
-    {% else %}
-      <p class="text-2xl font-bold text-gray-400">N/A</p>
-    {% endif %}
-    <p class="text-sm text-secondary">{{ avg_ratings.total_reviews }} reviews</p>
-  </div>
-</div>
-
-<!-- Overall Rating -->
-<div class="card mb-6">
-  <h3>Overall Program Rating</h3>
-  <div class="text-center">
-    {% set overall_avg = ((avg_ratings.avg_educational or 0) + (avg_ratings.avg_work_life or 0) + (avg_ratings.avg_attending or 0) + (avg_ratings.avg_facilities or 0) + (avg_ratings.avg_research or 0) + (avg_ratings.avg_culture or 0)) / 6 %}
-    {% if overall_avg > 0 %}
-      <span class="rating-badge rating-{{ overall_avg|round|int }}" style="font-size: 2.5rem; padding: 1rem 2rem;">{{ "%.1f"|format(overall_avg) }}/5</span>
-    {% else %}
-      <p class="text-4xl font-bold text-gray-400 mb-2">N/A</p>
-    {% endif %}
-    <p class="text-secondary mt-2">Based on {{ avg_ratings.total_reviews }} reviews</p>
+<div class="program-stats-container">
+  <div class="program-stats-card">
+    <div class="program-stats-header">
+      <h3 class="program-stats-title">{{ program_name }}</h3>
+      <div class="program-stats-subtitle">{{ avg_ratings.total_reviews }} review{{ 's' if avg_ratings.total_reviews != 1 else '' }}</div>
+    </div>
+    
+    <div class="program-stats-grid">
+      {% if avg_ratings.avg_educational %}
+      <div class="stat-item">
+        <div class="stat-label">Educational Quality</div>
+        <div class="stat-value">
+          <span class="rating-badge rating-{{ avg_ratings.avg_educational|round|int }}">{{ "%.1f"|format(avg_ratings.avg_educational) }}/5</span>
+          <span class="stat-count">({{ avg_ratings.educational_count }})</span>
+        </div>
+      </div>
+      {% endif %}
+      
+      {% if avg_ratings.avg_work_life %}
+      <div class="stat-item">
+        <div class="stat-label">Work-Life Balance</div>
+        <div class="stat-value">
+          <span class="rating-badge rating-{{ avg_ratings.avg_work_life|round|int }}">{{ "%.1f"|format(avg_ratings.avg_work_life) }}/5</span>
+          <span class="stat-count">({{ avg_ratings.work_life_count }})</span>
+        </div>
+      </div>
+      {% endif %}
+      
+      {% if avg_ratings.avg_attending %}
+      <div class="stat-item">
+        <div class="stat-label">Attending Quality</div>
+        <div class="stat-value">
+          <span class="rating-badge rating-{{ avg_ratings.avg_attending|round|int }}">{{ "%.1f"|format(avg_ratings.avg_attending) }}/5</span>
+          <span class="stat-count">({{ avg_ratings.attending_count }})</span>
+        </div>
+      </div>
+      {% endif %}
+      
+      {% if avg_ratings.avg_facilities %}
+      <div class="stat-item">
+        <div class="stat-label">Facilities Quality</div>
+        <div class="stat-value">
+          <span class="rating-badge rating-{{ avg_ratings.avg_facilities|round|int }}">{{ "%.1f"|format(avg_ratings.avg_facilities) }}/5</span>
+          <span class="stat-count">({{ avg_ratings.facilities_count }})</span>
+        </div>
+      </div>
+      {% endif %}
+      
+      {% if avg_ratings.avg_research %}
+      <div class="stat-item">
+        <div class="stat-label">Research Opportunities</div>
+        <div class="stat-value">
+          <span class="rating-badge rating-{{ avg_ratings.avg_research|round|int }}">{{ "%.1f"|format(avg_ratings.avg_research) }}/5</span>
+          <span class="stat-count">({{ avg_ratings.research_count }})</span>
+        </div>
+      </div>
+      {% endif %}
+      
+      {% if avg_ratings.avg_culture %}
+      <div class="stat-item">
+        <div class="stat-label">Culture</div>
+        <div class="stat-value">
+          <span class="rating-badge rating-{{ avg_ratings.avg_culture|round|int }}">{{ "%.1f"|format(avg_ratings.avg_culture) }}/5</span>
+          <span class="stat-count">({{ avg_ratings.culture_count }})</span>
+        </div>
+      </div>
+      {% endif %}
+    </div>
   </div>
 </div>
 {% endif %}
 
 <!-- Individual Reviews -->
-<div class="card">
-  <h3>Reviews ({{ reviews|length }} total)</h3>
+<div id="reviews-section" class="card" style="display: block;">
+  <h3>Individual Reviews ({{ reviews|length }} total)</h3>
   
   {% if reviews %}
-  <div class="space-y-6">
+  <div class="reviews-list">
     {% for review in reviews %}
-    <div class="border-b border-border pb-6 last:border-b-0">
-      <div class="flex items-start justify-between mb-4">
-        <div>
-          <h4 class="font-medium">
+    <div class="review-card">
+      <div class="review-header">
+        <div class="reviewer-info">
+          <h4 class="reviewer-name">
             {% if review.anonymous %}
               Anonymous
             {% else %}
               {{ review.user.username }}
             {% endif %}
           </h4>
-          <p class="text-sm text-secondary" data-timestamp="{{ review.created_at.isoformat() }}" data-format="date">{{ review.created_at.strftime('%B %Y') }}</p>
+          <p class="review-date" data-timestamp="{{ review.created_at.isoformat() }}" data-format="date">{{ review.created_at.strftime('%B %Y') }}</p>
         </div>
-        <div class="text-right">
+        <div class="overall-rating">
           {% set review_overall = (review.educational_quality + review.work_life_balance + review.attending_quality + review.facilities_quality + review.research_opportunities + review.culture) / 6 %}
           <span class="rating-badge rating-{{ review_overall|round|int }}">{{ "%.1f"|format(review_overall) }}/5</span>
-          <p class="text-sm text-secondary mt-1">Overall</p>
+          <p class="rating-label">Overall</p>
         </div>
       </div>
       
-      <div class="grid-3 gap-4 mb-4">
-        <div class="text-center">
-          <p class="text-sm text-secondary">Educational</p>
+      <div class="ratings-grid">
+        <div class="rating-item">
+          <p class="rating-category">Educational</p>
           <span class="rating-badge rating-{{ review.educational_quality }}">{{ review.educational_quality }}/5</span>
         </div>
-        <div class="text-center">
-          <p class="text-sm text-secondary">Work-Life</p>
+        <div class="rating-item">
+          <p class="rating-category">Work-Life</p>
           <span class="rating-badge rating-{{ review.work_life_balance }}">{{ review.work_life_balance }}/5</span>
         </div>
-        <div class="text-center">
-          <p class="text-sm text-secondary">Attending</p>
+        <div class="rating-item">
+          <p class="rating-category">Attending</p>
           <span class="rating-badge rating-{{ review.attending_quality }}">{{ review.attending_quality }}/5</span>
         </div>
-        <div class="text-center">
-          <p class="text-sm text-secondary">Facilities</p>
+        <div class="rating-item">
+          <p class="rating-category">Facilities</p>
           <span class="rating-badge rating-{{ review.facilities_quality }}">{{ review.facilities_quality }}/5</span>
         </div>
-        <div class="text-center">
-          <p class="text-sm text-secondary">Research</p>
+        <div class="rating-item">
+          <p class="rating-category">Research</p>
           <span class="rating-badge rating-{{ review.research_opportunities }}">{{ review.research_opportunities }}/5</span>
         </div>
-        <div class="text-center">
-          <p class="text-sm text-secondary">Culture</p>
+        <div class="rating-item">
+          <p class="rating-category">Culture</p>
           <span class="rating-badge rating-{{ review.culture }}">{{ review.culture }}/5</span>
         </div>
       </div>
       
       {% if review.comments %}
-      <div class="bg-surface-2 p-4 rounded-lg">
-        <p class="text-sm text-secondary mb-2">Comments:</p>
-        <p>{{ review.comments }}</p>
+      <div class="review-comments">
+        <h5 class="comments-title">Review Comments:</h5>
+        <p class="comments-text">{{ review.comments }}</p>
       </div>
       {% endif %}
     </div>
@@ -162,6 +157,93 @@
 </div>
 
 <style>
+  /* Program Statistics */
+  .program-stats-container {
+    margin-bottom: 2rem;
+  }
+
+  .program-stats-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .program-stats-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  .program-stats-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .program-stats-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 0.5rem 0;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .program-stats-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .program-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .stat-item {
+    background: var(--glass-light);
+    border: 1px solid var(--glass-border-light);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .stat-item:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-value {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .stat-count {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
   /* Rating badges with color scheme matching job reviews */
   .rating-badge {
     display: inline-flex;
@@ -179,5 +261,172 @@
   .rating-3 { background-color: #eab308; }
   .rating-4 { background-color: #22c55e; }
   .rating-5 { background-color: #3b82f6; }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .program-stats-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .program-stats-card {
+      padding: 1rem;
+    }
+
+    .program-stats-title {
+      font-size: 1.25rem;
+    }
+
+    .stat-item {
+      padding: 0.75rem;
+    }
+  }
+
+  /* Statistics card hover effect */
+  .program-stats-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  /* Smooth transitions */
+  #reviews-section {
+    transition: all 0.3s ease;
+  }
+
+  /* Individual Review Cards */
+  .reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .review-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+  }
+
+  .review-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .reviewer-info {
+    flex: 1;
+  }
+
+  .reviewer-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 0.25rem 0;
+  }
+
+  .review-date {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .overall-rating {
+    text-align: right;
+  }
+
+  .rating-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 0.25rem 0 0 0;
+  }
+
+  .ratings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .rating-item {
+    text-align: center;
+    padding: 0.75rem;
+    background: var(--glass-light);
+    border: 1px solid var(--glass-border-light);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .rating-item:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+  }
+
+  .rating-category {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text);
+    margin: 0 0 0.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .review-comments {
+    background: var(--glass-light);
+    border: 1px solid var(--glass-border-light);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+
+  .comments-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 0.5rem 0;
+  }
+
+  .comments-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text);
+    margin: 0;
+  }
+
+  /* Responsive Design for Reviews */
+  @media (max-width: 768px) {
+    .review-header {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .overall-rating {
+      text-align: left;
+    }
+
+    .ratings-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .rating-item {
+      padding: 0.5rem;
+    }
+
+    .review-card {
+      padding: 1rem;
+    }
+  }
 </style>
+
 {% endblock %}

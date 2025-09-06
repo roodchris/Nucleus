@@ -1,10 +1,12 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request, current_app, Response
 from flask_login import login_required, current_user
 from app.models import Conversation, Message, User, ResidentProfile, EmployerProfile
 from app import db
 from sqlalchemy import desc, and_
 from datetime import datetime
 import uuid
+import json
+import time
 from app.models import UserSession
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
@@ -468,5 +470,117 @@ def start_direct_conversation():
     except Exception as e:
         current_app.logger.error(f"Error starting direct conversation: {str(e)}")
         return jsonify({'error': 'Failed to start conversation'}), 500
+
+
+# Store active SSE connections
+active_connections = {}
+
+@api_bp.route('/messages/stream')
+@login_required
+def message_stream():
+    """Server-Sent Events endpoint for real-time message updates"""
+    def event_stream():
+        # Create a unique connection ID
+        connection_id = str(uuid.uuid4())
+        user_id = current_user.id if current_user else None
+        
+        if not user_id:
+            yield f"data: {json.dumps({'error': 'User not authenticated'})}\n\n"
+            return
+            
+        active_connections[connection_id] = {
+            'user_id': user_id,
+            'last_check': datetime.utcnow()
+        }
+        
+        try:
+            while True:
+                # Check for new messages
+                last_check = active_connections[connection_id]['last_check']
+                
+                # Get conversations where current user is involved
+                conversations = Conversation.query.filter(
+                    (Conversation.resident_id == user_id) | 
+                    (Conversation.employer_id == user_id)
+                ).all()
+                
+                conversation_ids = [conv.id for conv in conversations]
+                
+                # Get new messages since last check
+                new_messages = Message.query.filter(
+                    and_(
+                        Message.conversation_id.in_(conversation_ids),
+                        Message.sender_id != user_id,  # Only messages from others
+                        Message.created_at > last_check
+                    )
+                ).order_by(Message.created_at.desc()).all()
+                
+                if new_messages:
+                    # Get updated conversation data
+                    updated_conversations = []
+                    for conv in conversations:
+                        # Get the other user
+                        if conv.resident_id == user_id:
+                            other_user = conv.employer
+                        else:
+                            other_user = conv.resident
+                        
+                        # Get unread count
+                        unread_count = Message.query.filter(
+                            and_(
+                                Message.conversation_id == conv.id,
+                                Message.sender_id != user_id,
+                                Message.is_read == False
+                            )
+                        ).count()
+                        
+                        updated_conversations.append({
+                            'id': conv.id,
+                            'other_user': {
+                                'id': other_user.id,
+                                'name': other_user.name,
+                                'role': other_user.role.value
+                            },
+                            'last_message': {
+                                'content': conv.last_message.body if conv.last_message else '',
+                                'timestamp': conv.last_message.created_at.isoformat() if conv.last_message else None,
+                                'sender_id': conv.last_message.sender_id if conv.last_message else None
+                            },
+                            'unread_count': unread_count,
+                            'updated_at': conv.updated_at.isoformat() if conv.updated_at else None
+                        })
+                    
+                    # Send the update
+                    data = {
+                        'type': 'new_messages',
+                        'conversations': updated_conversations,
+                        'new_messages_count': len(new_messages),
+                        'timestamp': datetime.utcnow().isoformat()
+                    }
+                    
+                    yield f"data: {json.dumps(data)}\n\n"
+                
+                # Update last check time
+                active_connections[connection_id]['last_check'] = datetime.utcnow()
+                
+                # Wait 2 seconds before next check
+                time.sleep(2)
+                
+        except GeneratorExit:
+            # Clean up connection when client disconnects
+            if connection_id in active_connections:
+                del active_connections[connection_id]
+        except Exception as e:
+            current_app.logger.error(f"Error in message stream: {str(e)}")
+            # Clean up connection on error
+            if connection_id in active_connections:
+                del active_connections[connection_id]
+    
+    return Response(event_stream(), mimetype='text/event-stream', headers={
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Cache-Control'
+    })
 
 

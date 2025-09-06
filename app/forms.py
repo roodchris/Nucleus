@@ -73,12 +73,16 @@ WORK_DURATION_CHOICES: List[Tuple[str, str]] = [
 
 
 class SignupForm(FlaskForm):
-    name = StringField("Name", validators=[DataRequired(), Length(max=255)])
+    name = StringField("Name (can use a username to stay anonymous)", validators=[DataRequired(), Length(max=255)])
     email = StringField("Email", validators=[DataRequired(), Email(), Length(max=255)])
     password = PasswordField("Password", validators=[DataRequired(), Length(min=6, max=255)])
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password")])
     role = SelectField("Role", choices=ROLE_CHOICES, validators=[DataRequired()])
     organization = StringField("Organization (for employers)", validators=[Optional(), Length(max=255)])
+
+
+class EmailVerificationForm(FlaskForm):
+    verification_code = StringField("Verification Code", validators=[DataRequired(), Length(min=5, max=5)])
 
 
 class LoginForm(FlaskForm):

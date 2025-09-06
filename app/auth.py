@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, logout_user, login_required, current_user
 from .models import db, User, UserRole
-from .forms import SignupForm, LoginForm
+from .forms import SignupForm, LoginForm, EmailVerificationForm
+from .email_service import create_verification_record, send_verification_email, verify_email_code
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -16,18 +17,27 @@ def signup():
         if existing:
             flash("Email already registered. Please log in.", "warning")
             return redirect(url_for("auth.login"))
-        user = User(
-            email=form.email.data.lower(),
-            name=form.name.data,
-            role=UserRole(form.role.data),
-            organization=form.organization.data if form.role.data == UserRole.EMPLOYER.value else None,
-        )
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        login_user(user)
-        flash("Welcome! Account created.", "success")
-        return redirect(url_for("opportunities.home"))
+        
+        # Store user data in session for verification step
+        session['pending_user'] = {
+            'email': form.email.data.lower(),
+            'name': form.name.data,
+            'role': form.role.data,
+            'organization': form.organization.data if form.role.data == UserRole.EMPLOYER.value else None,
+            'password': form.password.data
+        }
+        
+        # Create verification record and send email
+        verification_code = create_verification_record(form.email.data.lower())
+        if verification_code:
+            if send_verification_email(form.email.data.lower(), verification_code):
+                flash("Verification code sent to your email. Please check your inbox.", "info")
+                return redirect(url_for("auth.verify_email"))
+            else:
+                flash("Failed to send verification email. Please try again.", "error")
+        else:
+            flash("Failed to create verification record. Please try again.", "error")
+    
     return render_template("auth/signup.html", form=form)
 
 
@@ -46,6 +56,71 @@ def login():
             next_url = request.args.get("next")
             return redirect(next_url or url_for("opportunities.home"))
     return render_template("auth/login.html", form=form)
+
+
+@auth_bp.route("/verify-email", methods=["GET", "POST"])
+def verify_email():
+    if current_user.is_authenticated:
+        return redirect(url_for("opportunities.home"))
+    
+    # Check if there's pending user data in session
+    pending_user = session.get('pending_user')
+    if not pending_user:
+        flash("No pending verification found. Please sign up again.", "warning")
+        return redirect(url_for("auth.signup"))
+    
+    form = EmailVerificationForm()
+    if form.validate_on_submit():
+        email = pending_user['email']
+        code = form.verification_code.data
+        
+        success, message = verify_email_code(email, code)
+        if success:
+            # Create the user account
+            user = User(
+                email=pending_user['email'],
+                name=pending_user['name'],
+                role=UserRole(pending_user['role']),
+                organization=pending_user['organization']
+            )
+            user.set_password(pending_user['password'])
+            db.session.add(user)
+            db.session.commit()
+            
+            # Clear session data
+            session.pop('pending_user', None)
+            
+            # Log in the user
+            login_user(user)
+            flash("Email verified! Welcome! Account created.", "success")
+            return redirect(url_for("opportunities.home"))
+        else:
+            flash(message, "error")
+    
+    return render_template("auth/verify_email.html", form=form, email=pending_user['email'])
+
+
+@auth_bp.route("/resend-verification", methods=["POST"])
+def resend_verification():
+    if current_user.is_authenticated:
+        return redirect(url_for("opportunities.home"))
+    
+    email = request.form.get('email')
+    if not email:
+        flash("Email address required.", "error")
+        return redirect(url_for("auth.signup"))
+    
+    # Create new verification record and send email
+    verification_code = create_verification_record(email)
+    if verification_code:
+        if send_verification_email(email, verification_code):
+            flash("New verification code sent to your email.", "info")
+        else:
+            flash("Failed to send verification email. Please try again.", "error")
+    else:
+        flash("Failed to create verification record. Please try again.", "error")
+    
+    return redirect(url_for("auth.verify_email"))
 
 
 @auth_bp.route("/logout")

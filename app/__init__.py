@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_cors import CORS
 from .models import db, User
 from config import Config
 
@@ -14,6 +15,11 @@ def create_app(config_class: type = Config) -> Flask:
 
     db.init_app(app)
     mail.init_app(app)
+    
+    # Initialize CORS with configuration from config file
+    CORS(app, 
+         origins=app.config.get('CORS_ORIGINS', '*'), 
+         supports_credentials=app.config.get('CORS_SUPPORTS_CREDENTIALS', True))
 
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"
