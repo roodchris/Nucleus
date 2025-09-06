@@ -19,6 +19,7 @@ class OpportunityType(Enum):
     TELE_CONTRAST = "tele_contrast"
     DIAGNOSTIC_INTERPRETATION = "diagnostic_interpretation"
     TELE_DIAGNOSTIC_INTERPRETATION = "tele_diagnostic_interpretation"
+    CONSULTING_OTHER = "consulting_other"
 
 
 class ApplicationStatus(Enum):
@@ -40,6 +41,7 @@ class TrainingLevel(Enum):
 class PayType(Enum):
     PER_HOUR = "per_hour"
     PER_RVU = "per_rvu"
+    PER_YEAR = "per_year"
 
 
 class WorkDuration(Enum):

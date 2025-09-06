@@ -45,6 +45,7 @@ OPP_TYPE_CHOICES: List[Tuple[str, str]] = [
     (OpportunityType.TELE_CONTRAST.value, "Tele contrast coverage"),
     (OpportunityType.DIAGNOSTIC_INTERPRETATION.value, "Diagnostic interpretation"),
     (OpportunityType.TELE_DIAGNOSTIC_INTERPRETATION.value, "Tele diagnostic interpretation"),
+    (OpportunityType.CONSULTING_OTHER.value, "Consulting & Other Opportunities"),
 ]
 
 TRAINING_LEVEL_CHOICES: List[Tuple[str, str]] = [
@@ -61,6 +62,7 @@ PAY_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("", "Select Pay Type"),
     (PayType.PER_HOUR.value, "$/hr"),
     (PayType.PER_RVU.value, "$/RVU"),
+    (PayType.PER_YEAR.value, "$/year"),
 ]
 
 WORK_DURATION_CHOICES: List[Tuple[str, str]] = [
