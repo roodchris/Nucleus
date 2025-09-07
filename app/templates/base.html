@@ -916,20 +916,29 @@
       backdrop-filter: var(--blur);
       -webkit-backdrop-filter: var(--blur);
       border: 1px solid var(--glass-border);
-      border-radius: 8px;
-      padding: 8px;
+      border-radius: 12px;
+      padding: 16px; /* Increased padding for larger touch target */
       cursor: pointer;
       color: var(--text);
       transition: all 0.3s ease;
+      min-width: 56px; /* Ensure minimum touch target size */
+      min-height: 56px; /* Ensure minimum touch target size */
+      align-items: center;
+      justify-content: center;
     }
 
     .mobile-nav-toggle:hover {
       background: var(--surface-2);
+      transform: scale(1.05); /* Slight scale effect for better feedback */
+    }
+
+    .mobile-nav-toggle:active {
+      transform: scale(0.95); /* Press effect */
     }
 
     .mobile-nav-toggle svg {
-      width: 20px;
-      height: 20px;
+      width: 24px; /* Slightly larger icon */
+      height: 24px;
     }
 
     .mobile-nav {
@@ -1059,7 +1068,12 @@
 
       /* Show mobile nav toggle */
       .mobile-nav-toggle {
-        display: block;
+        display: flex;
+      }
+
+      /* Hide header toggle button on mobile */
+      .header-toggle {
+        display: none;
       }
 
       /* Compact header */
@@ -1202,17 +1216,6 @@
         width: 100%;
       }
 
-      /* Header toggle button adjustments */
-      .header-toggle {
-        top: 15px;
-        right: 15px;
-        padding: 10px;
-      }
-
-      .header-toggle svg {
-        width: 18px;
-        height: 18px;
-      }
 
       /* Background elements - reduce on mobile */
       .floating-element {
@@ -1242,6 +1245,18 @@
       .btn {
         padding: 0.625rem 0.875rem;
         font-size: 0.875rem;
+      }
+
+      /* Mobile nav toggle adjustments for extra small screens */
+      .mobile-nav-toggle {
+        min-width: 52px;
+        min-height: 52px;
+        padding: 14px;
+      }
+
+      .mobile-nav-toggle svg {
+        width: 22px;
+        height: 22px;
       }
 
       h1 { font-size: 1.75rem; }
