@@ -4,10 +4,14 @@ from datetime import timedelta
 
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL",
-        "sqlite:///app.db",
-    )
+    
+    # Database configuration with better error handling
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+        # Convert postgres:// to postgresql:// for newer versions of SQLAlchemy
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL or "sqlite:///app.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     REMEMBER_COOKIE_DURATION = timedelta(days=14)
     WTF_CSRF_TIME_LIMIT = None

@@ -69,6 +69,12 @@ def create_app(config_class: type = Config) -> Flask:
         return send_from_directory(uploads_dir, filename)
 
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+            print(f"✅ Database initialized successfully with URL: {app.config['SQLALCHEMY_DATABASE_URI']}")
+        except Exception as e:
+            print(f"❌ Database initialization failed: {e}")
+            print(f"Database URL: {app.config['SQLALCHEMY_DATABASE_URI']}")
+            raise
 
     return app
