@@ -1863,12 +1863,13 @@
         moonIcon.style.display = 'none';
       }
       
-      // Initialize header state from localStorage
+      // Initialize header state from localStorage (only on desktop)
       const headerRetracted = localStorage.getItem('headerRetracted') === 'true';
       const header = document.querySelector('header');
       const toggleButton = document.getElementById('headerToggle');
       
-      if (headerRetracted) {
+      // Only retract header on desktop, not on mobile
+      if (headerRetracted && window.innerWidth > 768) {
         header.classList.add('retracted');
         toggleButton.classList.add('retracted');
       }
@@ -1897,6 +1898,23 @@
           characterData: true 
         });
       }
+
+      // Handle window resize to manage header state
+      window.addEventListener('resize', function() {
+        const header = document.querySelector('header');
+        const toggleButton = document.getElementById('headerToggle');
+        const headerRetracted = localStorage.getItem('headerRetracted') === 'true';
+        
+        if (window.innerWidth <= 768) {
+          // On mobile, always show header
+          header.classList.remove('retracted');
+          toggleButton.classList.remove('retracted');
+        } else if (headerRetracted) {
+          // On desktop, respect the saved state
+          header.classList.add('retracted');
+          toggleButton.classList.add('retracted');
+        }
+      });
     });
   </script>
   
