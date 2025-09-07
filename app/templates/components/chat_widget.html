@@ -149,20 +149,23 @@
 
 .chat-badge {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: -8px;
+  right: -8px;
   background: var(--notification);
   color: white;
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  min-width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
+  font-size: 11px;
+  font-weight: 700;
   animation: pulse 2s ease-in-out infinite;
   box-shadow: 0 0 10px var(--notification);
+  border: 2px solid var(--bg);
+  padding: 0 4px;
+  z-index: 10;
 }
 
 @keyframes pulse {
@@ -976,9 +979,13 @@ function initializeChatWidget() {
     console.log('User search event listener added');
   }
   
-  // Start real-time message streaming
-  startMessageStream();
-  console.log('Real-time message stream started');
+  // Start real-time message streaming (disabled for now due to EventSource issues)
+  // startMessageStream();
+  // console.log('Real-time message stream started');
+  
+  // Use polling as the primary method for now
+  startPollingFallback();
+  console.log('Using polling for message updates');
   
   // Also check for new messages when the page becomes visible
   document.addEventListener('visibilitychange', function() {
@@ -1001,6 +1008,10 @@ function initializeChatWidget() {
     // Close message stream
     if (messageEventSource) {
       messageEventSource.close();
+    }
+    // Clear polling interval
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
     }
   });
   
@@ -1071,25 +1082,27 @@ function showChat(conversationId) {
   loadConversationMessages(conversationId);
 }
 
-async function loadRecentConversations() {
-  try {
-    const response = await fetch('/api/conversations/recent');
-    if (response.ok) {
-      const data = await response.json();
-      chatWidgetState.conversations = data.conversations || [];
-      chatWidgetState.unreadCount = data.unread_count || 0;
-      chatWidgetState.lastUnreadCount = data.unread_count || 0; // Initialize last unread count
-      
-      displayConversations();
-      updateUnreadBadge();
-      updateTopNavigationBadge(data.unread_count || 0);
+  async function loadRecentConversations() {
+    try {
+      const response = await fetch('/api/conversations/recent');
+      if (response.ok) {
+        const data = await response.json();
+        chatWidgetState.conversations = data.conversations || [];
+        chatWidgetState.unreadCount = data.unread_count || 0;
+        chatWidgetState.lastUnreadCount = data.unread_count || 0; // Initialize last unread count
+        
+        displayConversations();
+        updateUnreadBadge();
+        updateTopNavigationBadge(data.unread_count || 0);
+      } else {
+        console.error('Failed to load conversations:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Error loading conversations:', error);
+      document.getElementById('chat-conversations').innerHTML = 
+        '<div class="chat-loading">Error loading conversations</div>';
     }
-  } catch (error) {
-    console.error('Error loading conversations:', error);
-    document.getElementById('chat-conversations').innerHTML = 
-      '<div class="chat-loading">Error loading conversations</div>';
   }
-}
 
 async function loadConversationMessages(conversationId) {
   try {
@@ -1121,6 +1134,9 @@ function displayConversations() {
     // Check if this is a consolidated conversation (multiple conversation IDs)
     const isConsolidated = convo.conversation_ids && convo.conversation_ids.length > 1;
     
+    // Check if there are unread messages
+    const hasUnreadMessages = convo.unread_count > 0;
+    
     return `
       <div class="chat-conversation-item" onclick="showChat(${convo.id})" data-user-id="${convo.other_user.id}">
         <div class="chat-conversation-avatar ${convo.other_user_profile && convo.other_user_profile.photo_filename ? '' : 'fallback'}">
@@ -1130,12 +1146,15 @@ function displayConversations() {
           }
         </div>
         <div class="chat-conversation-content">
-          <div class="chat-conversation-name">
+          <div class="chat-conversation-name" style="font-weight: ${hasUnreadMessages ? 'bold' : 'normal'};">
             ${convo.other_user.name}
             ${isConsolidated ? `<span class="chat-consolidated-indicator" title="${convo.conversation_ids.length} conversations merged - Click to view all messages">🔄${convo.conversation_ids.length}</span>` : ''}
             <span class="chat-online-status ${convo.other_user.is_online ? 'online' : 'offline'}" title="${convo.other_user.is_online ? 'Online' : 'Offline'}" data-user-id="${convo.other_user.id}"></span>
           </div>
-          <div class="chat-conversation-preview">${convo.last_message || 'No messages yet'}</div>
+          <div class="chat-conversation-preview" style="font-weight: ${hasUnreadMessages ? 'bold' : 'normal'};">
+            ${convo.last_message || 'No messages yet'}
+            ${hasUnreadMessages ? ` <span style="color: var(--notification); font-weight: 600;">(${convo.unread_count} unread)</span>` : ''}
+          </div>
         </div>
         <div class="chat-conversation-time">${formatTime(convo.updated_at)}</div>
       </div>
@@ -1239,6 +1258,9 @@ async function handleMessageSubmit(event) {
 
 function updateUnreadBadge() {
   const badge = document.getElementById('chat-badge');
+  console.log('updateUnreadBadge called with unreadCount:', chatWidgetState.unreadCount);
+  console.log('chat badge element:', badge);
+  
   if (!badge) {
     console.error('Chat badge element not found');
     return;
@@ -1255,27 +1277,22 @@ function updateUnreadBadge() {
 }
 
 function updateTopNavigationBadge(unreadCount) {
-  // Find the Messages tab in the top navigation
-  const messagesTab = document.querySelector('a[href="/messages"]');
-  if (messagesTab) {
-    // Remove existing badge if any
-    const existingBadge = messagesTab.querySelector('.badge');
-    if (existingBadge) {
-      existingBadge.remove();
-    }
-    
-    // Add new badge if there are unread messages
+  // Find the header messages badge
+  const headerBadge = document.getElementById('header-messages-badge');
+  console.log('updateTopNavigationBadge called with unreadCount:', unreadCount);
+  console.log('headerBadge element:', headerBadge);
+  
+  if (headerBadge) {
     if (unreadCount > 0) {
-      const badge = document.createElement('span');
-      badge.className = 'badge';
-      badge.textContent = unreadCount;
-      messagesTab.appendChild(badge);
-      console.log(`Updated top navigation badge: ${unreadCount} unread messages`);
+      headerBadge.textContent = unreadCount;
+      headerBadge.style.display = 'flex';
+      console.log(`Updated header messages badge: ${unreadCount} unread messages`);
     } else {
-      console.log('No unread messages - no top navigation badge needed');
+      headerBadge.style.display = 'none';
+      console.log('No unread messages - hiding header badge');
     }
   } else {
-    console.log('Messages tab not found in navigation');
+    console.log('Header messages badge not found');
   }
 }
 
@@ -1470,6 +1487,7 @@ function updateUserSearchOnlineStatus(onlineStatus) {
 
 // Real-time message streaming
 let messageEventSource = null;
+let pollingInterval = null;
 
 function startMessageStream() {
   // Close existing connection if any
@@ -1484,9 +1502,20 @@ function startMessageStream() {
     try {
       const data = JSON.parse(event.data);
       
+      if (data.type === 'connected') {
+        return;
+      }
+      
+      if (data.type === 'heartbeat') {
+        return;
+      }
+      
+      if (data.type === 'error') {
+        console.error('EventSource error:', data.message);
+        return;
+      }
+      
       if (data.type === 'new_messages') {
-        console.log('Real-time update received:', data);
-        
         // Update conversations data
         chatWidgetState.conversations = data.conversations || [];
         
@@ -1496,7 +1525,6 @@ function startMessageStream() {
         // Check if new messages arrived
         if (chatWidgetState.lastUnreadCount !== undefined && newUnreadCount > chatWidgetState.lastUnreadCount) {
           const newMessageCount = newUnreadCount - chatWidgetState.lastUnreadCount;
-          console.log(`New messages detected: ${newMessageCount} new messages`);
           
           // Play notification sound for new messages
           playNotificationSound();
@@ -1524,16 +1552,30 @@ function startMessageStream() {
   
   messageEventSource.onerror = function(event) {
     console.error('EventSource failed:', event);
-    // Attempt to reconnect after 5 seconds
+    messageEventSource.close();
+    
     setTimeout(() => {
-      console.log('Attempting to reconnect to message stream...');
       startMessageStream();
     }, 5000);
   };
   
   messageEventSource.onopen = function(event) {
-    console.log('Message stream connected');
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      pollingInterval = null;
+    }
   };
+}
+
+function startPollingFallback() {
+  // Start polling every 3 seconds for responsive updates
+  pollingInterval = setInterval(async () => {
+    try {
+      await checkForNewMessages();
+    } catch (error) {
+      console.log('Polling error:', error);
+    }
+  }, 3000);
 }
 
 async function checkForNewMessages() {
@@ -1546,7 +1588,6 @@ async function checkForNewMessages() {
       // Check if new messages arrived (only if we have a previous count)
       if (chatWidgetState.lastUnreadCount !== undefined && newUnreadCount > chatWidgetState.lastUnreadCount) {
         const newMessageCount = newUnreadCount - chatWidgetState.lastUnreadCount;
-        console.log(`New messages detected: ${newMessageCount} new messages`);
         
         // Play notification sound for new messages
         playNotificationSound();
@@ -1569,6 +1610,8 @@ async function checkForNewMessages() {
       if (chatWidgetState.isOpen) {
         displayConversations();
       }
+    } else {
+      console.error('Failed to fetch conversations:', response.status, response.statusText);
     }
   } catch (error) {
     console.error('Error checking for new messages:', error);

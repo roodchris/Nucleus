@@ -26,6 +26,21 @@ def inbox():
 			convo.other_user_profile = EmployerProfile.query.filter_by(user_id=convo.other_user.id).first()
 		else:
 			convo.other_user_profile = None
+		
+		# Get the last message for this conversation
+		last_message = Message.query.filter_by(conversation_id=convo.id).order_by(Message.created_at.desc()).first()
+		convo.last_message = last_message.body if last_message else None
+		convo.last_message_sender_id = last_message.sender_id if last_message else None
+		
+		# Calculate unread count dynamically (same logic as API)
+		other_user_id = convo.other_user.id
+		unread_count = Message.query.filter(
+			Message.conversation_id == convo.id,
+			Message.sender_id == other_user_id,
+			Message.is_read == False
+		).count()
+		convo.unread_count = unread_count
+		print(f"DEBUG: Conversation {convo.id} with {convo.other_user.name} has {unread_count} unread messages")
 	
 	return render_template("chat/inbox.html", convos=convos)
 

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Badges</title>
+</head>
+<body>
+    <h1>Test Notification Badges</h1>
+    <div id="status">Loading...</div>
+    <div id="badge" style="display: none; background: red; color: white; padding: 5px; border-radius: 50%; width: 20px; height: 20px; text-align: center;">0</div>
+    
+    <script>
+        async function testBadges() {
+            try {
+                const response = await fetch('/api/conversations/recent');
+                const data = await response.json();
+                
+                document.getElementById('status').innerHTML = `
+                    <p>Response status: ${response.status}</p>
+                    <p>Unread count: ${data.unread_count || 0}</p>
+                    <p>Conversations: ${JSON.stringify(data.conversations || [], null, 2)}</p>
+                `;
+                
+                if (data.unread_count > 0) {
+                    document.getElementById('badge').style.display = 'block';
+                    document.getElementById('badge').textContent = data.unread_count;
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = `Error: ${error.message}`;
+            }
+        }
+        
+        // Test immediately
+        testBadges();
+        
+        // Test every 3 seconds
+        setInterval(testBadges, 3000);
+    </script>
+</body>
+</html>

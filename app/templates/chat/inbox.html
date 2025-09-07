@@ -38,19 +38,34 @@
             {% endif %}
           </div>
           <div class="conversation-info">
-            <h3 class="conversation-name">
+            <h3 class="conversation-name" style="font-weight: {% if c.unread_count > 0 %}900{% else %}700{% endif %}; color: {% if c.unread_count > 0 %}var(--accent){% else %}var(--text){% endif %};">
               {% if c.other_user.role.value == 'resident' %}
-                <a href="/profile/{{ c.other_user.id }}" class="user-link">{{ c.other_user.name }}</a>
+                <a href="/profile/{{ c.other_user.id }}" class="user-link" style="color: {% if c.unread_count > 0 %}var(--accent){% else %}var(--accent){% endif %}; font-weight: {% if c.unread_count > 0 %}900{% else %}700{% endif %};">{{ c.other_user.name }}</a>
               {% else %}
                 {{ c.other_user.name }}
               {% endif %}
-            </h3>
-            <p class="conversation-type">
-              {% if c.opportunity %}
-                {{ c.opportunity.title }}
-              {% else %}
-                Direct Message
+              {% if c.unread_count > 0 %}
+                <span class="unread-badge">{{ c.unread_count }}</span>
               {% endif %}
+            </h3>
+            <p class="conversation-preview" style="font-weight: {% if c.unread_count > 0 %}700{% else %}400{% endif %}; color: {% if c.unread_count > 0 %}var(--text){% else %}var(--text-secondary){% endif %};">
+              {% if c.last_message %}
+                {% if c.last_message_sender_id == current_user.id %}
+                  You: {{ c.last_message }}
+                {% else %}
+                  {{ c.other_user.name }}: {{ c.last_message }}
+                {% endif %}
+              {% else %}
+                {% if c.opportunity %}
+                  {{ c.opportunity.title }}
+                {% else %}
+                  Direct Message
+                {% endif %}
+              {% endif %}
+              {% if c.unread_count > 0 %}
+                <span class="unread-indicator">({{ c.unread_count }} unread)</span>
+              {% endif %}
+              <!-- DEBUG: unread_count = {{ c.unread_count }} -->
             </p>
           </div>
           <div class="conversation-actions">
@@ -240,7 +255,26 @@
     color: var(--accent-dark);
   }
 
-  .conversation-type {
+  .unread-badge {
+    background: var(--notification);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+    display: inline-block;
+    min-width: 18px;
+    text-align: center;
+  }
+
+  .unread-indicator {
+    color: var(--notification);
+    font-weight: 600;
+    margin-left: 0.5rem;
+  }
+
+  .conversation-preview {
     color: var(--text-secondary);
     font-size: 0.85rem;
     margin: 0;

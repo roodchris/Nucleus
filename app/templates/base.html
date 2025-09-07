@@ -701,24 +701,42 @@
     /* Notification Badge */
     .notification-badge {
       position: relative;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
     }
 
     .notification-badge .badge {
-      position: absolute;
-      top: -6px;
-      right: -6px;
       background: var(--notification);
       color: white;
       border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
+      min-width: 18px;
+      height: 18px;
+      font-size: 0.7rem;
+      font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
       line-height: 1;
+      padding: 0 0.25rem;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+      animation: pulse 2s ease-in-out infinite;
+      border: 2px solid var(--bg);
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      }
+      70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
     }
 
     /* Calendar */
@@ -790,7 +808,71 @@
     .p-6 { padding: 1.5rem; }
     .p-8 { padding: 2rem; }
 
-         /* Responsive */
+         /* Background Elements */
+    .background-elements {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .floating-element {
+      position: absolute;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      opacity: 0.1;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .element-1 {
+      width: 100px;
+      height: 100px;
+      top: 20%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .element-2 {
+      width: 150px;
+      height: 150px;
+      top: 60%;
+      right: 15%;
+      animation-delay: 2s;
+    }
+
+    .element-3 {
+      width: 80px;
+      height: 80px;
+      bottom: 30%;
+      left: 20%;
+      animation-delay: 4s;
+    }
+
+    .element-4 {
+      width: 120px;
+      height: 120px;
+      top: 10%;
+      right: 30%;
+      animation-delay: 1s;
+    }
+
+    .element-5 {
+      width: 60px;
+      height: 60px;
+      bottom: 20%;
+      right: 10%;
+      animation-delay: 3s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-30px) rotate(180deg); }
+    }
+
+    /* Responsive */
      @media (max-width: 768px) {
        header .container {
          padding: 0.5rem 1rem;
@@ -836,6 +918,15 @@
 <body>
   <!-- Custom Cursor -->
   <div class="custom-cursor"></div>
+
+  <!-- Animated Background Elements -->
+  <div class="background-elements">
+    <div class="floating-element element-1"></div>
+    <div class="floating-element element-2"></div>
+    <div class="floating-element element-3"></div>
+    <div class="floating-element element-4"></div>
+    <div class="floating-element element-5"></div>
+  </div>
 
   <header>
     <div class="container">
@@ -975,17 +1066,12 @@
                 </svg>
                 Forum
               </a>
-              <a href="/messages" class="notification-badge {% if request.endpoint == 'inbox' or request.endpoint == 'thread' %}active{% endif %}">
+              <a href="/messages" class="notification-badge {% if request.endpoint == 'inbox' or request.endpoint == 'thread' %}active{% endif %}" id="header-messages-link">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 Messages
-                {% if current_user.is_authenticated %}
-                  {% set unread_count = get_unread_count(current_user.id) %}
-                  {% if unread_count > 0 %}
-                    <span class="badge">{{ unread_count }}</span>
-                  {% endif %}
-                {% endif %}
+                <span class="badge" id="header-messages-badge" style="display: none;">0</span>
               </a>
             </div>
           </div>
