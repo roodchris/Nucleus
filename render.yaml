@@ -3,7 +3,7 @@ services:
     name: nucleus-app
     env: python
     pythonVersion: 3.11.9
-    buildCommand: pip install -r requirements.txt
+    buildCommand: ./build.sh
     startCommand: gunicorn main:app
     envVars:
       - key: DATABASE_URL
