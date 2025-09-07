@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: nucleus-app
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nucleus_database
+          property: connectionString
+      - key: SECRET_KEY
+        value: a9e714c81188772bed55550380341d80b4ac5d55c82b59c42df6ca1a5df3826
+      - key: MAIL_USERNAME
+        value: radnucleus@gmail.com
+      - key: MAIL_PASSWORD
+        value: tiry nsjm cqup rlhc
+      - key: MAIL_DEFAULT_SENDER
+        value: radnucleus@gmail.com
+      - key: CORS_ORIGINS
+        value: "*"
+
+databases:
+  - name: nucleus_database
+    databaseName: nucleus_database
+    user: nucleus_database_user
