@@ -2,7 +2,6 @@ services:
   - type: web
     name: nucleus-app
     env: python
-    pythonVersion: 3.11.9
     buildCommand: ./build.sh
     startCommand: gunicorn main:app
     envVars:
