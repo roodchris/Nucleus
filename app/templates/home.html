@@ -437,42 +437,169 @@
 
     /* Responsive */
     @media (max-width: 768px) {
+      .hero-section {
+        padding: 4rem 0 3rem;
+        min-height: 60vh;
+      }
+
       .hero-title {
-        font-size: 3rem;
+        font-size: 2.5rem;
+        line-height: 1.2;
+        margin-bottom: 1rem;
       }
 
       .hero-subtitle {
-        font-size: 1.25rem;
+        font-size: 1.125rem;
+        line-height: 1.5;
+        margin-bottom: 2rem;
+        max-width: 100%;
       }
 
       .hero-actions {
         flex-direction: column;
         align-items: center;
+        gap: 1rem;
+        width: 100%;
       }
 
       .hero-btn {
         width: 100%;
-        max-width: 300px;
+        max-width: 280px;
         text-align: center;
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+        min-height: 48px;
+      }
+
+      .features-section {
+        padding: 4rem 0;
       }
 
       .features-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .feature-card {
+        padding: 1.5rem 1.25rem;
+        text-align: center;
+      }
+
+      .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .feature-card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .feature-card p {
+        font-size: 0.9rem;
+        line-height: 1.5;
       }
 
       .section-title {
-        font-size: 2.5rem;
+        font-size: 2rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .mission-section {
+        padding: 3rem 0;
       }
 
       .mission-card {
-        padding: 2rem 1.5rem;
-        margin: 0 1rem;
+        padding: 1.5rem;
+        margin: 0;
+        border-radius: 16px;
       }
 
       .mission-text {
-        font-size: 1rem;
+        font-size: 0.95rem;
         line-height: 1.6;
+        margin-bottom: 0.875rem;
+      }
+
+      .mission-text:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Mobile-specific hero adjustments */
+      .hero-content {
+        text-align: center;
+        padding: 0 1rem;
+      }
+
+      /* Improve touch targets */
+      .hero-btn:active {
+        transform: scale(0.98);
+      }
+
+      .feature-card:active {
+        transform: scale(0.98);
+      }
+    }
+
+    /* Extra small devices */
+    @media (max-width: 480px) {
+      .hero-section {
+        padding: 3rem 0 2rem;
+        min-height: 50vh;
+      }
+
+      .hero-title {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .hero-btn {
+        max-width: 100%;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9rem;
+      }
+
+      .features-section {
+        padding: 3rem 0;
+      }
+
+      .section-title {
+        font-size: 1.75rem;
+        margin-bottom: 2rem;
+      }
+
+      .feature-card {
+        padding: 1.25rem 1rem;
+      }
+
+      .feature-icon {
+        font-size: 2rem;
+      }
+
+      .feature-card h3 {
+        font-size: 1.125rem;
+      }
+
+      .feature-card p {
+        font-size: 0.85rem;
+      }
+
+      .mission-section {
+        padding: 2rem 0;
+      }
+
+      .mission-card {
+        padding: 1.25rem;
+      }
+
+      .mission-text {
+        font-size: 0.9rem;
       }
     }
   </style>

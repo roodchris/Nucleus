@@ -794,6 +794,43 @@
       border-color: var(--accent);
     }
 
+    /* Flash Messages */
+    .flash-message {
+      margin-bottom: 0.5rem;
+    }
+
+    .flash-error {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: var(--notification);
+    }
+
+    .flash-success {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: var(--success);
+    }
+
+    .flash-message:not(.flash-error):not(.flash-success) {
+      background: var(--accent-light);
+      border-color: var(--accent);
+    }
+
+    .flash-message-text {
+      margin: 0;
+      font-weight: 500;
+    }
+
+    .flash-error .flash-message-text {
+      color: var(--notification);
+    }
+
+    .flash-success .flash-message-text {
+      color: var(--success);
+    }
+
+    .flash-message:not(.flash-error):not(.flash-success) .flash-message-text {
+      color: var(--accent);
+    }
+
     /* Utilities */
     .muted { color: var(--text-muted); }
     .text-secondary { color: var(--text-secondary); }
@@ -872,47 +909,345 @@
       50% { transform: translateY(-30px) rotate(180deg); }
     }
 
-    /* Responsive */
-     @media (max-width: 768px) {
-       header .container {
-         padding: 0.5rem 1rem;
-         flex-direction: column;
-         gap: 0.5rem;
-       }
+    /* Mobile Navigation Styles */
+    .mobile-nav-toggle {
+      display: none;
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 8px;
+      cursor: pointer;
+      color: var(--text);
+      transition: all 0.3s ease;
+    }
 
-       nav {
-         flex-wrap: wrap;
-         justify-content: center;
-         gap: 0.5rem;
-       }
+    .mobile-nav-toggle:hover {
+      background: var(--surface-2);
+    }
 
-       .nav-groups {
-         flex-direction: column;
-         gap: 0.5rem;
-         width: 100%;
-       }
+    .mobile-nav-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
 
-       .nav-group {
-         width: 100%;
-       }
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      z-index: 100;
+      padding: 2rem 1rem;
+      overflow-y: auto;
+    }
 
-       .group-tabs {
-         flex-wrap: wrap;
-         justify-content: center;
-       }
+    .mobile-nav.active {
+      display: block;
+    }
 
-       .container {
-         padding: 0 1rem;
-       }
+    .mobile-nav-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--glass-border);
+    }
 
-       .grid {
-         grid-template-columns: 1fr;
-       }
+    .mobile-nav-close {
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+    }
 
-       .grid-2 {
-         grid-template-columns: 1fr;
-       }
-     }
+    .mobile-nav-close:hover {
+      background: var(--surface-2);
+    }
+
+    .mobile-nav-close svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .mobile-nav-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .mobile-nav-group {
+      background: var(--surface-1);
+      border-radius: 12px;
+      padding: 1rem;
+      border: 1px solid var(--glass-border);
+    }
+
+    .mobile-nav-group .group-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .mobile-nav-group .group-tabs {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .mobile-nav-group .group-tabs a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      background: transparent;
+    }
+
+    .mobile-nav-group .group-tabs a:hover {
+      background: var(--surface-2);
+      color: var(--accent);
+    }
+
+    .mobile-nav-group .group-tabs a.active {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .mobile-nav-group .group-tabs a svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .mobile-nav-group .group-tabs .badge {
+      margin-left: auto;
+      background: var(--notification);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      /* Hide desktop navigation */
+      nav {
+        display: none;
+      }
+
+      /* Show mobile nav toggle */
+      .mobile-nav-toggle {
+        display: block;
+      }
+
+      /* Compact header */
+      header .container {
+        padding: 0.75rem 1rem;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .brand {
+        font-size: 1.25rem;
+      }
+
+      .atom-logo {
+        width: 24px;
+        height: 24px;
+      }
+
+      .nucleus {
+        width: 5px;
+        height: 5px;
+      }
+
+      .orbit-1 {
+        width: 14px;
+        height: 14px;
+      }
+
+      .orbit-2 {
+        width: 18px;
+        height: 18px;
+      }
+
+      .orbit-3 {
+        width: 24px;
+        height: 24px;
+      }
+
+      .electron {
+        width: 3px;
+        height: 3px;
+      }
+
+      /* Typography adjustments */
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.75rem; }
+      h3 { font-size: 1.5rem; }
+      h4 { font-size: 1.25rem; }
+      h5 { font-size: 1.125rem; }
+      h6 { font-size: 1rem; }
+
+      /* Container adjustments */
+      .container {
+        padding: 0 1rem;
+      }
+
+      /* Grid adjustments */
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      /* Card adjustments */
+      .card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      /* Button adjustments */
+      .btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        min-height: 44px; /* Touch-friendly */
+      }
+
+      .btn-sm {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+        min-height: 36px;
+      }
+
+      /* Form adjustments */
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      .form-group label {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .form-control {
+        padding: 0.75rem;
+        font-size: 1rem; /* Prevents zoom on iOS */
+        min-height: 44px;
+      }
+
+      .form-control:focus {
+        font-size: 1rem; /* Prevents zoom on iOS */
+      }
+
+      /* Table adjustments */
+      .table-responsive {
+        font-size: 0.875rem;
+      }
+
+      .table th,
+      .table td {
+        padding: 0.5rem 0.25rem;
+      }
+
+      /* Modal adjustments */
+      .modal-content {
+        margin: 1rem;
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        padding: 1rem;
+      }
+
+      .modal-body {
+        padding: 1rem;
+      }
+
+      .modal-footer {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .modal-footer .btn {
+        width: 100%;
+      }
+
+      /* Header toggle button adjustments */
+      .header-toggle {
+        top: 15px;
+        right: 15px;
+        padding: 10px;
+      }
+
+      .header-toggle svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      /* Background elements - reduce on mobile */
+      .floating-element {
+        opacity: 0.05;
+      }
+
+      .element-1, .element-2, .element-3, .element-4, .element-5 {
+        width: 60px;
+        height: 60px;
+      }
+    }
+
+    /* Extra small devices */
+    @media (max-width: 480px) {
+      .container {
+        padding: 0 0.75rem;
+      }
+
+      .brand {
+        font-size: 1.125rem;
+      }
+
+      .card {
+        padding: 0.75rem;
+      }
+
+      .btn {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+      }
+
+      h1 { font-size: 1.75rem; }
+      h2 { font-size: 1.5rem; }
+      h3 { font-size: 1.25rem; }
+    }
   </style>
 </head>
 <body>
@@ -944,6 +1279,15 @@
         </div>
         <a href="/" style="color:inherit; text-decoration: none;">Nucleus</a>
       </strong>
+      
+      <!-- Mobile Navigation Toggle -->
+      <button class="mobile-nav-toggle" id="mobileNavToggle" onclick="toggleMobileNav()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
       <nav>
         <div class="nav-groups">
           <!-- Navigation Group -->
@@ -1140,6 +1484,215 @@
       </nav>
     </div>
   </header>
+
+  <!-- Mobile Navigation Menu -->
+  <div class="mobile-nav" id="mobileNav">
+    <div class="mobile-nav-header">
+      <strong class="brand">
+        <div class="logo">
+          <div class="atom-logo">
+            <div class="nucleus"></div>
+            <div class="orbit orbit-1"></div>
+            <div class="orbit orbit-2"></div>
+            <div class="orbit orbit-3"></div>
+            <div class="electron electron-1"></div>
+            <div class="electron electron-2"></div>
+            <div class="electron electron-3"></div>
+          </div>
+        </div>
+        <a href="/" style="color:inherit; text-decoration: none;">Nucleus</a>
+      </strong>
+      <button class="mobile-nav-close" onclick="toggleMobileNav()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="mobile-nav-groups">
+      <!-- Navigation Group -->
+      <div class="mobile-nav-group">
+        <div class="group-label">Navigation</div>
+        <div class="group-tabs">
+          <a href="/" class="{% if request.endpoint == 'home' %}active{% endif %}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="9,22 9,12 15,12 15,22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Home
+          </a>
+          <a href="/calendar" class="{% if request.endpoint == 'calendar' %}active{% endif %}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Global Calendar
+          </a>
+        </div>
+      </div>
+
+      <!-- Job Opportunities Group -->
+      <div class="mobile-nav-group">
+        <div class="group-label">Job Opportunities</div>
+        <div class="group-tabs">
+          <a href="/opportunities" class="{% if request.endpoint == 'opportunities' %}active{% endif %}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 13.255A23.931 23.931 0 0 1 12 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2-2v2m8 0V6a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4m8 0v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4m8 0v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Browse Opportunities
+          </a>
+          {% if current_user.is_authenticated and current_user.role.value == 'employer' %}
+            <a href="/opportunities/new" class="{% if request.endpoint == 'new_opportunity' %}active{% endif %}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Post Opportunity
+            </a>
+            <a href="/employer/listings" class="{% if request.endpoint == 'employer_listings' %}active{% endif %}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              My Job Listings
+            </a>
+          {% endif %}
+          {% if current_user.is_authenticated and current_user.role.value == 'resident' %}
+            <a href="/applications" class="{% if request.endpoint == 'applications' %}active{% endif %}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Application Tracker
+            </a>
+          {% elif current_user.is_authenticated and current_user.role.value == 'employer' %}
+            <a href="/employer/applications" class="{% if request.endpoint == 'employer_applications' %}active{% endif %}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Application Decisions
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Information & Learning Group -->
+      <div class="mobile-nav-group">
+        <div class="group-label">Information & Learning</div>
+        <div class="group-tabs">
+          <a href="/knowledge-base" class="{% if request.endpoint == 'knowledge_base' %}active{% endif %}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Knowledge Base
+          </a>
+          <a href="/program-reviews" class="{% if request.endpoint == 'program_reviews' %}active{% endif %}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Program Reviews
+          </a>
+          <a href="/job-reviews" class="{% if request.endpoint == 'job_reviews' %}active{% endif %}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Job Reviews
+          </a>
+          <a href="/compensation" class="{% if request.endpoint == 'compensation' %}active{% endif %}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Compensation Data
+          </a>
+          <a href="/wrvu-calculator" class="{% if request.endpoint == 'wrvu_calculator' %}active{% endif %}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 9h6v6H9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 1v6M15 1v6M9 17v6M15 17v6M1 9h6M17 9h6M1 15h6M17 15h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            wRVU Calculator
+          </a>
+        </div>
+      </div>
+
+      <!-- Community & Communication Group -->
+      <div class="mobile-nav-group">
+        <div class="group-label">Community & Communication</div>
+        <div class="group-tabs">
+          <a href="/forum" class="{% if request.endpoint == 'forum' %}active{% endif %}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Forum
+          </a>
+          <a href="/messages" class="notification-badge {% if request.endpoint == 'inbox' or request.endpoint == 'thread' %}active{% endif %}" id="mobile-messages-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Messages
+            <span class="badge" id="mobile-messages-badge" style="display: none;">0</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Profile & Account Group -->
+      <div class="mobile-nav-group">
+        <div class="group-label">Profile & Account</div>
+        <div class="group-tabs">
+          {% if current_user.is_authenticated and current_user.role.value == 'resident' %}
+            <a href="/profile" class="{% if request.endpoint == 'resident_profile' %}active{% endif %}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              My Profile
+            </a>
+          {% elif current_user.is_authenticated and current_user.role.value == 'employer' %}
+            <a href="/employer/profile" class="{% if request.endpoint == 'employer_profile' %}active{% endif %}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Practice Profile
+            </a>
+          {% endif %}
+          {% if current_user.is_authenticated %}
+            <a href="/auth/logout">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Logout
+            </a>
+          {% else %}
+            <a href="/auth/login">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="10,17 15,12 10,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="15" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Login
+            </a>
+            <a href="/auth/signup">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="20" y1="8" x2="20" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="23" y1="11" x2="17" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Sign up
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
   
   <!-- Header Toggle Button -->
   <button class="header-toggle" id="headerToggle" onclick="toggleHeader()" title="Toggle header">
@@ -1153,8 +1706,8 @@
       {% if messages %}
         <div class="mb-6">
           {% for category, message in messages %}
-            <div class="card" style="margin-bottom: 0.5rem; background: {% if category == 'error' %}rgba(239, 68, 68, 0.1){% elif category == 'success' %}rgba(16, 185, 129, 0.1){% else %}var(--accent-light){% endif %}; border-color: {% if category == 'error' %}var(--notification){% elif category == 'success' %}var(--success){% else %}var(--accent){% endif %};">
-              <p style="margin: 0; color: {% if category == 'error' %}var(--notification){% elif category == 'success' %}var(--success){% else %}var(--accent){% endif %}; font-weight: 500;">{{ message }}</p>
+            <div class="card flash-message flash-{{ category }}">
+              <p class="flash-message-text">{{ message }}</p>
             </div>
           {% endfor %}
         </div>
@@ -1227,6 +1780,57 @@
       }
     }
 
+    // Mobile navigation toggle functionality
+    function toggleMobileNav() {
+      const mobileNav = document.getElementById('mobileNav');
+      const mobileNavToggle = document.getElementById('mobileNavToggle');
+      
+      if (mobileNav.classList.contains('active')) {
+        // Close mobile nav
+        mobileNav.classList.remove('active');
+        document.body.style.overflow = '';
+        mobileNavToggle.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        `;
+      } else {
+        // Open mobile nav
+        mobileNav.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        mobileNavToggle.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        `;
+      }
+    }
+
+    // Close mobile nav when clicking outside
+    document.addEventListener('click', function(event) {
+      const mobileNav = document.getElementById('mobileNav');
+      const mobileNavToggle = document.getElementById('mobileNavToggle');
+      
+      if (mobileNav.classList.contains('active') && 
+          !mobileNav.contains(event.target) && 
+          !mobileNavToggle.contains(event.target)) {
+        toggleMobileNav();
+      }
+    });
+
+    // Close mobile nav when pressing escape
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        const mobileNav = document.getElementById('mobileNav');
+        if (mobileNav.classList.contains('active')) {
+          toggleMobileNav();
+        }
+      }
+    });
+
     // Initialize theme from localStorage
     document.addEventListener('DOMContentLoaded', function() {
       const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -1252,6 +1856,31 @@
       if (headerRetracted) {
         header.classList.add('retracted');
         toggleButton.classList.add('retracted');
+      }
+
+      // Sync mobile navigation badge with desktop badge
+      function syncMessageBadges() {
+        const desktopBadge = document.getElementById('header-messages-badge');
+        const mobileBadge = document.getElementById('mobile-messages-badge');
+        
+        if (desktopBadge && mobileBadge) {
+          mobileBadge.textContent = desktopBadge.textContent;
+          mobileBadge.style.display = desktopBadge.style.display;
+        }
+      }
+
+      // Initial sync
+      syncMessageBadges();
+
+      // Sync when desktop badge changes
+      const observer = new MutationObserver(syncMessageBadges);
+      const desktopBadge = document.getElementById('header-messages-badge');
+      if (desktopBadge) {
+        observer.observe(desktopBadge, { 
+          attributes: true, 
+          childList: true, 
+          characterData: true 
+        });
       }
     });
   </script>
