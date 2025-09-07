@@ -916,15 +916,16 @@
       backdrop-filter: var(--blur);
       -webkit-backdrop-filter: var(--blur);
       border: 1px solid var(--glass-border);
-      border-radius: 12px;
-      padding: 16px; /* Increased padding for larger touch target */
+      border-radius: 16px;
+      padding: 20px; /* Much larger padding for better touch target */
       cursor: pointer;
       color: var(--text);
       transition: all 0.3s ease;
-      min-width: 56px; /* Ensure minimum touch target size */
-      min-height: 56px; /* Ensure minimum touch target size */
+      min-width: 64px; /* Larger minimum touch target size */
+      min-height: 64px; /* Larger minimum touch target size */
       align-items: center;
       justify-content: center;
+      position: relative;
     }
 
     .mobile-nav-toggle:hover {
@@ -937,8 +938,12 @@
     }
 
     .mobile-nav-toggle svg {
-      width: 24px; /* Slightly larger icon */
-      height: 24px;
+      width: 28px; /* Larger icon for better visibility */
+      height: 28px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
 
     .mobile-nav {
@@ -1068,7 +1073,10 @@
 
       /* Show mobile nav toggle */
       .mobile-nav-toggle {
-        display: flex;
+        display: flex !important;
+        min-width: 64px;
+        min-height: 64px;
+        padding: 20px;
       }
 
       /* Hide header toggle button on mobile */
@@ -1249,14 +1257,14 @@
 
       /* Mobile nav toggle adjustments for extra small screens */
       .mobile-nav-toggle {
-        min-width: 52px;
-        min-height: 52px;
-        padding: 14px;
+        min-width: 60px;
+        min-height: 60px;
+        padding: 18px;
       }
 
       .mobile-nav-toggle svg {
-        width: 22px;
-        height: 22px;
+        width: 24px;
+        height: 24px;
       }
 
       h1 { font-size: 1.75rem; }
