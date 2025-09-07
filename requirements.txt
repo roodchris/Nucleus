@@ -11,5 +11,5 @@ geopy==2.4.0
 uszipcode==1.0.1
 pyzipcode==2.0.2
 gunicorn==21.2.0
-psycopg[binary]==3.2.9
+psycopg2==2.9.9
 python-dotenv==1.0.0
