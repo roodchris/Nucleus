@@ -23,6 +23,7 @@
       --accent-hover: #00b8e6;
       --accent-light: rgba(0, 212, 255, 0.1);
       --accent-glow: 0 0 20px rgba(0, 212, 255, 0.3);
+      --nucleus-pulse: #8b5cf6;
       --border: rgba(255, 255, 255, 0.1);
       --border-light: rgba(255, 255, 255, 0.05);
       --ring: rgba(0, 212, 255, 0.3);
@@ -50,6 +51,7 @@
       --accent-hover: #00b8e6;
       --accent-light: rgba(0, 212, 255, 0.1);
       --accent-glow: 0 0 20px rgba(0, 212, 255, 0.2);
+      --nucleus-pulse: #8b5cf6;
       --border: rgba(0, 0, 0, 0.1);
       --border-light: rgba(0, 0, 0, 0.05);
       --ring: rgba(0, 212, 255, 0.3);
@@ -233,7 +235,7 @@
       border-radius: 50%;
       position: absolute;
       z-index: 3;
-      box-shadow: var(--accent-glow);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
       animation: pulse 2s ease-in-out infinite;
     }
 
@@ -297,13 +299,19 @@
     }
 
     @keyframes electron-rotate {
-      0% { transform: translateX(-50%) rotate(0deg) translateX(8px) rotate(0deg); }
-      100% { transform: translateX(-50%) rotate(360deg) translateX(8px) rotate(-360deg); }
+      0% { transform: translateX(-50%) rotate(0deg) translateX(6px) rotate(0deg); }
+      100% { transform: translateX(-50%) rotate(360deg) translateX(6px) rotate(-360deg); }
     }
 
     @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
+      0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+      }
+      50% { 
+        transform: scale(1.1);
+        box-shadow: 0 0 30px rgba(139, 92, 246, 0.6);
+      }
     }
 
     @keyframes rotate {
@@ -1104,18 +1112,18 @@
       }
 
       .orbit-1 {
-        width: 14px;
-        height: 14px;
+        width: 16px;
+        height: 16px;
       }
 
       .orbit-2 {
-        width: 18px;
-        height: 18px;
+        width: 22px;
+        height: 22px;
       }
 
       .orbit-3 {
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
       }
 
       .electron {
@@ -1934,5 +1942,8 @@
       window.currentUserId = {{ current_user.id }};
     </script>
   {% endif %}
+  
+  <!-- Feedback Form Component -->
+  {% include 'components/feedback_form.html' %}
 </body>
 </html>

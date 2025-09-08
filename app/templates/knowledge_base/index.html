@@ -127,9 +127,10 @@
   /* Subspecialties Grid */
   .subspecialties-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 8px;
     margin-bottom: 4rem;
+    align-items: start;
   }
 
   /* Subspecialty Card */
@@ -138,12 +139,15 @@
     backdrop-filter: var(--blur);
     -webkit-backdrop-filter: var(--blur);
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 2rem;
+    border-radius: 12px;
+    padding: 1.5rem;
     box-shadow: var(--shadow);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    height: fit-content;
+    break-inside: avoid;
+    margin-bottom: 8px;
   }
 
   .subspecialty-card::before {
@@ -152,30 +156,31 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 3px;
     background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
-    border-radius: 20px 20px 0 0;
+    border-radius: 12px 12px 0 0;
   }
 
   .subspecialty-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
     border-color: var(--accent);
+    z-index: 10;
   }
 
   /* Subspecialty Header */
   .subspecialty-header {
     display: flex;
     align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
   }
 
   .subspecialty-icon {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     background: var(--accent-light);
-    border-radius: 12px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -188,26 +193,26 @@
   }
 
   .subspecialty-title {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--text);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
   }
 
   /* Resources List */
   .resources-list {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
   }
 
   .resource-item {
     display: flex;
     align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 0.75rem;
+    padding: 0.75rem;
     background: var(--glass-light);
-    border-radius: 12px;
+    border-radius: 8px;
     border: 1px solid var(--glass-border-light);
     transition: all 0.3s ease;
   }
@@ -215,14 +220,14 @@
   .resource-item:hover {
     background: var(--accent-light);
     border-color: var(--accent);
-    transform: translateX(4px);
+    transform: translateX(2px);
   }
 
   .resource-icon {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     background: var(--glass);
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -249,8 +254,8 @@
 
   .resource-description {
     color: var(--text-secondary);
-    font-size: 0.9rem;
-    line-height: 1.4;
+    font-size: 0.85rem;
+    line-height: 1.3;
     margin: 0;
   }
 
@@ -364,4 +369,68 @@
     }
   }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Masonry layout implementation
+  function initMasonry() {
+    const grid = document.querySelector('.subspecialties-grid');
+    if (!grid) return;
+    
+    const cards = Array.from(grid.querySelectorAll('.subspecialty-card'));
+    if (cards.length === 0) return;
+    
+    // Reset any existing positioning
+    cards.forEach(card => {
+      card.style.position = '';
+      card.style.top = '';
+      card.style.left = '';
+    });
+    
+    // Get grid properties
+    const gridRect = grid.getBoundingClientRect();
+    const cardWidth = cards[0].getBoundingClientRect().width;
+    const gap = 8; // matches CSS gap
+    const columns = Math.floor((gridRect.width + gap) / (cardWidth + gap));
+    
+    if (columns <= 1) return; // Don't apply masonry on single column
+    
+    // Initialize column heights
+    const columnHeights = new Array(columns).fill(0);
+    
+    // Position each card
+    cards.forEach((card, index) => {
+      // Find the shortest column
+      const shortestColumn = columnHeights.indexOf(Math.min(...columnHeights));
+      
+      // Position the card
+      const x = shortestColumn * (cardWidth + gap);
+      const y = columnHeights[shortestColumn];
+      
+      card.style.position = 'absolute';
+      card.style.top = y + 'px';
+      card.style.left = x + 'px';
+      card.style.width = cardWidth + 'px';
+      
+      // Update column height
+      columnHeights[shortestColumn] += card.getBoundingClientRect().height + gap;
+    });
+    
+    // Set grid height to accommodate all cards
+    const maxHeight = Math.max(...columnHeights);
+    grid.style.height = maxHeight + 'px';
+    grid.style.position = 'relative';
+  }
+  
+  // Initialize masonry on load and resize
+  initMasonry();
+  window.addEventListener('resize', initMasonry);
+  
+  // Re-initialize when images load (in case they affect card heights)
+  const images = document.querySelectorAll('img');
+  images.forEach(img => {
+    img.addEventListener('load', initMasonry);
+  });
+});
+</script>
 {% endblock %}

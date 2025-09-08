@@ -8,6 +8,7 @@ import uuid
 import json
 import time
 from app.models import UserSession
+from flask_mail import Message as MailMessage
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -639,5 +640,91 @@ def message_stream():
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Cache-Control'
     })
+
+@api_bp.route('/feedback', methods=['POST'])
+def submit_feedback():
+    """Submit user feedback, bug reports, or feature requests"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'message' not in data:
+            return jsonify({'error': 'Message is required'}), 400
+        
+        message = data['message'].strip()
+        if not message:
+            return jsonify({'error': 'Message cannot be empty'}), 400
+        
+        if len(message) > 1000:
+            return jsonify({'error': 'Message too long (max 1000 characters)'}), 400
+        
+        # Get user info if authenticated
+        user_info = "Anonymous user"
+        if current_user.is_authenticated:
+            user_info = f"{current_user.name} ({current_user.email})"
+        
+        # Get additional context
+        page = data.get('page', 'Unknown page')
+        user_agent = data.get('user_agent', 'Unknown browser')
+        
+        # Create email content
+        subject = f"Feedback from Nucleus - {page}"
+        
+        email_body = f"""
+New feedback submitted on Nucleus:
+
+User: {user_info}
+Page: {page}
+Browser: {user_agent}
+Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}
+
+Message:
+{message}
+
+---
+This feedback was submitted through the Nucleus website feedback form.
+        """.strip()
+        
+        # Send email
+        try:
+            from flask_mail import Mail
+            mail = Mail(current_app)
+            
+            # Check if email is configured
+            if not current_app.config.get('MAIL_USERNAME') or not current_app.config.get('MAIL_PASSWORD'):
+                current_app.logger.warning("Email not configured, storing feedback locally")
+                # Store feedback in database or log file as fallback
+                current_app.logger.info(f"FEEDBACK: {email_body}")
+                return jsonify({
+                    'success': True,
+                    'message': 'Feedback received! (Email not configured)'
+                })
+            
+            msg = MailMessage(
+                subject=subject,
+                recipients=['radnucleus@gmail.com'],
+                body=email_body,
+                sender=current_app.config.get('MAIL_USERNAME', 'noreply@nucleus.com')
+            )
+            
+            mail.send(msg)
+            
+            return jsonify({
+                'success': True,
+                'message': 'Feedback submitted successfully'
+            })
+            
+        except Exception as email_error:
+            current_app.logger.error(f"Failed to send feedback email: {email_error}")
+            # Log the feedback as fallback
+            current_app.logger.info(f"FEEDBACK FALLBACK: {email_body}")
+            return jsonify({
+                'error': 'Email service unavailable, but feedback was logged. Please try again later.'
+            }), 500
+            
+    except Exception as e:
+        current_app.logger.error(f"Feedback submission error: {e}")
+        return jsonify({
+            'error': 'An unexpected error occurred. Please try again.'
+        }), 500
 
 

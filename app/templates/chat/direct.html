@@ -2,21 +2,21 @@
 {% block content %}
 <div class="container mx-auto px-4 py-6 max-w-4xl">
   <div class="text-center mb-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-3">Direct Messages</h1>
-    <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+    <h1 class="text-3xl font-bold mb-3" style="background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Direct Messages</h1>
+    <p class="text-lg max-w-3xl mx-auto" style="color: var(--text-secondary);">
       Start a conversation with any user on the platform. Search by name or email to find who you want to message.
     </p>
   </div>
 
-  <div class="bg-white rounded-lg shadow-lg p-6">
+  <div class="glass-card p-6">
     <!-- Search Section -->
     <div class="mb-6">
-      <h2 class="text-xl font-bold text-gray-900 mb-3">Find Users to Message</h2>
-      <div class="flex gap-3">
+      <h2 class="text-xl font-bold mb-3" style="background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Find Users to Message</h2>
+      <div class="flex gap-4">
         <input type="text" id="userSearch" placeholder="Search by name or email..." 
-               class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
+               class="flex-1 px-4 py-3 text-base" style="background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px; color: var(--text); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); font-size: 16px;">
         <button onclick="searchUsers()" 
-                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 text-sm">
+                class="py-3 px-6 text-base font-semibold" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); color: var(--text); border: none; border-radius: 12px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3); min-width: 120px;">
           Search
         </button>
       </div>
@@ -24,13 +24,13 @@
 
     <!-- Search Results -->
     <div id="searchResults" class="space-y-3 mb-6" style="display: none;">
-      <h3 class="text-base font-semibold text-gray-900">Search Results</h3>
+      <h3 class="text-base font-semibold" style="background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Search Results</h3>
       <div id="userList" class="space-y-2"></div>
     </div>
 
     <!-- Recent Conversations -->
     <div>
-      <h2 class="text-xl font-bold text-gray-900 mb-3">Recent Conversations</h2>
+      <h2 class="text-xl font-bold mb-3" style="background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Recent Conversations</h2>
       {% if convos %}
       <div class="grid gap-2">
         {% for convo in convos %}
@@ -69,7 +69,7 @@
       </div>
       {% else %}
       <div class="text-center py-6">
-        <p class="text-gray-600 text-sm">No conversations yet. Start by searching for users above!</p>
+        <p class="text-sm" style="color: var(--text-secondary);">No conversations yet. Start by searching for users above!</p>
       </div>
       {% endif %}
     </div>
@@ -77,7 +77,7 @@
 
   <!-- Back to Messages -->
   <div class="text-center mt-6">
-    <a href="{{ url_for('chat.inbox') }}" class="text-blue-600 hover:text-blue-800 font-medium hover:underline text-sm">
+    <a href="{{ url_for('chat.inbox') }}" class="font-medium hover:underline text-sm" style="color: var(--accent);">
       ← Back to Messages
     </a>
   </div>
@@ -107,7 +107,7 @@ function displayUsers(users) {
   const searchResults = document.getElementById('searchResults');
   
   if (users.length === 0) {
-    userList.innerHTML = '<p class="text-gray-600">No users found matching your search.</p>';
+    userList.innerHTML = '<p style="color: var(--text-secondary);">No users found matching your search.</p>';
   } else {
     userList.innerHTML = users.map(user => `
       <div class="job-card">
@@ -118,13 +118,13 @@ function displayUsers(users) {
             </div>
           </div>
           <div style="flex-grow:1;">
-            <div style="font-weight:500; font-size:16px;">${user.name}</div>
-            <div class="muted" style="font-size:14px; margin-top:4px;">${user.role} • ${user.organization || 'No organization'}</div>
+            <div style="font-weight:500; font-size:16px; color: var(--text);">${user.name}</div>
+            <div class="muted" style="font-size:14px; margin-top:4px; color:var(--text-muted);">${user.role} • ${user.organization || 'No organization'}</div>
           </div>
           <div>
             <form method="POST" action="/messages/start-direct" class="inline">
               <input type="hidden" name="user_id" value="${user.id}">
-              <button type="submit" class="btn" style="background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">
+              <button type="submit" style="padding:8px 16px; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); color: var(--text); border: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);">
                 Message
               </button>
             </form>
@@ -148,6 +148,28 @@ document.getElementById('userSearch').addEventListener('keypress', function(e) {
 <style>
 .container {
   max-width: 1200px;
+}
+
+/* Ensure proper text colors for glass morphism theme */
+.job-card {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+}
+
+.job-card:hover {
+  background: var(--glass-hover);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.muted {
+  color: var(--text-muted) !important;
 }
 </style>
 {% endblock %}

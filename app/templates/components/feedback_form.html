@@ -1,0 +1,336 @@
+<!-- Feedback Footer Component -->
+<div class="feedback-footer" id="feedbackFooter">
+  <div class="feedback-footer-content">
+    <div class="feedback-text">
+      <h4>Report a bug, provide feedback, recommend new features</h4>
+    </div>
+    
+    <form id="feedbackForm" class="feedback-form">
+      <div class="feedback-input-group">
+        <input 
+          type="text" 
+          id="feedbackMessage" 
+          name="message" 
+          placeholder="Share your thoughts, report issues, or suggest improvements..."
+          maxlength="1000"
+          required
+        />
+        <button type="submit" class="feedback-submit-btn" id="feedbackSubmitBtn">
+          <span class="btn-text">Submit</span>
+          <span class="btn-loading" style="display: none;">
+            <svg class="spinner" width="16" height="16" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="31.416" stroke-dashoffset="31.416">
+                <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
+                <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
+              </circle>
+            </svg>
+            Sending...
+          </span>
+        </button>
+      </div>
+      <div class="feedback-char-count">
+        <span id="charCount">0</span>/1000 characters
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+/* Feedback Footer Styles */
+.feedback-footer {
+  position: static;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border-top: 1px solid var(--glass-border);
+  padding: 16px 0;
+  margin-top: 40px;
+  font-family: 'Inter', sans-serif;
+}
+
+.feedback-footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.feedback-text h4 {
+  margin: 0;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.feedback-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feedback-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.feedback-form input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+  min-width: 0;
+}
+
+  .feedback-form input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+  }
+
+  .feedback-form input::placeholder {
+    color: var(--text-muted);
+  }
+
+.feedback-submit-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  min-width: 80px;
+  justify-content: center;
+}
+
+  .feedback-submit-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+  }
+
+  .feedback-submit-btn:active {
+    transform: translateY(0);
+  }
+
+  .feedback-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+.feedback-char-count {
+  text-align: right;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+  .btn-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Success/Error States */
+  .feedback-success {
+    background: var(--success);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .feedback-error {
+    background: var(--notification);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .feedback-footer {
+    padding: 12px 0;
+    margin-top: 30px;
+  }
+
+  .feedback-footer-content {
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .feedback-text h4 {
+    font-size: 14px;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .feedback-input-group {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .feedback-form input {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .feedback-submit-btn {
+    width: 100%;
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .feedback-footer {
+    padding: 10px 0;
+    margin-top: 20px;
+  }
+
+  .feedback-footer-content {
+    padding: 0 12px;
+  }
+
+  .feedback-text h4 {
+    font-size: 12px;
+  }
+
+  .feedback-form input {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .feedback-submit-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const feedbackForm = document.getElementById('feedbackForm');
+    const feedbackMessage = document.getElementById('feedbackMessage');
+    const feedbackSubmitBtn = document.getElementById('feedbackSubmitBtn');
+    const charCount = document.getElementById('charCount');
+
+    // Clear success/error messages
+    function clearMessages() {
+      const existingMessage = feedbackForm.querySelector('.feedback-success, .feedback-error');
+      if (existingMessage) {
+        existingMessage.remove();
+      }
+    }
+
+    // Show message
+    function showMessage(message, type) {
+      clearMessages();
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `feedback-${type}`;
+      messageDiv.textContent = message;
+      feedbackForm.insertBefore(messageDiv, feedbackForm.firstChild);
+      
+      // Auto-hide success messages and reset form
+      if (type === 'success') {
+        setTimeout(() => {
+          feedbackForm.reset();
+          charCount.textContent = '0';
+          charCount.style.color = 'var(--text-muted)';
+          clearMessages();
+        }, 3000);
+      }
+    }
+
+    // Character count
+    feedbackMessage.addEventListener('input', function() {
+      const count = this.value.length;
+      charCount.textContent = count;
+      
+      if (count > 900) {
+        charCount.style.color = 'var(--notification)';
+      } else if (count > 800) {
+        charCount.style.color = 'var(--warning)';
+      } else {
+        charCount.style.color = 'var(--text-muted)';
+      }
+    });
+
+    // Form submission
+    feedbackForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const message = feedbackMessage.value.trim();
+      if (!message) return;
+
+      // Show loading state
+      feedbackSubmitBtn.disabled = true;
+      feedbackSubmitBtn.querySelector('.btn-text').style.display = 'none';
+      feedbackSubmitBtn.querySelector('.btn-loading').style.display = 'flex';
+
+      try {
+        const response = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: message,
+            page: window.location.pathname,
+            user_agent: navigator.userAgent
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          showMessage('Thank you for your feedback! We\'ll review it soon.', 'success');
+        } else {
+          showMessage(result.error || 'Failed to send feedback. Please try again.', 'error');
+        }
+      } catch (error) {
+        console.error('Feedback submission error:', error);
+        showMessage('Network error. Please check your connection and try again.', 'error');
+      } finally {
+        // Reset loading state
+        feedbackSubmitBtn.disabled = false;
+        feedbackSubmitBtn.querySelector('.btn-text').style.display = 'block';
+        feedbackSubmitBtn.querySelector('.btn-loading').style.display = 'none';
+      }
+    });
+
+  });
+</script>
