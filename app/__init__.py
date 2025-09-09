@@ -13,15 +13,27 @@ def create_app(config_class: type = Config) -> Flask:
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # Initialize database with error handling
+    # Initialize database with error handling and fallback
     try:
         db.init_app(app)
         with app.app_context():
+            # Test the database connection
+            db.session.execute('SELECT 1')
             db.create_all()
+            app.logger.info("Database initialized successfully")
     except Exception as e:
-        app.logger.error(f"Database initialization failed: {e}")
-        # Continue with app creation even if database fails
-        # This allows the app to start and show a proper error page
+        app.logger.error(f"PostgreSQL database initialization failed: {e}")
+        # Fallback to SQLite if PostgreSQL fails
+        try:
+            app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+            db.init_app(app)
+            with app.app_context():
+                db.create_all()
+            app.logger.info("Fallback to SQLite database successful")
+        except Exception as sqlite_error:
+            app.logger.error(f"SQLite fallback also failed: {sqlite_error}")
+            # Continue with app creation even if both databases fail
+            # This allows the app to start and show a proper error page
     
     mail.init_app(app)
     

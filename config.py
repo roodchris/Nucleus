@@ -11,10 +11,10 @@ class Config:
         # Convert postgres:// to postgresql:// for newer versions of SQLAlchemy
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
     
-    # Use psycopg2 driver for PostgreSQL connections
+    # Use psycopg3 driver for PostgreSQL connections
     if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
-        # Replace postgresql:// with postgresql+psycopg2:// to use psycopg2 driver
-        DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+        # Replace postgresql:// with postgresql+psycopg:// to use psycopg3 driver
+        DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
     
     # Fallback to SQLite if DATABASE_URL is not available or invalid
     SQLALCHEMY_DATABASE_URI = DATABASE_URL or "sqlite:///app.db"
