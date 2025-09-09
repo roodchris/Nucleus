@@ -212,10 +212,24 @@ def get_shift_calendar():
         
         calendar_data = {}
         for shift in shifts:
-            # Convert UTC time to local timezone for date calculation
-            # Assume user is in Eastern Time (UTC-4 for EDT) for now
-            local_offset_hours = -4
-            local_time = shift.start_time + timedelta(hours=local_offset_hours)
+            # Convert UTC time to user's local timezone for date calculation
+            # Use the user's timezone if available, otherwise default to UTC
+            user_timezone = getattr(current_user, 'timezone', 'UTC')
+            
+            # Convert UTC datetime to user's local timezone
+            if user_timezone != 'UTC':
+                try:
+                    import pytz
+                    utc_tz = pytz.UTC
+                    user_tz = pytz.timezone(user_timezone)
+                    local_time = utc_tz.localize(shift.start_time).astimezone(user_tz)
+                except:
+                    # Fallback to UTC if timezone conversion fails
+                    local_time = shift.start_time
+            else:
+                local_time = shift.start_time
+            
+            # Get date in YYYY-MM-DD format for consistent comparison
             shift_date = local_time.date().isoformat()
             
             if shift_date not in calendar_data:
@@ -237,6 +251,33 @@ def get_shift_calendar():
             })
         
         return jsonify(calendar_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+@wrvu_bp.route("/api/set-timezone", methods=['POST'])
+@login_required
+def set_user_timezone():
+    """Set user's timezone for proper date calculations"""
+    try:
+        data = request.get_json()
+        timezone = data.get('timezone')
+        
+        if not timezone:
+            return jsonify({'error': 'Timezone is required'}), 400
+        
+        # Validate timezone format
+        try:
+            import pytz
+            pytz.timezone(timezone)  # This will raise an exception if timezone is invalid
+        except:
+            return jsonify({'error': 'Invalid timezone format'}), 400
+        
+        # Update user's timezone
+        current_user.timezone = timezone
+        db.session.commit()
+        
+        return jsonify({'success': True, 'timezone': timezone})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 

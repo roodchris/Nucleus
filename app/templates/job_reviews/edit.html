@@ -24,7 +24,7 @@
             <!-- Practice Name Dropdown -->
             <div>
               <label for="practice-dropdown" class="block text-xs font-medium text-gray-600 mb-1">Select from existing practices:</label>
-              <select id="practice-dropdown" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" onchange="selectPractice()">
+              <select id="practice-dropdown" class="filter-input w-full" onchange="selectPractice()">
                 <option value="">Choose a practice...</option>
                 {% for practice in practice_names %}
                 <option value="{{ practice }}">{{ practice }}</option>

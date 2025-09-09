@@ -161,7 +161,7 @@
               autocomplete="off"
             >
             <!-- Dropdown Results -->
-            <div id="search-results" class="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
+            <div id="search-results" class="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden" style="background: var(--surface-1) !important; border: 1px solid var(--border) !important; color: var(--text) !important;">
               <!-- Search results will be populated here -->
             </div>
           </div>
@@ -477,10 +477,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background: var(--surface-1) !important;
+  color: var(--text) !important;
 }
 
 .search-result-item:hover {
-  background: var(--surface-2);
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
 }
 
 .search-result-item:last-child {
@@ -489,14 +492,14 @@
 
 .search-result-item .study-name {
   font-weight: 500;
-  color: var(--text);
+  color: var(--text) !important;
   margin-bottom: 0.125rem;
   font-size: 0.9rem;
 }
 
 .search-result-item .study-details {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-muted) !important;
 }
 
 .search-result-item .wrvu-badge {
@@ -1510,11 +1513,40 @@ class ShiftTracker {
   }
 }
 
+// Timezone detection and setup
+async function detectAndSetTimezone() {
+  try {
+    // Get user's timezone
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    console.log('Detected timezone:', userTimezone);
+    
+    // Send timezone to server
+    const response = await fetch('/api/set-timezone', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ timezone: userTimezone })
+    });
+    
+    if (response.ok) {
+      console.log('Timezone set successfully:', userTimezone);
+    } else {
+      console.error('Failed to set timezone:', await response.text());
+    }
+  } catch (error) {
+    console.error('Error setting timezone:', error);
+  }
+}
+
 // Make ShiftTracker globally accessible
 let shiftTracker;
 document.addEventListener('DOMContentLoaded', () => {
-  shiftTracker = new ShiftTracker();
-  window.shiftTracker = shiftTracker; // Make it globally accessible
+  // Set timezone first, then initialize shift tracker
+  detectAndSetTimezone().then(() => {
+    shiftTracker = new ShiftTracker();
+    window.shiftTracker = shiftTracker; // Make it globally accessible
+  });
 });
 </script>
 {% endblock %}
