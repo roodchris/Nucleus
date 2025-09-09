@@ -21,11 +21,12 @@ def create_app(config_class: type = Config) -> Flask:
             from sqlalchemy import text
             db.session.execute(text('SELECT 1'))
             db.create_all()
-            app.logger.info("Database initialized successfully")
+            app.logger.info(f"Database initialized successfully with URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
     except Exception as e:
-        app.logger.error(f"PostgreSQL database initialization failed: {e}")
+        app.logger.error(f"Database initialization failed: {e}")
         # Fallback to SQLite if PostgreSQL fails
         try:
+            app.logger.info("Attempting fallback to SQLite...")
             app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
             # Re-initialize the database with the new URI
             with app.app_context():

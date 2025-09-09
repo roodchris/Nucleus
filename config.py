@@ -5,7 +5,7 @@ from datetime import timedelta
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
     
-    # Database configuration with better error handling
+    # Database configuration with environment variable support
     DATABASE_URL = os.getenv("DATABASE_URL")
     if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
         # Convert postgres:// to postgresql:// for newer versions of SQLAlchemy
