@@ -11,10 +11,10 @@ geopy==2.4.0
 uszipcode==1.0.1
 pyzipcode==2.0.2
 gunicorn==21.2.0
-psycopg[binary]==3.2.9
-psycopg[sqlalchemy]==3.2.9
+psycopg[binary,sqlalchemy]==3.2.9
 python-dotenv==1.0.0
 pytz==2023.3
 Pillow==10.4.0
 setuptools>=65.0.0
 wheel>=0.38.0
+build>=0.10.0
