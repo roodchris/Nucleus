@@ -11,11 +11,45 @@ mail = Mail()
 
 
 def migrate_database_columns():
-    """Automatically migrate missing database columns"""
+    """Automatically migrate missing database columns (runs only once)"""
     try:
-        # Get database URL to determine database type
         from flask import current_app
         db_url = current_app.config.get('SQLALCHEMY_DATABASE_URI', '')
+        
+        # Create migrations table if it doesn't exist
+        try:
+            db.session.execute(text("""
+                CREATE TABLE IF NOT EXISTS migrations (
+                    id SERIAL PRIMARY KEY,
+                    migration_name VARCHAR(255) UNIQUE NOT NULL,
+                    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """))
+            db.session.commit()
+        except:
+            # For SQLite, use different syntax
+            try:
+                db.session.execute(text("""
+                    CREATE TABLE IF NOT EXISTS migrations (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        migration_name VARCHAR(255) UNIQUE NOT NULL,
+                        completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                """))
+                db.session.commit()
+            except:
+                pass  # Table might already exist
+        
+        # Check if timezone migration has already been completed
+        result = db.session.execute(text("""
+            SELECT migration_name FROM migrations 
+            WHERE migration_name = 'add_timezone_column'
+        """))
+        migration_exists = result.fetchone() is not None
+        
+        if migration_exists:
+            current_app.logger.info("✅ timezone migration already completed, skipping")
+            return True
         
         # Check if timezone column exists in user table
         if 'postgresql' in db_url.lower():
@@ -59,6 +93,15 @@ def migrate_database_columns():
         else:
             current_app.logger.warning("Unsupported database type for migration")
             return False
+        
+        # Record that migration has been completed
+        db.session.execute(text("""
+            INSERT INTO migrations (migration_name) 
+            VALUES ('add_timezone_column')
+            ON CONFLICT (migration_name) DO NOTHING
+        """))
+        db.session.commit()
+        current_app.logger.info("✅ Migration recorded in migrations table")
             
     except Exception as e:
         current_app.logger.error(f"Migration failed: {e}")
