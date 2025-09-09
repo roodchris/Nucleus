@@ -54,7 +54,14 @@ def migrate_database_columns():
         """))
         forum_photos_migration_exists = result.fetchone() is not None
         
-        if timezone_migration_exists and forum_photos_migration_exists:
+        # Check if forum comment photos migration has already been completed
+        result = db.session.execute(text("""
+            SELECT migration_name FROM migrations 
+            WHERE migration_name = 'add_forum_comment_photos_column'
+        """))
+        forum_comment_photos_migration_exists = result.fetchone() is not None
+        
+        if timezone_migration_exists and forum_photos_migration_exists and forum_comment_photos_migration_exists:
             current_app.logger.info("✅ All migrations already completed, skipping")
             return True
         
@@ -155,6 +162,55 @@ def migrate_database_columns():
             db.session.execute(text("""
                 INSERT INTO migrations (migration_name) 
                 VALUES ('add_forum_photos_column')
+                ON CONFLICT (migration_name) DO NOTHING
+            """))
+            db.session.commit()
+        
+        # Migrate forum comment photos column if needed
+        if not forum_comment_photos_migration_exists:
+            if 'postgresql' in db_url.lower():
+                # PostgreSQL
+                result = db.session.execute(text("""
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'forum_comment' AND column_name = 'photos'
+                """))
+                comment_photos_exists = result.fetchone() is not None
+                
+                if not comment_photos_exists:
+                    current_app.logger.info("Adding photos column to forum_comment table...")
+                    db.session.execute(text("""
+                        ALTER TABLE "forum_comment" 
+                        ADD COLUMN photos TEXT
+                    """))
+                    db.session.commit()
+                    current_app.logger.info("✅ forum_comment photos column added successfully")
+                else:
+                    current_app.logger.info("✅ forum_comment photos column already exists")
+                    
+            elif 'sqlite' in db_url.lower():
+                # SQLite
+                result = db.session.execute(text("""
+                    PRAGMA table_info(forum_comment)
+                """))
+                columns = [row[1] for row in result.fetchall()]
+                comment_photos_exists = 'photos' in columns
+                
+                if not comment_photos_exists:
+                    current_app.logger.info("Adding photos column to forum_comment table...")
+                    db.session.execute(text("""
+                        ALTER TABLE forum_comment 
+                        ADD COLUMN photos TEXT
+                    """))
+                    db.session.commit()
+                    current_app.logger.info("✅ forum_comment photos column added successfully")
+                else:
+                    current_app.logger.info("✅ forum_comment photos column already exists")
+            
+            # Record forum comment photos migration as completed
+            db.session.execute(text("""
+                INSERT INTO migrations (migration_name) 
+                VALUES ('add_forum_comment_photos_column')
                 ON CONFLICT (migration_name) DO NOTHING
             """))
             db.session.commit()
