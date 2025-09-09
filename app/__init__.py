@@ -24,6 +24,8 @@ def create_app(config_class: type = Config) -> Flask:
             app.logger.info(f"Database initialized successfully with URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
     except Exception as e:
         app.logger.error(f"Database initialization failed: {e}")
+        # Set a flag to indicate database issues
+        app.config['DATABASE_ERROR'] = str(e)
         # Continue with app creation even if database fails
         # This allows the app to start and show a proper error page
     
