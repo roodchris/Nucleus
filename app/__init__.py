@@ -4,9 +4,68 @@ from flask_mail import Mail
 from flask_cors import CORS
 from .models import db, User
 from config import Config
+from sqlalchemy import text
 
 # Global mail instance
 mail = Mail()
+
+
+def migrate_database_columns():
+    """Automatically migrate missing database columns"""
+    try:
+        # Get database URL to determine database type
+        from flask import current_app
+        db_url = current_app.config.get('SQLALCHEMY_DATABASE_URI', '')
+        
+        # Check if timezone column exists in user table
+        if 'postgresql' in db_url.lower():
+            # PostgreSQL
+            result = db.session.execute(text("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = 'user' AND column_name = 'timezone'
+            """))
+            timezone_exists = result.fetchone() is not None
+            
+            if not timezone_exists:
+                current_app.logger.info("Adding timezone column to user table...")
+                db.session.execute(text("""
+                    ALTER TABLE "user" 
+                    ADD COLUMN timezone VARCHAR(50)
+                """))
+                db.session.commit()
+                current_app.logger.info("✅ timezone column added successfully")
+            else:
+                current_app.logger.info("✅ timezone column already exists")
+                
+        elif 'sqlite' in db_url.lower():
+            # SQLite
+            result = db.session.execute(text("""
+                PRAGMA table_info(user)
+            """))
+            columns = [row[1] for row in result.fetchall()]
+            timezone_exists = 'timezone' in columns
+            
+            if not timezone_exists:
+                current_app.logger.info("Adding timezone column to user table...")
+                db.session.execute(text("""
+                    ALTER TABLE user 
+                    ADD COLUMN timezone VARCHAR(50)
+                """))
+                db.session.commit()
+                current_app.logger.info("✅ timezone column added successfully")
+            else:
+                current_app.logger.info("✅ timezone column already exists")
+        else:
+            current_app.logger.warning("Unsupported database type for migration")
+            return False
+            
+    except Exception as e:
+        current_app.logger.error(f"Migration failed: {e}")
+        db.session.rollback()
+        return False
+    
+    return True
 
 
 def create_app(config_class: type = Config) -> Flask:
@@ -21,6 +80,13 @@ def create_app(config_class: type = Config) -> Flask:
             from sqlalchemy import text
             db.session.execute(text('SELECT 1'))
             db.create_all()
+            
+            # Run automatic migration for missing columns
+            try:
+                migrate_database_columns()
+            except Exception as migration_error:
+                app.logger.warning(f"Migration failed (non-critical): {migration_error}")
+            
             app.logger.info(f"Database initialized successfully with URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
     except Exception as e:
         app.logger.error(f"Database initialization failed: {e}")
