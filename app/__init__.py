@@ -17,8 +17,9 @@ def create_app(config_class: type = Config) -> Flask:
     try:
         db.init_app(app)
         with app.app_context():
-            # Test the database connection
-            db.session.execute('SELECT 1')
+            # Test the database connection using SQLAlchemy 2.0 syntax
+            from sqlalchemy import text
+            db.session.execute(text('SELECT 1'))
             db.create_all()
             app.logger.info("Database initialized successfully")
     except Exception as e:
@@ -26,7 +27,7 @@ def create_app(config_class: type = Config) -> Flask:
         # Fallback to SQLite if PostgreSQL fails
         try:
             app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
-            db.init_app(app)
+            # Re-initialize the database with the new URI
             with app.app_context():
                 db.create_all()
             app.logger.info("Fallback to SQLite database successful")
@@ -80,8 +81,9 @@ def create_app(config_class: type = Config) -> Flask:
     def health_check():
         """Health check endpoint to diagnose issues"""
         try:
-            # Test database connection
-            db.session.execute('SELECT 1')
+            # Test database connection using SQLAlchemy 2.0 syntax
+            from sqlalchemy import text
+            db.session.execute(text('SELECT 1'))
             db_status = "OK"
             
             # Test if User table exists
