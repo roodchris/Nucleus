@@ -13,7 +13,16 @@ def create_app(config_class: type = Config) -> Flask:
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    db.init_app(app)
+    # Initialize database with error handling
+    try:
+        db.init_app(app)
+        with app.app_context():
+            db.create_all()
+    except Exception as e:
+        app.logger.error(f"Database initialization failed: {e}")
+        # Continue with app creation even if database fails
+        # This allows the app to start and show a proper error page
+    
     mail.init_app(app)
     
     # Initialize CORS with configuration from config file
@@ -53,6 +62,23 @@ def create_app(config_class: type = Config) -> Flask:
     
     # Register additional message routes
     register_message_routes(app)
+    
+    # Add health check route
+    @app.route('/health')
+    def health_check():
+        """Health check endpoint to diagnose issues"""
+        try:
+            # Test database connection
+            db.session.execute('SELECT 1')
+            db_status = "OK"
+        except Exception as e:
+            db_status = f"ERROR: {str(e)}"
+        
+        return {
+            "status": "OK" if db_status == "OK" else "ERROR",
+            "database": db_status,
+            "database_uri": app.config.get('SQLALCHEMY_DATABASE_URI', 'Not set')
+        }
     
     # Add custom Jinja2 filters
     @app.template_filter('from_json')

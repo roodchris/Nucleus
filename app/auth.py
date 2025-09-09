@@ -47,14 +47,19 @@ def login():
         return redirect(url_for("opportunities.home"))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data.lower()).first()
-        if not user or not user.check_password(form.password.data):
-            flash("Invalid email or password.", "danger")
-        else:
-            login_user(user, remember=form.remember.data)
-            flash("Logged in successfully.", "success")
-            next_url = request.args.get("next")
-            return redirect(next_url or url_for("opportunities.home"))
+        try:
+            user = User.query.filter_by(email=form.email.data.lower()).first()
+            if not user or not user.check_password(form.password.data):
+                flash("Invalid email or password.", "danger")
+            else:
+                login_user(user, remember=form.remember.data)
+                flash("Logged in successfully.", "success")
+                next_url = request.args.get("next")
+                return redirect(next_url or url_for("opportunities.home"))
+        except Exception as e:
+            from flask import current_app
+            current_app.logger.error(f"Login error: {e}")
+            flash("An error occurred during login. Please try again.", "danger")
     return render_template("auth/login.html", form=form)
 
 

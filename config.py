@@ -16,6 +16,7 @@ class Config:
         # Replace postgresql:// with postgresql+psycopg:// to use psycopg3 driver
         DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
     
+    # Fallback to SQLite if DATABASE_URL is not available or invalid
     SQLALCHEMY_DATABASE_URI = DATABASE_URL or "sqlite:///app.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     REMEMBER_COOKIE_DURATION = timedelta(days=14)
