@@ -58,8 +58,9 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(255), nullable=False)
     role = db.Column(db.Enum(UserRole), nullable=False, index=True)
     organization = db.Column(db.String(255))
-    timezone = db.Column(db.String(50), nullable=True, index=True)
+    # timezone = db.Column(db.String(50), nullable=True, index=True)  # Temporarily disabled until migration
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    
 
     opportunities = db.relationship("Opportunity", backref="employer", lazy=True)
 

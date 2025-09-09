@@ -268,8 +268,9 @@ def get_shift_calendar():
             # Convert UTC time to user's local timezone for date calculation
             # Use the user's timezone if available, otherwise default to UTC
             user_timezone = 'UTC'  # Default to UTC
-            if hasattr(current_user, 'timezone') and current_user.timezone:
-                user_timezone = current_user.timezone
+            # Temporarily disabled timezone support until migration
+            # if hasattr(current_user, 'timezone') and current_user.timezone:
+            #     user_timezone = current_user.timezone
             
             
             # Convert UTC datetime to user's local timezone
@@ -331,9 +332,10 @@ def set_user_timezone():
         except:
             return jsonify({'error': 'Invalid timezone format'}), 400
         
-        # Update user's timezone
-        current_user.timezone = timezone
-        db.session.commit()
+        # Update user's timezone - temporarily disabled until migration
+        # current_user.timezone = timezone
+        # db.session.commit()
+        return jsonify({"message": "Timezone setting temporarily disabled during migration"})
         
         return jsonify({'success': True, 'timezone': timezone})
     except Exception as e:
