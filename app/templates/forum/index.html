@@ -114,6 +114,19 @@
         
         <div class="post-content">
           <p class="post-excerpt">{{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}</p>
+          
+          <!-- Photo Preview for Posts with Photos -->
+          {% if post.photos %}
+            {% set post_photos = post.photos|from_json %}
+            {% if post_photos and post_photos|length > 0 %}
+              <div class="post-photo-preview">
+                <img src="/static/uploads/photos/{{ post_photos[0] }}" 
+                     alt="Post photo" 
+                     class="post-photo-thumbnail"
+                     onclick="openPhotoModal('/static/uploads/photos/{{ post_photos[0] }}')">
+              </div>
+            {% endif %}
+          {% endif %}
         </div>
         
         <div class="post-footer">
@@ -527,6 +540,30 @@
     font-size: 0.8rem;
   }
 
+  /* Post Photo Preview */
+  .post-photo-preview {
+    margin-top: 0.75rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .post-photo-thumbnail {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .post-photo-thumbnail:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-color: var(--accent);
+  }
+
   .post-footer {
     display: flex;
     justify-content: space-between;
@@ -751,6 +788,14 @@
   }
 </style>
 
+<!-- Photo Modal -->
+<div id="photoModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9);">
+  <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+    <span id="closePhotoModal" style="position: absolute; top: 20px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; z-index: 1001;">&times;</span>
+    <img id="modalPhoto" style="max-width: 90%; max-height: 90%; object-fit: contain;">
+  </div>
+</div>
+
 <script>
   // Vote functionality
   document.querySelectorAll('.vote-btn').forEach(btn => {
@@ -811,5 +856,37 @@
       });
     }
   }
+
+  // Photo modal functionality
+  function openPhotoModal(photoSrc) {
+    const modal = document.getElementById('photoModal');
+    const modalPhoto = document.getElementById('modalPhoto');
+    modalPhoto.src = photoSrc;
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+  }
+
+  function closePhotoModal() {
+    const modal = document.getElementById('photoModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto'; // Restore scrolling
+  }
+
+  // Close modal when clicking outside the image
+  document.getElementById('photoModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closePhotoModal();
+    }
+  });
+
+  // Close modal when clicking the X button
+  document.getElementById('closePhotoModal').addEventListener('click', closePhotoModal);
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closePhotoModal();
+    }
+  });
 </script>
 {% endblock %}

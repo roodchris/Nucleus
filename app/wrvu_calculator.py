@@ -148,12 +148,63 @@ def add_rvu():
         # Calculate new totals
         total_rvus = sum(record.wrvu_value for record in active_shift.rvu_records)
         total_revenue = total_rvus * active_shift.compensation_rate
+        total_studies = len(active_shift.rvu_records)
         
         return jsonify({
             'record_id': rvu_record.id,
             'total_rvus': total_rvus,
             'total_revenue': total_revenue,
+            'total_studies': total_studies,
             'message': 'RVU record added successfully'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+@wrvu_bp.route("/api/remove-rvu", methods=["POST"])
+@login_required
+def remove_rvu():
+    """Remove an RVU record from the current active shift"""
+    try:
+        data = request.get_json()
+        study_name = data.get('study_name')
+        quantity = int(data.get('quantity', 1))
+        
+        # Find active shift
+        active_shift = ShiftSession.query.filter_by(
+            user_id=current_user.id, 
+            is_active=True
+        ).first()
+        
+        if not active_shift:
+            return jsonify({'error': 'No active shift found'}), 400
+        
+        # Find and remove the specified number of records for this study
+        records_to_remove = RVURecord.query.filter_by(
+            shift_session_id=active_shift.id,
+            study_name=study_name
+        ).limit(quantity).all()
+        
+        if not records_to_remove:
+            return jsonify({'error': 'No records found for this study'}), 400
+        
+        # Remove the records
+        for record in records_to_remove:
+            db.session.delete(record)
+        
+        db.session.commit()
+        
+        # Calculate new totals
+        total_rvus = sum(record.wrvu_value for record in active_shift.rvu_records)
+        total_revenue = total_rvus * active_shift.compensation_rate
+        total_studies = len(active_shift.rvu_records)
+        
+        return jsonify({
+            'removed_count': len(records_to_remove),
+            'total_rvus': total_rvus,
+            'total_revenue': total_revenue,
+            'total_studies': total_studies,
+            'message': f'Removed {len(records_to_remove)} record(s) successfully'
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 400
@@ -185,6 +236,7 @@ def get_active_shift():
         
         total_rvus = sum(record.wrvu_value for record in active_shift.rvu_records)
         total_revenue = total_rvus * active_shift.compensation_rate
+        total_studies = len(active_shift.rvu_records)
         
         return jsonify({
             'active': True,
@@ -193,6 +245,7 @@ def get_active_shift():
             'compensation_rate': active_shift.compensation_rate,
             'total_rvus': total_rvus,
             'total_revenue': total_revenue,
+            'total_studies': total_studies,
             'rvu_records': rvu_records
         })
     except Exception as e:
@@ -214,23 +267,28 @@ def get_shift_calendar():
         for shift in shifts:
             # Convert UTC time to user's local timezone for date calculation
             # Use the user's timezone if available, otherwise default to UTC
-            user_timezone = getattr(current_user, 'timezone', 'UTC')
+            user_timezone = 'UTC'  # Default to UTC
+            if hasattr(current_user, 'timezone') and current_user.timezone:
+                user_timezone = current_user.timezone
+            
             
             # Convert UTC datetime to user's local timezone
             if user_timezone != 'UTC':
                 try:
                     import pytz
-                    utc_tz = pytz.UTC
                     user_tz = pytz.timezone(user_timezone)
-                    local_time = utc_tz.localize(shift.start_time).astimezone(user_tz)
-                except:
+                    # shift.start_time is already UTC, so we just convert it
+                    local_time = shift.start_time.replace(tzinfo=pytz.UTC).astimezone(user_tz)
+                except Exception as e:
                     # Fallback to UTC if timezone conversion fails
+                    print(f"Timezone conversion failed: {e}")
                     local_time = shift.start_time
             else:
                 local_time = shift.start_time
             
             # Get date in YYYY-MM-DD format for consistent comparison
             shift_date = local_time.date().isoformat()
+            
             
             if shift_date not in calendar_data:
                 calendar_data[shift_date] = {

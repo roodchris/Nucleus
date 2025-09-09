@@ -22,6 +22,12 @@ class Config:
     WTF_CSRF_TIME_LIMIT = None
     TEMPLATES_AUTO_RELOAD = True
     
+    # Session configuration
+    SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    PERMANENT_SESSION_LIFETIME = timedelta(days=14)
+    
     # Email configuration
     MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")
     MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))

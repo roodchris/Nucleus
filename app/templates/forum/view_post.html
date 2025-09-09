@@ -48,6 +48,25 @@
   <div class="post-content">
     {{ post.content | replace('\n', '<br>') | safe }}
   </div>
+  
+  <!-- Post Photos -->
+  {% if post.photos %}
+    {% set post_photos = post.photos|from_json %}
+    {% if post_photos %}
+      <div class="post-photos" style="margin-top: 16px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+          {% for photo in post_photos %}
+            <div style="position: relative; border-radius: 8px; overflow: hidden; background: #1a202c;">
+              <img src="/static/uploads/photos/{{ photo }}" 
+                   alt="Post photo" 
+                   style="width: 100%; height: 200px; object-fit: cover; display: block; cursor: pointer;"
+                   onclick="openPhotoModal('/static/uploads/photos/{{ photo }}')">
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
 
   <!-- Post Voting Section -->
   {% if current_user.is_authenticated %}
@@ -103,6 +122,32 @@
       <div class="form-group">
         <textarea id="comment-content" name="content" rows="3" placeholder="Write a comment..." required></textarea>
       </div>
+      
+      <!-- Photo Upload Section for Comments -->
+      <div class="form-group">
+        <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--text-secondary); font-size: 11px;">Photos (Optional)</label>
+        <div id="commentPhotoUploadArea" style="border: 2px dashed #4a5568; border-radius: 6px; padding: 8px; text-align: center; background: rgba(255,255,255,0.02); cursor: pointer;">
+          <div id="commentPhotoUploadText">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto 4px; opacity: 0.6;">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="17,8 12,3 7,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <p style="margin: 0; color: #888; font-size: 10px;">Click to add photos</p>
+            <p style="margin: 1px 0 0; color: #666; font-size: 8px;">Max 3 photos, 5MB each</p>
+          </div>
+          <input type="file" id="commentPhotoInput" name="photos" multiple accept="image/*" style="display: none;">
+          <input type="hidden" name="photos" id="commentPhotosData" value="[]">
+        </div>
+        
+        <!-- Photo Preview Area for Comments -->
+        <div id="commentPhotoPreview" style="margin-top: 12px; display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px;">
+            <!-- Photos will be added here dynamically -->
+          </div>
+        </div>
+      </div>
+      
       <button type="submit" class="btn-primary">Post Comment</button>
     </form>
   </div>
@@ -111,6 +156,14 @@
   <!-- Comments List -->
   <div id="comments-container">
     {% include 'forum/comments_section.html' %}
+  </div>
+</div>
+
+<!-- Photo Modal -->
+<div id="photoModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9);">
+  <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+    <span id="closePhotoModal" style="position: absolute; top: 20px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; z-index: 1001;">&times;</span>
+    <img id="modalPhoto" style="max-width: 90%; max-height: 90%; object-fit: contain;">
   </div>
 </div>
 
@@ -545,32 +598,109 @@ function deletePost(postId) {
 }
 
 // Comment functions
+let commentUploadedPhotos = [];
+const MAX_COMMENT_PHOTOS = 3;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 function submitComment(event) {
   event.preventDefault();
   const content = document.getElementById('comment-content').value;
   const postId = {{ post.id }};
+  const photos = JSON.stringify(commentUploadedPhotos.map(p => p.filename));
 
-  fetch(`/forum/post/${postId}/comment`, {
-    method: 'POST',
+  console.log('Submitting comment:', { content, postId, photos });
+  console.log('Document cookies:', document.cookie);
+  console.log('Current URL:', window.location.href);
+  
+  // Check if user is authenticated by checking if the comment form is visible
+  const commentForm = document.querySelector('#comment-form');
+  if (!commentForm || commentForm.style.display === 'none') {
+    console.error('User not authenticated - comment form not visible');
+    alert('Please log in to post comments');
+    window.location.href = '/auth/login';
+    return;
+  }
+  
+  // Test authentication by making a simple request first
+  console.log('Testing authentication...');
+  fetch('/api/user/profile', {
+    method: 'GET',
+    credentials: 'include',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
       'X-Requested-With': 'XMLHttpRequest'
-    },
-    body: 'content=' + encodeURIComponent(content)
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      document.getElementById('comment-content').value = '';
-      reloadComments(); // Reload all comments to ensure nesting and order
-    } else {
-      alert('Error posting comment: ' + (data.error || 'Unknown error'));
     }
   })
+  .then(response => {
+    console.log('Auth test response status:', response.status);
+    if (!response.ok) {
+      console.error('User not authenticated - auth test failed');
+      alert('Please log in to post comments');
+      window.location.href = '/auth/login';
+      return;
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Auth test response data:', data);
+    // Continue with comment submission
+    submitCommentRequest();
+  })
   .catch(error => {
-    console.error('Error:', error);
-    alert('Error posting comment. Please try again.');
+    console.error('Auth test failed:', error);
+    alert('Please log in to post comments');
+    window.location.href = '/auth/login';
   });
+  
+  function submitCommentRequest() {
+    fetch(`/forum/post/${postId}/comment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'include',
+      redirect: 'manual',
+      body: 'content=' + encodeURIComponent(content) + '&photos=' + encodeURIComponent(photos)
+    })
+    .then(response => {
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      console.log('Response URL:', response.url);
+      
+      // Check if we got redirected to login page (status 0 means redirect was blocked)
+      if (response.status === 0 || response.url.includes('/auth/login')) {
+        console.error('Redirected to login page - user not authenticated');
+        alert('Please log in to post comments');
+        window.location.href = '/auth/login';
+        return;
+      }
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return response.json();
+    })
+    .then(data => {
+      console.log('Response data:', data);
+      if (data.success) {
+        document.getElementById('comment-content').value = '';
+        commentUploadedPhotos = [];
+        updateCommentPhotoPreview();
+        updateCommentPhotosData();
+        
+        // Add the new comment directly to the DOM instead of reloading all comments
+        addCommentToDOM(data.comment);
+      } else {
+        console.error('Comment submission failed:', data.error);
+        alert('Error posting comment: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(error => {
+      console.error('Error posting comment:', error);
+      alert('Error posting comment. Please try again. Check console for details.');
+    });
+  }
 }
 
 function toggleReplyForm(commentId) {
@@ -601,26 +731,38 @@ function submitReply(commentId, event) {
     return;
   }
 
+  // Clear any lingering photo data from previous comment operations
+  if (typeof commentUploadedPhotos !== 'undefined') {
+    commentUploadedPhotos = [];
+  }
+
   fetch(`/forum/comment/${commentId}/reply`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
       'X-Requested-With': 'XMLHttpRequest'
     },
+    credentials: 'include',
     body: 'content=' + encodeURIComponent(content)
   })
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
   .then(data => {
     if (data.success) {
       form.querySelector('textarea[name="content"]').value = '';
       toggleReplyForm(commentId);
-      reloadComments(); // Reload all comments to ensure nesting and order
+      // For replies, we still need to reload comments to maintain proper nesting
+      reloadComments();
     } else {
       alert('Error posting reply: ' + (data.error || 'Unknown error'));
     }
   })
   .catch(error => {
-    console.error('Error:', error);
+    console.error('Error posting reply:', error);
     alert('Error posting reply. Please try again.');
   });
 }
@@ -735,8 +877,161 @@ function deleteComment(commentId) {
   });
 }
 
+function addCommentToDOM(commentData) {
+  console.log('Adding comment to DOM:', commentData);
+  
+  const commentsContainer = document.getElementById('comments-container');
+  if (!commentsContainer) {
+    console.error('Comments container not found!');
+    return;
+  }
+  
+  // Create the comment HTML
+  const commentHTML = createCommentHTML(commentData);
+  
+  // Add the comment to the top of the comments list
+  const commentsList = commentsContainer.querySelector('.comments-list');
+  if (commentsList) {
+    commentsList.insertAdjacentHTML('afterbegin', commentHTML);
+    console.log('Comment added to DOM');
+    
+    // Re-attach event listeners
+    attachVoteListeners();
+  } else {
+    console.error('Comments list not found!');
+  }
+}
+
+function createCommentHTML(commentData) {
+  // Use the timezone utility to format the timestamp
+  const formattedDate = window.TimezoneUtils ? 
+    window.TimezoneUtils.formatTimestamp(commentData.created_at, 'full') : 
+    new Date(commentData.created_at).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  
+  let photosHTML = '';
+  if (commentData.photos && commentData.photos.length > 0) {
+    photosHTML = `
+      <div class="comment-photos" style="margin-top: 12px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px;">
+          ${commentData.photos.map(photo => `
+            <div style="position: relative; border-radius: 6px; overflow: hidden; background: #1a202c;">
+              <img src="/static/uploads/photos/${photo}" 
+                   alt="Comment photo" 
+                   style="width: 100%; height: 120px; object-fit: cover; display: block; cursor: pointer;"
+                   onclick="openPhotoModal('/static/uploads/photos/${photo}')">
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+  
+  return `
+    <div class="comment-item" data-comment-id="${commentData.id}">
+      <div class="comment-content-wrapper">
+        <!-- Vote Column -->
+        <div class="comment-votes">
+          <button class="vote-btn upvote" data-comment-id="${commentData.id}" data-vote-type="upvote" data-user-vote="">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <span class="vote-count" id="comment-votes-${commentData.id}">0</span>
+          <button class="vote-btn downvote" data-comment-id="${commentData.id}" data-vote-type="downvote" data-user-vote="">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Comment Content -->
+        <div class="comment-main">
+          <div class="comment-header">
+            <div class="comment-author">
+              <div class="author-avatar-small">
+                ${commentData.author_name[0].toUpperCase()}
+              </div>
+              <span class="author-name">${commentData.author_name}</span>
+            </div>
+            <div class="comment-meta">
+              <span class="comment-date" data-timestamp="${commentData.created_at}" data-format="full">
+                ${formattedDate}
+              </span>
+            </div>
+          </div>
+          
+          <div class="comment-body">
+            <div class="comment-text" id="comment-content-${commentData.id}">${commentData.content}</div>
+            ${photosHTML}
+          </div>
+          
+          <!-- Comment Actions -->
+          <div class="comment-actions">
+            <button class="action-btn reply-btn" onclick="toggleReplyForm(${commentData.id})">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Reply
+            </button>
+            <button class="action-btn edit-btn" onclick="showEditComment(${commentData.id})">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Edit
+            </button>
+            <button class="action-btn delete-btn" onclick="deleteComment(${commentData.id})">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Delete
+            </button>
+          </div>
+          
+          <!-- Edit Comment Form (Hidden by default) -->
+          <div id="edit-comment-${commentData.id}" class="edit-form" style="display: none;">
+            <form onsubmit="submitEditComment(${commentData.id}, event)">
+              <div class="form-group">
+                <textarea name="content" rows="3" required>${commentData.content}</textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">Save</button>
+                <button type="button" class="btn-secondary" onclick="hideEditComment(${commentData.id})">Cancel</button>
+              </div>
+            </form>
+          </div>
+          
+          <!-- Reply Form (Hidden by default) -->
+          <div id="reply-form-${commentData.id}" class="reply-form" style="display: none;">
+            <div class="reply-header">
+              <span>Replying to <strong>${commentData.author_name}</strong></span>
+            </div>
+            <form onsubmit="submitReply(${commentData.id}, event)">
+              <div class="form-group">
+                <textarea name="content" rows="3" placeholder="Write your reply..." required></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">Post Reply</button>
+                <button type="button" class="btn-secondary" onclick="toggleReplyForm(${commentData.id})">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function reloadComments() {
   const postId = {{ post.id }};
+  console.log('Reloading comments for post:', postId);
 
   fetch(`/forum/post/${postId}/comments`, {
     method: 'GET',
@@ -744,13 +1039,23 @@ function reloadComments() {
       'X-Requested-With': 'XMLHttpRequest'
     }
   })
-  .then(response => response.text())
+  .then(response => {
+    console.log('Comments response status:', response.status);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.text();
+  })
   .then(html => {
+    console.log('Comments HTML received, length:', html.length);
     const commentsContainer = document.getElementById('comments-container');
     if (commentsContainer) {
       commentsContainer.innerHTML = html;
+      console.log('Comments container updated');
       // Re-attach event listeners after reloading comments
       attachVoteListeners();
+    } else {
+      console.error('Comments container not found!');
     }
   })
   .catch(error => {
@@ -867,5 +1172,200 @@ function initializeVoteStates() {
     }
   });
 }
+
+// Comment photo upload functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const commentPhotoInput = document.getElementById('commentPhotoInput');
+  const commentPhotoUploadArea = document.getElementById('commentPhotoUploadArea');
+  const commentPhotoPreview = document.getElementById('commentPhotoPreview');
+  const commentPhotosData = document.getElementById('commentPhotosData');
+  
+  if (commentPhotoUploadArea) {
+    // Click to upload
+    commentPhotoUploadArea.addEventListener('click', () => {
+      commentPhotoInput.click();
+    });
+    
+    // Drag and drop
+    commentPhotoUploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      commentPhotoUploadArea.style.borderColor = '#00d4ff';
+      commentPhotoUploadArea.style.backgroundColor = 'rgba(0, 212, 255, 0.1)';
+    });
+    
+    commentPhotoUploadArea.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      commentPhotoUploadArea.style.borderColor = '#4a5568';
+      commentPhotoUploadArea.style.backgroundColor = 'rgba(255,255,255,0.02)';
+    });
+    
+    commentPhotoUploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      commentPhotoUploadArea.style.borderColor = '#4a5568';
+      commentPhotoUploadArea.style.backgroundColor = 'rgba(255,255,255,0.02)';
+      
+      const files = Array.from(e.dataTransfer.files);
+      handleCommentFiles(files);
+    });
+    
+    // File input change
+    commentPhotoInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      handleCommentFiles(files);
+    });
+  }
+  
+  function handleCommentFiles(files) {
+    if (commentUploadedPhotos.length + files.length > MAX_COMMENT_PHOTOS) {
+      alert(`Maximum ${MAX_COMMENT_PHOTOS} photos allowed for comments`);
+      return;
+    }
+    
+    files.forEach(file => {
+      if (!file.type.startsWith('image/')) {
+        alert(`${file.name} is not an image file`);
+        return;
+      }
+      
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`${file.name} is too large. Maximum size is 5MB`);
+        return;
+      }
+      
+      uploadCommentPhoto(file);
+    });
+  }
+  
+  function uploadCommentPhoto(file) {
+    const formData = new FormData();
+    formData.append('photo', file);
+    
+    fetch('/api/upload-photo', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        commentUploadedPhotos.push({
+          filename: data.filename,
+          url: data.url,
+          originalName: file.name
+        });
+        updateCommentPhotoPreview();
+        updateCommentPhotosData();
+      } else {
+        alert(`Error uploading ${file.name}: ${data.error}`);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert(`Error uploading ${file.name}`);
+    });
+  }
+  
+  // Move updateCommentPhotoPreview to global scope
+  window.updateCommentPhotoPreview = function() {
+    if (typeof commentUploadedPhotos === 'undefined' || commentUploadedPhotos.length === 0) {
+      if (commentPhotoPreview) {
+        commentPhotoPreview.style.display = 'none';
+      }
+      return;
+    }
+    
+    if (commentPhotoPreview) {
+      commentPhotoPreview.style.display = 'block';
+      const previewContainer = commentPhotoPreview.querySelector('div');
+      if (previewContainer) {
+        previewContainer.innerHTML = '';
+        
+        commentUploadedPhotos.forEach((photo, index) => {
+          const photoDiv = document.createElement('div');
+          photoDiv.style.position = 'relative';
+          photoDiv.style.borderRadius = '6px';
+          photoDiv.style.overflow = 'hidden';
+          photoDiv.style.backgroundColor = '#1a202c';
+          
+          photoDiv.innerHTML = `
+            <img src="${photo.url}" alt="${photo.originalName}" 
+                 style="width: 100%; height: 80px; object-fit: cover; display: block;">
+            <button type="button" class="remove-comment-photo" 
+                    style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); 
+                           color: white; border: none; border-radius: 50%; width: 20px; height: 20px; 
+                           cursor: pointer; font-size: 12px; display: flex; align-items: center; 
+                           justify-content: center;">×</button>
+          `;
+          
+          photoDiv.querySelector('.remove-comment-photo').addEventListener('click', () => {
+            removeCommentPhoto(index);
+          });
+          
+          previewContainer.appendChild(photoDiv);
+        });
+      }
+    }
+  }
+  
+  // Move removeCommentPhoto to global scope
+  window.removeCommentPhoto = function(index) {
+    if (typeof commentUploadedPhotos === 'undefined' || !commentUploadedPhotos[index]) {
+      return;
+    }
+    
+    const photo = commentUploadedPhotos[index];
+    
+    // Delete from server
+    fetch('/api/delete-photo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ filename: photo.filename })
+    });
+    
+    commentUploadedPhotos.splice(index, 1);
+    updateCommentPhotoPreview();
+    updateCommentPhotosData();
+  }
+  
+  // Move updateCommentPhotosData to global scope
+  window.updateCommentPhotosData = function() {
+    if (typeof commentUploadedPhotos !== 'undefined' && commentPhotosData) {
+      commentPhotosData.value = JSON.stringify(commentUploadedPhotos.map(p => p.filename));
+    }
+  }
+});
+
+// Photo modal functionality
+function openPhotoModal(photoSrc) {
+  const modal = document.getElementById('photoModal');
+  const modalPhoto = document.getElementById('modalPhoto');
+  modalPhoto.src = photoSrc;
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
+
+function closePhotoModal() {
+  const modal = document.getElementById('photoModal');
+  modal.style.display = 'none';
+  document.body.style.overflow = 'auto'; // Restore scrolling
+}
+
+// Close modal when clicking outside the image
+document.getElementById('photoModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closePhotoModal();
+  }
+});
+
+// Close modal with escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closePhotoModal();
+  }
+});
+
+// Close modal with close button
+document.getElementById('closePhotoModal').addEventListener('click', closePhotoModal);
 </script>
 {% endblock %}

@@ -58,6 +58,10 @@
               <span id="shift-duration" class="text-sm text-white font-mono">00:00:00</span>
             </div>
             <div class="flex justify-between items-center mb-2">
+              <span class="text-sm text-gray-300">Total Studies Read:</span>
+              <span id="shift-total-studies" class="text-sm text-blue-400 font-semibold">0</span>
+            </div>
+            <div class="flex justify-between items-center mb-2">
               <span class="text-sm text-gray-300">Total wRVUs:</span>
               <span id="shift-total-rvus" class="text-sm text-green-400 font-semibold">0.0</span>
             </div>
@@ -842,9 +846,18 @@ class WRVUCalculator {
   }
 
   removeStudy(studyName) {
+    // Find the study to get its quantity before removing
+    const studyToRemove = this.selectedStudies.find(study => study.name === studyName);
+    const quantityToRemove = studyToRemove ? studyToRemove.quantity : 0;
+    
     this.selectedStudies = this.selectedStudies.filter(study => study.name !== studyName);
     this.updateSelectedStudies();
     this.updateSummary();
+    
+    // If there's an active shift, remove this study from the shift
+    if (window.shiftTracker && window.shiftTracker.activeShift && quantityToRemove > 0) {
+      this.removeStudyFromActiveShift(studyName, quantityToRemove);
+    }
   }
 
   async addStudyToActiveShift(studyName) {
@@ -874,6 +887,7 @@ class WRVUCalculator {
         if (window.shiftTracker) {
           window.shiftTracker.activeShift.total_rvus = data.total_rvus;
           window.shiftTracker.activeShift.total_revenue = data.total_revenue;
+          window.shiftTracker.activeShift.total_studies = data.total_studies;
           window.shiftTracker.updateShiftStats();
         }
         console.log('Study added to shift successfully');
@@ -885,24 +899,35 @@ class WRVUCalculator {
     }
   }
 
-  async removeStudyFromActiveShift(studyName) {
-    // Note: This would require a new API endpoint to remove individual studies
-    // For now, we'll just refresh the shift data to get the current totals
+  async removeStudyFromActiveShift(studyName, quantity = 1) {
     try {
-      const response = await fetch('/api/active-shift');
+      const response = await fetch('/api/remove-rvu', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          study_name: studyName,
+          quantity: quantity
+        })
+      });
+
       const data = await response.json();
       
-      if (response.ok && data.active) {
+      if (response.ok) {
         // Update the shift tracker's active shift data
         if (window.shiftTracker) {
           window.shiftTracker.activeShift.total_rvus = data.total_rvus;
           window.shiftTracker.activeShift.total_revenue = data.total_revenue;
+          window.shiftTracker.activeShift.total_studies = data.total_studies;
           window.shiftTracker.updateShiftStats();
         }
-        console.log('Shift data refreshed after study removal');
+        console.log(`Removed ${data.removed_count} instance(s) of ${studyName} from shift`);
+      } else {
+        console.error('Failed to remove study from shift:', data.error);
       }
     } catch (error) {
-      console.error('Error refreshing shift data:', error);
+      console.error('Error removing study from shift:', error);
     }
   }
 
@@ -912,16 +937,23 @@ class WRVUCalculator {
     if (existingStudy) {
       if (existingStudy.quantity > 1) {
         existingStudy.quantity -= 1;
+        this.updateSelectedStudies();
+        this.updateSummary();
+        
+        // If there's an active shift, remove one instance of this study from the shift
+        if (window.shiftTracker && window.shiftTracker.activeShift) {
+          this.removeStudyFromActiveShift(studyName, 1);
+        }
       } else {
         // Remove study if quantity becomes 0
         this.selectedStudies = this.selectedStudies.filter(study => study.name !== studyName);
-      }
-      this.updateSelectedStudies();
-      this.updateSummary();
-      
-      // If there's an active shift, remove this study from the shift
-      if (window.shiftTracker && window.shiftTracker.activeShift) {
-        this.removeStudyFromActiveShift(studyName);
+        this.updateSelectedStudies();
+        this.updateSummary();
+        
+        // If there's an active shift, remove this study from the shift
+        if (window.shiftTracker && window.shiftTracker.activeShift) {
+          this.removeStudyFromActiveShift(studyName, 1);
+        }
       }
     }
   }
@@ -949,23 +981,25 @@ class WRVUCalculator {
             <div class="study-details">CPT: ${studyData.cpt} • ${studyData.wrvu} wRVU each • Qty: ${study.quantity} • Total: ${totalWRVU.toFixed(2)} wRVU</div>
           </div>
           <div class="flex items-center gap-2">
-            <button 
-              class="quantity-btn"
-              data-study="${study.name}"
-              data-action="decrement"
-              title="Decrease quantity"
-            >
-              −
-            </button>
-            <span class="quantity-display">${study.quantity}</span>
-            <button 
-              class="quantity-btn"
-              data-study="${study.name}"
-              data-action="increment"
-              title="Increase quantity"
-            >
-              +
-            </button>
+            <div class="flex flex-col items-center gap-1">
+              <button 
+                class="quantity-btn"
+                data-study="${study.name}"
+                data-action="increment"
+                title="Increase quantity"
+              >
+                +
+              </button>
+              <span class="quantity-display">${study.quantity}</span>
+              <button 
+                class="quantity-btn"
+                data-study="${study.name}"
+                data-action="decrement"
+                title="Decrease quantity"
+              >
+                −
+              </button>
+            </div>
             <button 
               class="remove-btn"
               data-study="${study.name}"
@@ -1209,6 +1243,7 @@ class ShiftTracker {
     document.getElementById('shift-duration').textContent = 
       `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     
+    document.getElementById('shift-total-studies').textContent = this.activeShift.total_studies || 0;
     document.getElementById('shift-total-rvus').textContent = this.activeShift.total_rvus.toFixed(2);
     document.getElementById('shift-total-revenue').textContent = `$${this.activeShift.total_revenue.toFixed(2)}`;
   }

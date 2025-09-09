@@ -58,6 +58,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(255), nullable=False)
     role = db.Column(db.Enum(UserRole), nullable=False, index=True)
     organization = db.Column(db.String(255))
+    timezone = db.Column(db.String(50), nullable=True, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     opportunities = db.relationship("Opportunity", backref="employer", lazy=True)
@@ -238,6 +239,7 @@ class ForumPost(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     is_pinned = db.Column(db.Boolean, default=False, nullable=False)
     is_locked = db.Column(db.Boolean, default=False, nullable=False)
+    photos = db.Column(db.Text, nullable=True)  # JSON string of photo filenames
     
     # Relationships
     author = db.relationship("User", backref="forum_posts")
@@ -268,6 +270,7 @@ class ForumComment(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     is_edited = db.Column(db.Boolean, default=False, nullable=False)
     is_deleted = db.Column(db.Boolean, default=False, nullable=False)
+    photos = db.Column(db.Text, nullable=True)  # JSON string of photo filenames
     
     # Relationships
     author = db.relationship("User", backref="forum_comments")

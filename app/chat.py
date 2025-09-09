@@ -57,6 +57,32 @@ def message():
 def start():
 	opportunity_id = request.args.get("opportunity_id", type=int)
 	employer_id = request.args.get("employer_id", type=int)
+	resident_id = request.args.get("resident_id", type=int)
+	
+	# Handle direct messaging with resident_id parameter
+	if resident_id:
+		other_user = User.query.get_or_404(resident_id)
+		if other_user.id == current_user.id:
+			abort(400)
+		
+		# Check if conversation already exists
+		convo = Conversation.query.filter(
+			((Conversation.resident_id == current_user.id) & (Conversation.employer_id == other_user.id)) |
+			((Conversation.resident_id == other_user.id) & (Conversation.employer_id == current_user.id))
+		).filter(Conversation.opportunity_id.is_(None)).first()
+		
+		if not convo:
+			# Create new direct conversation (no opportunity_id)
+			if current_user.role.value == "resident":
+				convo = Conversation(resident_id=current_user.id, employer_id=other_user.id)
+			else:
+				convo = Conversation(resident_id=other_user.id, employer_id=current_user.id)
+			db.session.add(convo)
+			db.session.commit()
+		
+		return redirect(url_for("chat.thread", conversation_id=convo.id))
+	
+	# Handle opportunity-based messaging
 	if not opportunity_id or not employer_id:
 		abort(400)
 

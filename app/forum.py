@@ -1,8 +1,13 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
 from sqlalchemy import and_, desc, asc, func, case
 from .models import db, ForumPost, ForumComment, ForumVote, ForumCategory, User, ResidentProfile, EmployerProfile
 from datetime import datetime
+import os
+import uuid
+import json
+from werkzeug.utils import secure_filename
+from PIL import Image
 
 forum_bp = Blueprint("forum", __name__)
 
@@ -67,7 +72,7 @@ def forum_index():
         post._total_votes = upvotes - downvotes
         
         # Add user's current vote state if logged in
-        if current_user.is_authenticated:
+        if current_user and current_user.is_authenticated:
             user_vote = ForumVote.query.filter_by(
                 user_id=current_user.id,
                 post_id=post.id
@@ -91,6 +96,7 @@ def new_post():
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "").strip()
         category = request.form.get("category", "")
+        photos_json = request.form.get("photos", "[]")
         
         if not title or not content or not category:
             flash("Please fill in all fields", "error")
@@ -102,11 +108,21 @@ def new_post():
             flash("Invalid category selected", "error")
             return render_template("forum/new_post.html", categories=ForumCategory)
         
+        # Validate photos
+        try:
+            photos = json.loads(photos_json) if photos_json else []
+            if len(photos) > MAX_PHOTOS_PER_POST:
+                flash(f"Maximum {MAX_PHOTOS_PER_POST} photos allowed per post", "error")
+                return render_template("forum/new_post.html", categories=ForumCategory)
+        except json.JSONDecodeError:
+            photos = []
+        
         post = ForumPost(
             author_id=current_user.id,
             title=title,
             content=content,
-            category=category_enum
+            category=category_enum,
+            photos=photos_json if photos else None
         )
         
         db.session.add(post)
@@ -155,7 +171,7 @@ def view_post(post_id):
         comment._total_votes = upvotes - downvotes
         
         # Add user's current vote state if logged in
-        if current_user.is_authenticated:
+        if current_user and current_user.is_authenticated:
             user_vote = ForumVote.query.filter_by(
                 user_id=current_user.id,
                 comment_id=comment.id
@@ -196,96 +212,132 @@ def view_post(post_id):
 @login_required
 def add_comment(post_id):
     """Add a comment to a forum post"""
-    post = ForumPost.query.get_or_404(post_id)
-    
-    if post.is_locked:
-        if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
-            return jsonify({"success": False, "error": "This post is locked and cannot be commented on"})
-        flash("This post is locked and cannot be commented on", "error")
-        return redirect(url_for("forum.view_post", post_id=post_id))
-    
-    content = request.form.get("content", "").strip()
-    parent_comment_id = request.form.get("parent_comment_id", type=int)
-    
-    if not content:
-        if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
-            return jsonify({"success": False, "error": "Comment cannot be empty"})
-        flash("Comment cannot be empty", "error")
-        return redirect(url_for("forum.view_post", post_id=post_id))
-    
-    comment = ForumComment(
-        post_id=post_id,
-        author_id=current_user.id,
-        parent_comment_id=parent_comment_id,
-        content=content
-    )
-    
-    db.session.add(comment)
-    db.session.commit()
-    
+    try:
+        post = ForumPost.query.get_or_404(post_id)
+        
+        if post.is_locked:
+            if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+                return jsonify({"success": False, "error": "This post is locked and cannot be commented on"})
+            flash("This post is locked and cannot be commented on", "error")
+            return redirect(url_for("forum.view_post", post_id=post_id))
+        
+        content = request.form.get("content", "").strip()
+        parent_comment_id = request.form.get("parent_comment_id", type=int)
+        photos_json = request.form.get("photos", "[]")
+        
+        if not content:
+            if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+                return jsonify({"success": False, "error": "Comment cannot be empty"})
+            flash("Comment cannot be empty", "error")
+            return redirect(url_for("forum.view_post", post_id=post_id))
+        
+        # Validate photos
+        try:
+            photos = json.loads(photos_json) if photos_json else []
+            if len(photos) > MAX_PHOTOS_PER_COMMENT:
+                if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+                    return jsonify({"success": False, "error": f"Maximum {MAX_PHOTOS_PER_COMMENT} photos allowed per comment"})
+                flash(f"Maximum {MAX_PHOTOS_PER_COMMENT} photos allowed per comment", "error")
+                return redirect(url_for("forum.view_post", post_id=post_id))
+        except json.JSONDecodeError:
+            photos = []
+        
+        comment = ForumComment(
+            post_id=post_id,
+            author_id=current_user.id,
+            parent_comment_id=parent_comment_id,
+            content=content,
+            photos=photos_json if photos else None
+        )
+        
+        db.session.add(comment)
+        db.session.commit()
+        
         # Check if this is an AJAX request - use query parameter for reliability
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return jsonify({
-            "success": True,
-            "comment": {
-                "id": comment.id,
-                "content": comment.content,
-                "author_name": comment.author.name,
-                "created_at": comment.created_at.isoformat(),
-                "is_deleted": comment.is_deleted
-            }
-        })
-    
-    flash("Comment added successfully!", "success")
-    return redirect(url_for("forum.view_post", post_id=post_id))
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({
+                "success": True,
+                "comment": {
+                    "id": comment.id,
+                    "content": comment.content,
+                    "author_name": comment.author.name,
+                    "created_at": comment.created_at.isoformat(),
+                    "is_deleted": comment.is_deleted,
+                    "photos": photos
+                }
+            })
+        
+        flash("Comment added successfully!", "success")
+        return redirect(url_for("forum.view_post", post_id=post_id))
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error posting comment: {str(e)}", exc_info=True)
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "error": f"Error posting comment: {str(e)}"})
+        
+        flash(f"Error posting comment: {str(e)}", "error")
+        return redirect(url_for("forum.view_post", post_id=post_id))
 
 
 @forum_bp.route("/forum/comment/<int:comment_id>/reply", methods=["POST"])
 @login_required
 def reply_to_comment(comment_id):
     """Reply to a specific comment"""
-    parent_comment = ForumComment.query.get_or_404(comment_id)
-    post = parent_comment.post
-    
-    if post.is_locked:
-        if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
-            return jsonify({"success": False, "error": "This post is locked and cannot be commented on"})
-        flash("This post is locked and cannot be commented on", "error")
-        return redirect(url_for("forum.view_post", post_id=post.id))
-    
-    content = request.form.get("content", "").strip()
-    
-    if not content:
-        if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
-            return jsonify({"success": False, "error": "Reply cannot be empty"})
-        flash("Reply cannot be empty", "error")
-        return redirect(url_for("forum.view_post", post_id=post.id))
-    
-    reply = ForumComment(
-        post_id=post.id,
-        author_id=current_user.id,
-        parent_comment_id=comment_id,
-        content=content
-    )
-    
-    db.session.add(reply)
-    db.session.commit()
-    
+    try:
+        parent_comment = ForumComment.query.get_or_404(comment_id)
+        post = parent_comment.post
+        
+        if post.is_locked:
+            if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+                return jsonify({"success": False, "error": "This post is locked and cannot be commented on"})
+            flash("This post is locked and cannot be commented on", "error")
+            return redirect(url_for("forum.view_post", post_id=post.id))
+        
+        content = request.form.get("content", "").strip()
+        
+        if not content:
+            if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+                return jsonify({"success": False, "error": "Reply cannot be empty"})
+            flash("Reply cannot be empty", "error")
+            return redirect(url_for("forum.view_post", post_id=post.id))
+        
+        reply = ForumComment(
+            post_id=post.id,
+            author_id=current_user.id,
+            parent_comment_id=comment_id,
+            content=content
+        )
+        
+        db.session.add(reply)
+        db.session.commit()
+        
         # Check if this is an AJAX request - use query parameter for reliability
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return jsonify({
-            "success": True,
-            "reply": {
-                "id": reply.id,
-                "content": reply.content,
-                "author_name": reply.author.name,
-                "created_at": reply.created_at.isoformat(),
-                "is_deleted": reply.is_deleted
-            }
-        })
-    
-    flash("Reply posted successfully!", "success")
-    return redirect(url_for("forum.view_post", post_id=post.id))
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({
+                "success": True,
+                "reply": {
+                    "id": reply.id,
+                    "content": reply.content,
+                    "author_name": reply.author.name,
+                    "created_at": reply.created_at.isoformat(),
+                    "is_deleted": reply.is_deleted
+                }
+            })
+        
+        flash("Reply posted successfully!", "success")
+        return redirect(url_for("forum.view_post", post_id=post.id))
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error posting reply: {str(e)}", exc_info=True)
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "error": f"Error posting reply: {str(e)}"})
+        
+        flash(f"Error posting reply: {str(e)}", "error")
+        return redirect(url_for("forum.view_post", post_id=post.id if 'post' in locals() else comment_id))
 
 
 @forum_bp.route("/forum/vote", methods=["POST"])
@@ -524,58 +576,169 @@ def edit_post(post_id):
 @forum_bp.route("/forum/post/<int:post_id>/comments")
 def get_comments(post_id):
     """Get just the comments section for a post (for AJAX reload)"""
-    post = ForumPost.query.get_or_404(post_id)
-    sort_by = request.args.get("sort", "most_voted")
-    
-    # Get top-level comments (no parent) with proper sorting
-    if sort_by == "most_voted":
-        # For now, just show most recent since we can't use properties in queries
-        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
-    elif sort_by == "most_downvoted":
-        # For now, just show most recent since we can't use properties in queries
-        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
-    elif sort_by == "most_recent":
-        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
-    elif sort_by == "oldest":
-        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.asc()).all()
-    else:
-        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
-    
-    # Get all replies for each comment (recursively)
-    def get_replies_with_nesting(comment):
-        replies = ForumComment.query.filter_by(parent_comment_id=comment.id).order_by(ForumComment.created_at.asc()).all()
-        for reply in replies:
-            reply.replies = get_replies_with_nesting(reply)
-        return replies
-    
-    for comment in comments:
-        comment.replies = get_replies_with_nesting(comment)
-    
-    # Add vote counts and user vote states to comments and replies (recursively)
-    def add_vote_data(comment):
-        upvotes = ForumVote.query.filter_by(comment_id=comment.id, vote_type="upvote").count()
-        downvotes = ForumVote.query.filter_by(comment_id=comment.id, vote_type="downvote").count()
-        comment._total_votes = upvotes - downvotes
+    try:
+        post = ForumPost.query.get_or_404(post_id)
+        sort_by = request.args.get("sort", "most_voted")
+        current_app.logger.info(f"Getting comments for post {post_id}, sort: {sort_by}")
         
-        # Add user's current vote state if logged in
-        if current_user.is_authenticated:
-            user_vote = ForumVote.query.filter_by(
-                user_id=current_user.id,
-                comment_id=comment.id
-            ).first()
-            comment._user_vote = user_vote.vote_type if user_vote else None
+        # Get top-level comments (no parent) with proper sorting
+        if sort_by == "most_voted":
+            # For now, just show most recent since we can't use properties in queries
+            comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
+        elif sort_by == "most_downvoted":
+            # For now, just show most recent since we can't use properties in queries
+            comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
+        elif sort_by == "most_recent":
+            comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
+        elif sort_by == "oldest":
+            comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.asc()).all()
         else:
-            comment._user_vote = None
+            comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
         
-        # Process replies recursively
-        for reply in comment.replies:
-            add_vote_data(reply)
+        # Get all replies for each comment (recursively)
+        def get_replies_with_nesting(comment):
+            replies = ForumComment.query.filter_by(parent_comment_id=comment.id).order_by(ForumComment.created_at.asc()).all()
+            for reply in replies:
+                reply.replies = get_replies_with_nesting(reply)
+            return replies
+        
+        for comment in comments:
+            comment.replies = get_replies_with_nesting(comment)
+        
+        # Add vote counts and user vote states to comments and replies (recursively)
+        def add_vote_data(comment):
+            upvotes = ForumVote.query.filter_by(comment_id=comment.id, vote_type="upvote").count()
+            downvotes = ForumVote.query.filter_by(comment_id=comment.id, vote_type="downvote").count()
+            comment._total_votes = upvotes - downvotes
+            
+            # Add user's current vote state if logged in
+            if current_user and current_user.is_authenticated:
+                user_vote = ForumVote.query.filter_by(
+                    user_id=current_user.id,
+                    comment_id=comment.id
+                ).first()
+                comment._user_vote = user_vote.vote_type if user_vote else None
+            else:
+                comment._user_vote = None
+            
+            # Process replies recursively
+            for reply in comment.replies:
+                add_vote_data(reply)
+        
+        for comment in comments:
+            add_vote_data(comment)
+        
+        # Render just the comments section
+        return render_template("forum/comments_section.html", 
+                             post=post, 
+                             comments=comments,
+                             current_sort=sort_by)
     
-    for comment in comments:
-        add_vote_data(comment)
-    
-    # Render just the comments section
-    return render_template("forum/comments_section.html", 
-                         post=post, 
-                         comments=comments,
-                         current_sort=sort_by)
+    except Exception as e:
+        current_app.logger.error(f"Error getting comments for post {post_id}: {str(e)}", exc_info=True)
+        return f"Error loading comments: {str(e)}", 500
+
+
+# Photo upload functionality
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+MAX_PHOTOS_PER_POST = 5
+MAX_PHOTOS_PER_COMMENT = 3
+
+def allowed_file(filename):
+    """Check if file extension is allowed"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def resize_image(image_path, max_width=1200, max_height=1200, quality=85):
+    """Resize image to fit within max dimensions while maintaining aspect ratio"""
+    try:
+        with Image.open(image_path) as img:
+            # Convert to RGB if necessary
+            if img.mode in ('RGBA', 'LA', 'P'):
+                img = img.convert('RGB')
+            
+            # Calculate new dimensions
+            width, height = img.size
+            if width <= max_width and height <= max_height:
+                return  # No resize needed
+            
+            # Calculate new size maintaining aspect ratio
+            ratio = min(max_width/width, max_height/height)
+            new_width = int(width * ratio)
+            new_height = int(height * ratio)
+            
+            # Resize image
+            img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            img_resized.save(image_path, 'JPEG', quality=quality, optimize=True)
+    except Exception as e:
+        print(f"Error resizing image {image_path}: {e}")
+
+@forum_bp.route("/api/upload-photo", methods=["POST"])
+@login_required
+def upload_photo():
+    """Upload a photo for forum posts or comments"""
+    try:
+        if 'photo' not in request.files:
+            return jsonify({'success': False, 'error': 'No photo provided'}), 400
+        
+        file = request.files['photo']
+        if file.filename == '':
+            return jsonify({'success': False, 'error': 'No photo selected'}), 400
+        
+        if not allowed_file(file.filename):
+            return jsonify({'success': False, 'error': 'Invalid file type. Allowed: PNG, JPG, JPEG, GIF, WEBP'}), 400
+        
+        # Check file size
+        file.seek(0, 2)  # Seek to end
+        file_size = file.tell()
+        file.seek(0)  # Reset to beginning
+        
+        if file_size > MAX_FILE_SIZE:
+            return jsonify({'success': False, 'error': 'File too large. Maximum size: 5MB'}), 400
+        
+        # Generate unique filename
+        filename = secure_filename(file.filename)
+        name, ext = os.path.splitext(filename)
+        unique_filename = f"{uuid.uuid4().hex}{ext}"
+        
+        # Save file
+        upload_dir = os.path.join(current_app.static_folder, 'uploads', 'photos')
+        os.makedirs(upload_dir, exist_ok=True)
+        file_path = os.path.join(upload_dir, unique_filename)
+        file.save(file_path)
+        
+        # Resize image
+        resize_image(file_path)
+        
+        return jsonify({
+            'success': True, 
+            'filename': unique_filename,
+            'url': f'/static/uploads/photos/{unique_filename}'
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@forum_bp.route("/api/delete-photo", methods=["POST"])
+@login_required
+def delete_photo():
+    """Delete a photo from the server"""
+    try:
+        data = request.get_json()
+        filename = data.get('filename')
+        
+        if not filename:
+            return jsonify({'success': False, 'error': 'No filename provided'}), 400
+        
+        # Security check - ensure filename is safe
+        filename = secure_filename(filename)
+        file_path = os.path.join(current_app.static_folder, 'uploads', 'photos', filename)
+        
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': 'File not found'}), 404
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500

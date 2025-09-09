@@ -49,6 +49,25 @@
                 <div class="deleted-comment">[deleted]</div>
               {% else %}
                 <div class="comment-text" id="comment-content-{{ comment.id }}">{{ comment.content }}</div>
+                
+                <!-- Comment Photos -->
+                {% if comment.photos %}
+                  {% set comment_photos = comment.photos|from_json %}
+                  {% if comment_photos %}
+                    <div class="comment-photos" style="margin-top: 12px;">
+                      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px;">
+                        {% for photo in comment_photos %}
+                          <div style="position: relative; border-radius: 6px; overflow: hidden; background: #1a202c;">
+                            <img src="/static/uploads/photos/{{ photo }}" 
+                                 alt="Comment photo" 
+                                 style="width: 100%; height: 120px; object-fit: cover; display: block; cursor: pointer;"
+                                 onclick="openPhotoModal('/static/uploads/photos/{{ photo }}')">
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endif %}
               {% endif %}
             </div>
             

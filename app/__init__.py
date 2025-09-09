@@ -54,6 +54,16 @@ def create_app(config_class: type = Config) -> Flask:
     # Register additional message routes
     register_message_routes(app)
     
+    # Add custom Jinja2 filters
+    @app.template_filter('from_json')
+    def from_json_filter(json_string):
+        """Convert JSON string to Python object"""
+        import json
+        try:
+            return json.loads(json_string) if json_string else []
+        except (json.JSONDecodeError, TypeError):
+            return []
+    
     # Make helper functions available in templates
     @app.context_processor
     def utility_processor():
