@@ -1443,7 +1443,10 @@ class ShiftTracker {
     const modal = document.getElementById('shift-details-modal');
     const content = document.getElementById('shift-details-content');
     
-    let detailsHtml = `<h5 class="text-lg font-semibold text-white mb-4">Shifts on ${new Date(dateStr).toLocaleDateString()}</h5>`;
+    // Parse the date string correctly to avoid timezone issues
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day); // month is 0-indexed in Date constructor
+    let detailsHtml = `<h5 class="text-lg font-semibold text-white mb-4">Shifts on ${localDate.toLocaleDateString()}</h5>`;
     detailsHtml += `<div class="mb-4 p-3 bg-gray-700 rounded">
       <div class="flex justify-between text-sm">
         <span class="text-gray-300">Total wRVUs:</span>
