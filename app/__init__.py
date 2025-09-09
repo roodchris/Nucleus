@@ -71,13 +71,27 @@ def create_app(config_class: type = Config) -> Flask:
             # Test database connection
             db.session.execute('SELECT 1')
             db_status = "OK"
+            
+            # Test if User table exists
+            try:
+                from .models import User
+                user_count = User.query.count()
+                tables_status = f"OK - User table exists with {user_count} users"
+            except Exception as e:
+                tables_status = f"ERROR - Tables issue: {str(e)}"
+                
         except Exception as e:
             db_status = f"ERROR: {str(e)}"
+            tables_status = "Not tested due to connection error"
         
         return {
             "status": "OK" if db_status == "OK" else "ERROR",
             "database": db_status,
-            "database_uri": app.config.get('SQLALCHEMY_DATABASE_URI', 'Not set')
+            "tables": tables_status,
+            "database_uri": app.config.get('SQLALCHEMY_DATABASE_URI', 'Not set'),
+            "python_version": f"{__import__('sys').version_info.major}.{__import__('sys').version_info.minor}.{__import__('sys').version_info.micro}",
+            "flask_version": __import__('flask').__version__,
+            "sqlalchemy_version": __import__('sqlalchemy').__version__
         }
     
     # Add custom Jinja2 filters
