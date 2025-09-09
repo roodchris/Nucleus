@@ -45,63 +45,119 @@ def migrate_database_columns():
             SELECT migration_name FROM migrations 
             WHERE migration_name = 'add_timezone_column'
         """))
-        migration_exists = result.fetchone() is not None
+        timezone_migration_exists = result.fetchone() is not None
         
-        if migration_exists:
-            current_app.logger.info("✅ timezone migration already completed, skipping")
+        # Check if forum photos migration has already been completed
+        result = db.session.execute(text("""
+            SELECT migration_name FROM migrations 
+            WHERE migration_name = 'add_forum_photos_column'
+        """))
+        forum_photos_migration_exists = result.fetchone() is not None
+        
+        if timezone_migration_exists and forum_photos_migration_exists:
+            current_app.logger.info("✅ All migrations already completed, skipping")
             return True
         
-        # Check if timezone column exists in user table
-        if 'postgresql' in db_url.lower():
-            # PostgreSQL
-            result = db.session.execute(text("""
-                SELECT column_name 
-                FROM information_schema.columns 
-                WHERE table_name = 'user' AND column_name = 'timezone'
-            """))
-            timezone_exists = result.fetchone() is not None
-            
-            if not timezone_exists:
-                current_app.logger.info("Adding timezone column to user table...")
-                db.session.execute(text("""
-                    ALTER TABLE "user" 
-                    ADD COLUMN timezone VARCHAR(50)
+        # Migrate timezone column if needed
+        if not timezone_migration_exists:
+            if 'postgresql' in db_url.lower():
+                # PostgreSQL
+                result = db.session.execute(text("""
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'user' AND column_name = 'timezone'
                 """))
-                db.session.commit()
-                current_app.logger.info("✅ timezone column added successfully")
-            else:
-                current_app.logger.info("✅ timezone column already exists")
+                timezone_exists = result.fetchone() is not None
                 
-        elif 'sqlite' in db_url.lower():
-            # SQLite
-            result = db.session.execute(text("""
-                PRAGMA table_info(user)
-            """))
-            columns = [row[1] for row in result.fetchall()]
-            timezone_exists = 'timezone' in columns
-            
-            if not timezone_exists:
-                current_app.logger.info("Adding timezone column to user table...")
-                db.session.execute(text("""
-                    ALTER TABLE user 
-                    ADD COLUMN timezone VARCHAR(50)
+                if not timezone_exists:
+                    current_app.logger.info("Adding timezone column to user table...")
+                    db.session.execute(text("""
+                        ALTER TABLE "user" 
+                        ADD COLUMN timezone VARCHAR(50)
+                    """))
+                    db.session.commit()
+                    current_app.logger.info("✅ timezone column added successfully")
+                else:
+                    current_app.logger.info("✅ timezone column already exists")
+                    
+            elif 'sqlite' in db_url.lower():
+                # SQLite
+                result = db.session.execute(text("""
+                    PRAGMA table_info(user)
                 """))
-                db.session.commit()
-                current_app.logger.info("✅ timezone column added successfully")
+                columns = [row[1] for row in result.fetchall()]
+                timezone_exists = 'timezone' in columns
+                
+                if not timezone_exists:
+                    current_app.logger.info("Adding timezone column to user table...")
+                    db.session.execute(text("""
+                        ALTER TABLE user 
+                        ADD COLUMN timezone VARCHAR(50)
+                    """))
+                    db.session.commit()
+                    current_app.logger.info("✅ timezone column added successfully")
+                else:
+                    current_app.logger.info("✅ timezone column already exists")
             else:
-                current_app.logger.info("✅ timezone column already exists")
-        else:
-            current_app.logger.warning("Unsupported database type for migration")
-            return False
+                current_app.logger.warning("Unsupported database type for migration")
+                return False
+            
+            # Record timezone migration as completed
+            db.session.execute(text("""
+                INSERT INTO migrations (migration_name) 
+                VALUES ('add_timezone_column')
+                ON CONFLICT (migration_name) DO NOTHING
+            """))
+            db.session.commit()
         
-        # Record that migration has been completed
-        db.session.execute(text("""
-            INSERT INTO migrations (migration_name) 
-            VALUES ('add_timezone_column')
-            ON CONFLICT (migration_name) DO NOTHING
-        """))
-        db.session.commit()
-        current_app.logger.info("✅ Migration recorded in migrations table")
+        # Migrate forum photos column if needed
+        if not forum_photos_migration_exists:
+            if 'postgresql' in db_url.lower():
+                # PostgreSQL
+                result = db.session.execute(text("""
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'forum_post' AND column_name = 'photos'
+                """))
+                photos_exists = result.fetchone() is not None
+                
+                if not photos_exists:
+                    current_app.logger.info("Adding photos column to forum_post table...")
+                    db.session.execute(text("""
+                        ALTER TABLE "forum_post" 
+                        ADD COLUMN photos TEXT
+                    """))
+                    db.session.commit()
+                    current_app.logger.info("✅ photos column added successfully")
+                else:
+                    current_app.logger.info("✅ photos column already exists")
+                    
+            elif 'sqlite' in db_url.lower():
+                # SQLite
+                result = db.session.execute(text("""
+                    PRAGMA table_info(forum_post)
+                """))
+                columns = [row[1] for row in result.fetchall()]
+                photos_exists = 'photos' in columns
+                
+                if not photos_exists:
+                    current_app.logger.info("Adding photos column to forum_post table...")
+                    db.session.execute(text("""
+                        ALTER TABLE forum_post 
+                        ADD COLUMN photos TEXT
+                    """))
+                    db.session.commit()
+                    current_app.logger.info("✅ photos column added successfully")
+                else:
+                    current_app.logger.info("✅ photos column already exists")
+            
+            # Record forum photos migration as completed
+            db.session.execute(text("""
+                INSERT INTO migrations (migration_name) 
+                VALUES ('add_forum_photos_column')
+                ON CONFLICT (migration_name) DO NOTHING
+            """))
+            db.session.commit()
             
     except Exception as e:
         current_app.logger.error(f"Migration failed: {e}")

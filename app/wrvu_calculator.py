@@ -265,26 +265,28 @@ def get_shift_calendar():
         
         calendar_data = {}
         for shift in shifts:
+            # For completed shifts, use end_time if available, otherwise start_time
             # Convert UTC time to user's local timezone for date calculation
-            # Use the user's timezone if available, otherwise default to UTC
             user_timezone = 'UTC'  # Default to UTC
             if hasattr(current_user, 'timezone') and current_user.timezone:
                 user_timezone = current_user.timezone
             
+            # Use end_time for completed shifts, start_time for active shifts
+            shift_time = shift.end_time if shift.end_time else shift.start_time
             
             # Convert UTC datetime to user's local timezone
             if user_timezone != 'UTC':
                 try:
                     import pytz
                     user_tz = pytz.timezone(user_timezone)
-                    # shift.start_time is already UTC, so we just convert it
-                    local_time = shift.start_time.replace(tzinfo=pytz.UTC).astimezone(user_tz)
+                    # shift_time is already UTC, so we just convert it
+                    local_time = shift_time.replace(tzinfo=pytz.UTC).astimezone(user_tz)
                 except Exception as e:
                     # Fallback to UTC if timezone conversion fails
                     print(f"Timezone conversion failed: {e}")
-                    local_time = shift.start_time
+                    local_time = shift_time
             else:
-                local_time = shift.start_time
+                local_time = shift_time
             
             # Get date in YYYY-MM-DD format for consistent comparison
             shift_date = local_time.date().isoformat()
@@ -331,10 +333,9 @@ def set_user_timezone():
         except:
             return jsonify({'error': 'Invalid timezone format'}), 400
         
-        # Update user's timezone - temporarily disabled until production migration
-        # current_user.timezone = timezone
-        # db.session.commit()
-        return jsonify({"message": "Timezone setting temporarily disabled until production migration"})
+        # Update user's timezone
+        current_user.timezone = timezone
+        db.session.commit()
         
         return jsonify({'success': True, 'timezone': timezone})
     except Exception as e:
