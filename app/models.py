@@ -58,7 +58,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(255), nullable=False)
     role = db.Column(db.Enum(UserRole), nullable=False, index=True)
     organization = db.Column(db.String(255))
-    # timezone = db.Column(db.String(50), nullable=True, index=True)  # Temporarily disabled until migration
+    timezone = db.Column(db.String(50), nullable=True, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     
 

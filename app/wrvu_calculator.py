@@ -268,9 +268,8 @@ def get_shift_calendar():
             # Convert UTC time to user's local timezone for date calculation
             # Use the user's timezone if available, otherwise default to UTC
             user_timezone = 'UTC'  # Default to UTC
-            # Temporarily disabled timezone support until migration
-            # if hasattr(current_user, 'timezone') and current_user.timezone:
-            #     user_timezone = current_user.timezone
+            if hasattr(current_user, 'timezone') and current_user.timezone:
+                user_timezone = current_user.timezone
             
             
             # Convert UTC datetime to user's local timezone
