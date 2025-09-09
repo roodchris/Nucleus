@@ -11,12 +11,8 @@ class Config:
         # Convert postgres:// to postgresql:// for newer versions of SQLAlchemy
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
     
-    # Use psycopg2 driver for PostgreSQL connections
-    if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
-        # Replace postgresql:// with postgresql+psycopg2:// to use psycopg2 driver
-        DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
-    
-    # Fallback to SQLite if DATABASE_URL is not available or invalid
+    # Use the DATABASE_URL directly - SQLAlchemy will auto-detect the driver
+    # This works with psycopg3 (psycopg[binary]) which is compatible with Python 3.13
     SQLALCHEMY_DATABASE_URI = DATABASE_URL or "sqlite:///app.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     REMEMBER_COOKIE_DURATION = timedelta(days=14)
