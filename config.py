@@ -9,8 +9,8 @@ class Config:
     DATABASE_URL = os.getenv("DATABASE_URL")
     
     # Debug: Print environment variables (remove in production)
-    print(f"DEBUG: DATABASE_URL from env: {DATABASE_URL}")
-    print(f"DEBUG: All env vars with DATABASE: {[k for k in os.environ.keys() if 'DATABASE' in k]}")
+    # print(f"DEBUG: DATABASE_URL from env: {DATABASE_URL}")
+    # print(f"DEBUG: All env vars with DATABASE: {[k for k in os.environ.keys() if 'DATABASE' in k]}")
     
     # If DATABASE_URL is not set, try to construct it from individual components
     if not DATABASE_URL:
@@ -22,7 +22,7 @@ class Config:
         
         if all([DB_HOST, DB_NAME, DB_USER, DB_PASSWORD]):
             DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-            print(f"DEBUG: Constructed DATABASE_URL from components: {DATABASE_URL}")
+            # print(f"DEBUG: Constructed DATABASE_URL from components: {DATABASE_URL}")
     
     if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
         # Convert postgres:// to postgresql:// for newer versions of SQLAlchemy
@@ -41,7 +41,7 @@ class Config:
         SQLALCHEMY_DATABASE_URI = "sqlite:///app.db"
     
     # Debug: Print final database URI
-    print(f"DEBUG: Final SQLALCHEMY_DATABASE_URI: {SQLALCHEMY_DATABASE_URI}")
+    # print(f"DEBUG: Final SQLALCHEMY_DATABASE_URI: {SQLALCHEMY_DATABASE_URI}")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     REMEMBER_COOKIE_DURATION = timedelta(days=14)
     WTF_CSRF_TIME_LIMIT = None

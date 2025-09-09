@@ -11,6 +11,16 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 def signup():
     if current_user.is_authenticated:
         return redirect(url_for("opportunities.home"))
+    
+    # Check if database is working
+    try:
+        from flask import current_app
+        if current_app.config.get('DATABASE_ERROR'):
+            flash("Database connection issue. Please try again later.", "error")
+            return render_template("auth/signup.html", form=SignupForm())
+    except:
+        pass
+    
     form = SignupForm()
     if form.validate_on_submit():
         existing = User.query.filter_by(email=form.email.data.lower()).first()
@@ -28,15 +38,20 @@ def signup():
         }
         
         # Create verification record and send email
-        verification_code = create_verification_record(form.email.data.lower())
-        if verification_code:
-            if send_verification_email(form.email.data.lower(), verification_code):
-                flash("Verification code sent to your email. Please check your inbox.", "info")
-                return redirect(url_for("auth.verify_email"))
+        try:
+            verification_code = create_verification_record(form.email.data.lower())
+            if verification_code:
+                if send_verification_email(form.email.data.lower(), verification_code):
+                    flash("Verification code sent to your email. Please check your inbox.", "info")
+                    return redirect(url_for("auth.verify_email"))
+                else:
+                    flash("Failed to send verification email. Please try again.", "error")
             else:
-                flash("Failed to send verification email. Please try again.", "error")
-        else:
-            flash("Failed to create verification record. Please try again.", "error")
+                flash("Failed to create verification record. Please try again.", "error")
+        except Exception as e:
+            from flask import current_app
+            current_app.logger.error(f"Signup error: {e}")
+            flash("An error occurred during signup. Please try again.", "error")
     
     return render_template("auth/signup.html", form=form)
 
@@ -45,6 +60,16 @@ def signup():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("opportunities.home"))
+    
+    # Check if database is working
+    try:
+        from flask import current_app
+        if current_app.config.get('DATABASE_ERROR'):
+            flash("Database connection issue. Please try again later.", "error")
+            return render_template("auth/login.html", form=LoginForm())
+    except:
+        pass
+    
     form = LoginForm()
     if form.validate_on_submit():
         try:
