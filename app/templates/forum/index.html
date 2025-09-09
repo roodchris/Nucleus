@@ -799,9 +799,14 @@
 <script>
   // Vote functionality
   document.querySelectorAll('.vote-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
       const postId = this.dataset.postId;
       const voteType = this.dataset.voteType;
+      
+      console.log('Vote clicked:', { postId, voteType });
       
       fetch('/forum/vote', {
         method: 'POST',
@@ -815,25 +820,48 @@
       })
       .then(response => response.json())
       .then(data => {
+        console.log('Vote response:', data);
         if (data.success) {
           // Update vote count
-          document.getElementById('post-votes-' + postId).textContent = data.total_votes;
+          const voteCountElement = document.getElementById('post-votes-' + postId);
+          if (voteCountElement) {
+            voteCountElement.textContent = data.total_votes;
+            console.log('Updated vote count to:', data.total_votes);
+          } else {
+            console.error('Vote count element not found for post:', postId);
+          }
           
           // Update button colors
           const upvoteBtn = document.querySelector(`[data-post-id="${postId}"][data-vote-type="upvote"]`);
           const downvoteBtn = document.querySelector(`[data-post-id="${postId}"][data-vote-type="downvote"]`);
           
-                     if (data.user_vote === 'upvote') {
-             upvoteBtn.classList.add('voted');
-             downvoteBtn.classList.remove('voted');
-           } else if (data.user_vote === 'downvote') {
-             downvoteBtn.classList.add('voted');
-             upvoteBtn.classList.remove('voted');
-           } else {
-             upvoteBtn.classList.remove('voted');
-             downvoteBtn.classList.remove('voted');
-           }
+          console.log('Found buttons:', { upvoteBtn: !!upvoteBtn, downvoteBtn: !!downvoteBtn });
+          
+          if (upvoteBtn && downvoteBtn) {
+            // Remove all voted classes first
+            upvoteBtn.classList.remove('voted');
+            downvoteBtn.classList.remove('voted');
+            
+            if (data.user_vote === 'upvote') {
+              upvoteBtn.classList.add('voted');
+              console.log('Added voted class to upvote button');
+            } else if (data.user_vote === 'downvote') {
+              downvoteBtn.classList.add('voted');
+              console.log('Added voted class to downvote button');
+            } else {
+              console.log('Removed voted classes from both buttons');
+            }
+          } else {
+            console.error('Could not find vote buttons for post:', postId);
+          }
+        } else {
+          console.error('Vote failed:', data.error);
+          alert('Failed to vote: ' + (data.error || 'Unknown error'));
         }
+      })
+      .catch(error => {
+        console.error('Error voting:', error);
+        alert('Error voting. Please try again.');
       });
     });
   });
