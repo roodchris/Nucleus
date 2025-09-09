@@ -352,6 +352,19 @@ def vote():
     if vote_type not in ["upvote", "downvote"]:
         return jsonify({"error": "Invalid vote type"}), 400
     
+    # Convert string IDs to integers if they exist
+    if post_id is not None:
+        try:
+            post_id = int(post_id)
+        except (ValueError, TypeError):
+            return jsonify({"error": "Invalid post ID"}), 400
+    
+    if comment_id is not None:
+        try:
+            comment_id = int(comment_id)
+        except (ValueError, TypeError):
+            return jsonify({"error": "Invalid comment ID"}), 400
+    
     # Check if user already voted
     existing_vote = ForumVote.query.filter_by(
         user_id=current_user.id,
