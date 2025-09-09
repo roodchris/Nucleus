@@ -269,7 +269,7 @@
             </a>
             {% endif %}
             {% if current_user.is_authenticated and current_user.role.value == 'resident' %}
-            <a href="/chat/{{ opp.employer_id }}" class="btn secondary">
+            <a href="/messages/start?opportunity_id={{ opp.id }}&employer_id={{ opp.employer_id }}" class="btn secondary">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>

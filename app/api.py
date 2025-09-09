@@ -508,30 +508,30 @@ active_connections = {}
 @api_bp.route('/messages/stream')
 def message_stream():
     """Server-Sent Events endpoint for real-time message updates"""
+    # Get user authentication within the request context
+    user_id = None
+    
+    # First try current_user (if available)
+    if current_user and current_user.is_authenticated:
+        user_id = current_user.id
+    else:
+        # Try session-based authentication
+        from flask import session
+        user_id = session.get('_user_id')
+        if user_id:
+            # Verify user exists
+            user = User.query.get(user_id)
+            if not user:
+                user_id = None
+    
+    if not user_id:
+        return Response("data: " + json.dumps({'error': 'User not authenticated'}) + "\n\n", 
+                      mimetype='text/event-stream', 
+                      headers={'Cache-Control': 'no-cache', 'Connection': 'keep-alive'})
+    
     def event_stream():
         # Create a unique connection ID
         connection_id = str(uuid.uuid4())
-        
-        # For EventSource, we need to handle authentication differently
-        # Try to get user from session or current_user
-        user_id = None
-        
-        # First try current_user (if available)
-        if current_user and current_user.is_authenticated:
-            user_id = current_user.id
-        else:
-            # Try session-based authentication
-            from flask import session
-            user_id = session.get('_user_id')
-            if user_id:
-                # Verify user exists
-                user = User.query.get(user_id)
-                if not user:
-                    user_id = None
-        
-        if not user_id:
-            yield f"data: {json.dumps({'error': 'User not authenticated'})}\n\n"
-            return
             
         active_connections[connection_id] = {
             'user_id': user_id,
