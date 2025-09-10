@@ -263,6 +263,12 @@ def send_message():
         if not conversation_id or not content:
             return jsonify({'error': 'Missing conversation_id or content'}), 400
         
+        # Convert conversation_id to integer
+        try:
+            conversation_id = int(conversation_id)
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Invalid conversation_id format'}), 400
+        
         # Verify user has access to this conversation
         conversation = Conversation.query.filter(
             and_(
@@ -455,6 +461,12 @@ def start_direct_conversation():
         
         if not other_user_id:
             return jsonify({'error': 'Missing user_id'}), 400
+        
+        # Convert user_id to integer
+        try:
+            other_user_id = int(other_user_id)
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Invalid user_id format'}), 400
         
         if other_user_id == current_user.id:
             return jsonify({'error': 'Cannot start conversation with yourself'}), 400

@@ -68,7 +68,7 @@
               <button type="submit" class="btn" style="background:#ef4444;">Delete Opportunity</button>
             </form>
           {% else %}
-            <div class="muted">Only radiologists can message employers</div>
+            <a class="btn" href="/messages/start?opportunity_id={{ opp.id }}&employer_id={{ opp.employer_id }}">Message employer</a>
           {% endif %}
         {% endif %}
       {% else %}
