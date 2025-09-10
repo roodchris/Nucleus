@@ -20,6 +20,13 @@
         <div class="muted" style="color:#fca5a5; font-size:12px; margin-top:6px;">{{ e }}</div>
       {% endfor %}
     </div>
+    
+    <div>
+      <label for="name" style="display: block; margin-bottom: 5px; font-weight: 500;">Name/Username</label>
+      <input type="text" id="name" name="name" class="input" value="{{ session.pending_user.name if session.pending_user else '' }}" placeholder="Enter your name or username">
+      <div class="muted" style="font-size:12px; margin-top:6px; color: #9ca3af;">You can change this if the name is already taken</div>
+    </div>
+    
     <button type="submit" class="btn">Verify Email</button>
   </form>
   

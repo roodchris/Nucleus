@@ -25,8 +25,13 @@ def signup():
     if form.validate_on_submit():
         existing = User.query.filter_by(email=form.email.data.lower()).first()
         if existing:
-            flash("Email already registered. Please log in.", "warning")
+            flash("You already have an account. Please log in to continue.", "warning")
             return redirect(url_for("auth.login"))
+        
+        # Check if name is already taken (optional early check)
+        existing_name = User.query.filter_by(name=form.name.data).first()
+        if existing_name:
+            flash("This name/username is already in use. You can change it during email verification.", "warning")
         
         # Store user data in session for verification step
         session['pending_user'] = {
@@ -104,12 +109,24 @@ def verify_email():
         email = pending_user['email']
         code = form.verification_code.data
         
+        # Get the name from the form (user can change it)
+        new_name = request.form.get('name', pending_user['name']).strip()
+        if not new_name:
+            flash("Name/username is required.", "error")
+            return render_template("auth/verify_email.html", form=form, email=pending_user['email'])
+        
         success, message = verify_email_code(email, code)
         if success:
+            # Check if username/name is already taken
+            existing_name = User.query.filter_by(name=new_name).first()
+            if existing_name:
+                flash("This name/username is already in use. Please try a different name/username.", "error")
+                return render_template("auth/verify_email.html", form=form, email=pending_user['email'])
+            
             # Create the user account
             user = User(
                 email=pending_user['email'],
-                name=pending_user['name'],
+                name=new_name,
                 role=UserRole(pending_user['role']),
                 organization=pending_user['organization']
             )
