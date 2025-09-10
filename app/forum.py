@@ -138,21 +138,31 @@ def new_post():
 def view_post(post_id):
     """View a specific forum post and its comments"""
     post = ForumPost.query.get_or_404(post_id)
-    sort_by = request.args.get("sort", "most_voted")
+    sort_by = request.args.get("sort", "oldest")  # Changed default to oldest
     
     # Get top-level comments (no parent) with proper sorting
     if sort_by == "most_voted":
-        # For now, just show most recent since we can't use properties in queries
-        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
-    elif sort_by == "most_downvoted":
-        # For now, just show most recent since we can't use properties in queries
-        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
-    elif sort_by == "most_recent":
+        # Sort by net votes (upvotes - downvotes) descending using subqueries
+        from sqlalchemy import select, func, and_
+        
+        upvote_subquery = select(func.count(ForumVote.id)).where(
+            and_(ForumVote.comment_id == ForumComment.id, ForumVote.vote_type == "upvote")
+        ).scalar_subquery()
+        
+        downvote_subquery = select(func.count(ForumVote.id)).where(
+            and_(ForumVote.comment_id == ForumComment.id, ForumVote.vote_type == "downvote")
+        ).scalar_subquery()
+        
+        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(
+            (upvote_subquery - downvote_subquery).desc()
+        ).all()
+    elif sort_by == "newest":
         comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
     elif sort_by == "oldest":
         comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.asc()).all()
     else:
-        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
+        # Default to oldest if invalid sort option
+        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.asc()).all()
     
     # Get all replies for each comment (recursively)
     def get_replies_with_nesting(comment):

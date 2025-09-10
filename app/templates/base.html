@@ -152,6 +152,7 @@
       background: var(--surface-1) !important;
       color: var(--text) !important;
       padding: 0.5rem !important;
+      border: none !important;
     }
 
     option:hover {
@@ -159,8 +160,70 @@
       color: var(--text) !important;
     }
 
-    option:checked {
+    option:checked,
+    option:selected {
       background: var(--accent) !important;
+      color: white !important;
+    }
+
+    /* Additional browser-specific fixes */
+    select option {
+      background-color: var(--surface-1) !important;
+      color: var(--text) !important;
+    }
+
+    select option:checked,
+    select option:selected {
+      background-color: var(--accent) !important;
+      color: white !important;
+    }
+
+    /* Webkit browsers (Chrome, Safari, Edge) */
+    select option:not(:checked) {
+      background-color: var(--surface-1) !important;
+      color: var(--text) !important;
+    }
+
+    /* Firefox specific */
+    @-moz-document url-prefix() {
+      select option {
+        background-color: var(--surface-1) !important;
+        color: var(--text) !important;
+      }
+      
+      select option:checked {
+        background-color: var(--accent) !important;
+        color: white !important;
+      }
+    }
+
+    /* Additional fixes for better contrast */
+    select:focus option {
+      background-color: var(--surface-1) !important;
+      color: var(--text) !important;
+    }
+
+    select:focus option:checked,
+    select:focus option:selected {
+      background-color: var(--accent) !important;
+      color: white !important;
+    }
+
+    /* Ensure dropdown options are visible on dark backgrounds */
+    select option {
+      background-color: #2d3748 !important; /* Dark background */
+      color: #e2e8f0 !important; /* Light text */
+      border: none !important;
+    }
+
+    select option:hover {
+      background-color: #4a5568 !important; /* Slightly lighter on hover */
+      color: #ffffff !important;
+    }
+
+    select option:checked,
+    select option:selected {
+      background-color: var(--accent) !important;
       color: white !important;
     }
 
@@ -319,6 +382,132 @@
 
     .header-toggle.retracted svg {
       transform: rotate(180deg);
+    }
+
+    /* Notification Toggle Switch Styling */
+    .notification-toggle-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      min-width: 60px;
+    }
+
+    .notification-toggle-container:hover {
+      background: var(--surface-2);
+    }
+
+    .notification-toggle-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.5rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.3s ease;
+      text-align: center;
+    }
+
+    .notification-toggle-label:hover {
+      color: var(--text);
+    }
+
+    .toggle-text {
+      white-space: nowrap;
+      font-size: 0.5rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+    }
+
+    .toggle-input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 2px;
+      bottom: 2px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .toggle-input:checked + .toggle-slider {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .toggle-input:checked + .toggle-slider:before {
+      transform: translateX(16px);
+      background: white;
+    }
+
+    .toggle-input:focus + .toggle-slider {
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+
+    /* Mobile Notification Toggle Styling */
+    .mobile-notification-toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      margin: 8px 0;
+    }
+
+    .mobile-notification-toggle-container:hover {
+      background: var(--surface-2);
+    }
+
+    .mobile-notification-toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .mobile-notification-toggle-label:hover {
+      color: var(--text);
+    }
+
+    .mobile-toggle-text {
+      white-space: nowrap;
     }
 
     header .container {
@@ -1633,7 +1822,7 @@
             </div>
           </div>
         </div>
-        <div style="margin-left: auto;">
+        <div style="margin-left: auto; display: flex; flex-direction: column; align-items: center; gap: 8px;">
           <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
             <svg class="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
@@ -1642,6 +1831,21 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
             </svg>
           </button>
+          
+          <!-- Notification Toggle Switch -->
+          <div class="notification-toggle-container" onclick="toggleNotificationSwitch()">
+            <div class="notification-toggle-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="toggle-text">Notifications</span>
+            </div>
+            <div class="toggle-switch">
+              <input type="checkbox" id="notification-toggle" class="toggle-input" checked>
+              <span class="toggle-slider"></span>
+            </div>
+          </div>
         </div>
       </nav>
     </div>
@@ -1800,6 +2004,21 @@
             Messages
             <span class="badge" id="mobile-messages-badge" style="display: none;">0</span>
           </a>
+          
+          <!-- Mobile Notification Toggle Switch -->
+          <div class="mobile-notification-toggle-container" onclick="toggleMobileNotificationSwitch()">
+            <div class="mobile-notification-toggle-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="mobile-toggle-text">Notifications</span>
+            </div>
+            <div class="toggle-switch">
+              <input type="checkbox" id="mobile-notification-toggle" class="toggle-input" checked>
+              <span class="toggle-slider"></span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2021,6 +2240,9 @@
         toggleButton.classList.add('retracted');
       }
 
+      // Initialize notification toggle
+      initializeNotificationToggle();
+
       // Sync mobile navigation badge with desktop badge
       function syncMessageBadges() {
         const desktopBadge = document.getElementById('header-messages-badge');
@@ -2063,6 +2285,85 @@
         }
       });
     });
+
+    // Notification Toggle Functions
+    function initializeNotificationToggle() {
+      const notificationToggle = document.getElementById('notification-toggle');
+      const mobileNotificationToggle = document.getElementById('mobile-notification-toggle');
+      
+      // Load saved notification preference
+      const notificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
+      
+      // Set initial state for both toggles
+      if (notificationToggle) {
+        notificationToggle.checked = notificationsEnabled;
+      }
+      if (mobileNotificationToggle) {
+        mobileNotificationToggle.checked = notificationsEnabled;
+      }
+
+      // Add event listeners for toggle changes
+      if (notificationToggle) {
+        notificationToggle.addEventListener('change', function() {
+          const isEnabled = this.checked;
+          updateNotificationState(isEnabled);
+        });
+      }
+
+      if (mobileNotificationToggle) {
+        mobileNotificationToggle.addEventListener('change', function() {
+          const isEnabled = this.checked;
+          updateNotificationState(isEnabled);
+        });
+      }
+
+      // Set initial global state
+      window.notificationsEnabled = notificationsEnabled;
+    }
+
+    function updateNotificationState(isEnabled) {
+      // Update localStorage
+      localStorage.setItem('notificationsEnabled', isEnabled.toString());
+      
+      // Update global notification state
+      window.notificationsEnabled = isEnabled;
+      
+      // Sync both toggles
+      const notificationToggle = document.getElementById('notification-toggle');
+      const mobileNotificationToggle = document.getElementById('mobile-notification-toggle');
+      
+      if (notificationToggle) {
+        notificationToggle.checked = isEnabled;
+      }
+      if (mobileNotificationToggle) {
+        mobileNotificationToggle.checked = isEnabled;
+      }
+      
+      console.log('Notifications', isEnabled ? 'enabled' : 'disabled');
+    }
+
+    // Function to check if notifications are enabled
+    function areNotificationsEnabled() {
+      return window.notificationsEnabled !== false;
+    }
+
+    // Function to toggle notification switch
+    function toggleNotificationSwitch() {
+      const notificationToggle = document.getElementById('notification-toggle');
+      if (notificationToggle) {
+        notificationToggle.checked = !notificationToggle.checked;
+        updateNotificationState(notificationToggle.checked);
+      }
+    }
+
+    // Function to toggle mobile notification switch
+    function toggleMobileNotificationSwitch() {
+      const mobileNotificationToggle = document.getElementById('mobile-notification-toggle');
+      if (mobileNotificationToggle) {
+        mobileNotificationToggle.checked = !mobileNotificationToggle.checked;
+        updateNotificationState(mobileNotificationToggle.checked);
+      }
+    }
   </script>
   
   <!-- Chat Widget Component -->

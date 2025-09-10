@@ -113,6 +113,14 @@
 <div class="comments-section">
   <div class="comments-header">
     <h3>💬 Comments ({{ comments|length }})</h3>
+    <div class="comment-sort-controls">
+      <label for="comment-sort" class="sort-label">Sort by:</label>
+      <select id="comment-sort" class="sort-dropdown" onchange="sortComments(this.value)">
+        <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Oldest first</option>
+        <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest first</option>
+        <option value="most_voted" {% if current_sort == 'most_voted' %}selected{% endif %}>Most upvoted</option>
+      </select>
+    </div>
   </div>
 
   <!-- Add Comment Form -->
@@ -437,10 +445,71 @@
   border-bottom: 1px solid var(--border-light);
 }
 
+.comments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .comments-header h3 {
   color: var(--text);
   font-size: 18px;
   font-weight: 600;
+  margin: 0;
+}
+
+.comment-sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.sort-dropdown {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sort-dropdown:hover {
+  border-color: var(--accent);
+}
+
+.sort-dropdown:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+/* Ensure dropdown options are properly styled */
+.sort-dropdown option {
+  background-color: #2d3748 !important;
+  color: #e2e8f0 !important;
+  padding: 8px 12px !important;
+  border: none !important;
+}
+
+.sort-dropdown option:hover {
+  background-color: #4a5568 !important;
+  color: #ffffff !important;
+}
+
+.sort-dropdown option:checked,
+.sort-dropdown option:selected {
+  background-color: var(--accent) !important;
+  color: white !important;
 }
 
 .comment-form-card {
@@ -523,6 +592,17 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+  }
+  
+  .comments-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .comment-sort-controls {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
 </style>
@@ -1367,5 +1447,15 @@ document.addEventListener('keydown', function(e) {
 
 // Close modal with close button
 document.getElementById('closePhotoModal').addEventListener('click', closePhotoModal);
+
+// Comment sorting functionality
+function sortComments(sortBy) {
+  const postId = {{ post.id }};
+  const currentUrl = new URL(window.location);
+  currentUrl.searchParams.set('sort', sortBy);
+  
+  // Reload the page with the new sort parameter
+  window.location.href = currentUrl.toString();
+}
 </script>
 {% endblock %}
