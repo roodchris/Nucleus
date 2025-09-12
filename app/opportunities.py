@@ -199,15 +199,19 @@ def create_opportunity():
         # Debug: Log the form data
         current_app.logger.info(f"Form opportunity_type.data: {form.opportunity_type.data}")
         current_app.logger.info(f"Form opportunity_type.data type: {type(form.opportunity_type.data)}")
+        current_app.logger.info(f"Form opportunity_type.choices: {form.opportunity_type.choices}")
         
         # Handle opportunity_type conversion with fallback for case sensitivity issues
         opportunity_type = None
         if form.opportunity_type.data:
+            current_app.logger.info(f"Attempting to convert '{form.opportunity_type.data}' to enum")
             try:
                 opportunity_type = OpportunityType(form.opportunity_type.data)
-            except ValueError:
+                current_app.logger.info(f"Successfully converted to enum: {opportunity_type.name} = {opportunity_type.value}")
+            except ValueError as e:
+                current_app.logger.warning(f"Failed to create enum from value '{form.opportunity_type.data}': {e}")
                 # Fallback: try to find by name if value lookup fails
-                current_app.logger.warning(f"Failed to create enum from value '{form.opportunity_type.data}', trying name lookup")
+                current_app.logger.info("Trying name lookup fallback...")
                 try:
                     # Try to find by name (case insensitive)
                     for opp_type in OpportunityType:
@@ -217,8 +221,16 @@ def create_opportunity():
                             break
                     if not opportunity_type:
                         current_app.logger.error(f"Could not find enum for '{form.opportunity_type.data}'")
+                        # Try direct string matching
+                        for opp_type in OpportunityType:
+                            if opp_type.value == form.opportunity_type.data:
+                                opportunity_type = opp_type
+                                current_app.logger.info(f"Found enum by direct value match: {opp_type.name} = {opp_type.value}")
+                                break
                 except Exception as e:
                     current_app.logger.error(f"Error in fallback enum lookup: {e}")
+        
+        current_app.logger.info(f"Final opportunity_type: {opportunity_type}")
         
         opp = Opportunity(
             employer_id=current_user.id,
