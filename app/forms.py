@@ -45,7 +45,6 @@ OPP_TYPE_CHOICES: List[Tuple[str, str]] = [
     (OpportunityType.TELE_CONTRAST.value, "Tele contrast coverage"),
     (OpportunityType.DIAGNOSTIC_INTERPRETATION.value, "Diagnostic interpretation"),
     (OpportunityType.TELE_DIAGNOSTIC_INTERPRETATION.value, "Tele diagnostic interpretation"),
-    (OpportunityType.INTERVENTIONAL_RADIOLOGY.value, "Interventional Radiology"),
     (OpportunityType.CONSULTING_OTHER.value, "Consulting & Other Opportunities"),
 ]
 

@@ -19,7 +19,6 @@ class OpportunityType(Enum):
     TELE_CONTRAST = "tele_contrast"
     DIAGNOSTIC_INTERPRETATION = "diagnostic_interpretation"
     TELE_DIAGNOSTIC_INTERPRETATION = "tele_diagnostic_interpretation"
-    INTERVENTIONAL_RADIOLOGY = "interventional_radiology"
     CONSULTING_OTHER = "consulting_other"
 
 
