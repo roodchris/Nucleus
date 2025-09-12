@@ -6,15 +6,13 @@ services:
     startCommand: gunicorn main:app
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: nucleus_database
-          property: connectionString
+        value: postgresql://nucleus_database_user:yWmpdEqkhdvvH0rbLuuXmFC4Gbx6BVJB@dpg-d2urvt7fte5s73bgkei0-a.oregon-postgres.render.com/nucleus_database
       - key: SECRET_KEY
         value: a9e714c81188772bed55550380341d80b4ac5d55c82b59c42df6ca1a5df3826
       - key: MAIL_USERNAME
         value: radnucleus@gmail.com
       - key: MAIL_PASSWORD
-        value: tiry nsjm cqup rlhc
+        value: "tiry nsjm cqup rlhc"
       - key: MAIL_DEFAULT_SENDER
         value: radnucleus@gmail.com
       - key: CORS_ORIGINS
