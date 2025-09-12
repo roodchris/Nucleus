@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, current_app
 from flask_login import login_required, current_user
 from sqlalchemy import and_
 from .models import db, Opportunity, OpportunityType, UserRole, CalendarSlot, User, Application, ApplicationStatus, TrainingLevel, WorkDuration, PayType
