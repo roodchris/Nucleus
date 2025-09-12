@@ -25,7 +25,7 @@ def comma_separated_number(min_val=None, max_val=None):
     return _validate
 
 
-ROLE_CHOICES: List[Tuple[str, str]] = [("employer", "Employer"), ("resident", "Radiologist")]
+ROLE_CHOICES: List[Tuple[str, str]] = [("employer", "Employer (Job Poster)"), ("resident", "Radiologist (Job Seeker)")]
 
 # Common US timezones for radiology opportunities
 TIMEZONE_CHOICES: List[Tuple[str, str]] = [
