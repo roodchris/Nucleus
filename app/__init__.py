@@ -61,7 +61,14 @@ def migrate_database_columns():
         """))
         forum_comment_photos_migration_exists = result.fetchone() is not None
         
-        if timezone_migration_exists and forum_photos_migration_exists and forum_comment_photos_migration_exists:
+        # Check if interventional radiology enum migration has already been completed
+        result = db.session.execute(text("""
+            SELECT migration_name FROM migrations 
+            WHERE migration_name = 'add_interventional_radiology_enum'
+        """))
+        interventional_radiology_migration_exists = result.fetchone() is not None
+        
+        if timezone_migration_exists and forum_photos_migration_exists and forum_comment_photos_migration_exists and interventional_radiology_migration_exists:
             current_app.logger.info("✅ All migrations already completed, skipping")
             return True
         
@@ -211,6 +218,40 @@ def migrate_database_columns():
             db.session.execute(text("""
                 INSERT INTO migrations (migration_name) 
                 VALUES ('add_forum_comment_photos_column')
+                ON CONFLICT (migration_name) DO NOTHING
+            """))
+            db.session.commit()
+        
+        # Migrate interventional radiology enum value if needed
+        if not interventional_radiology_migration_exists:
+            if 'postgresql' in db_url.lower():
+                # PostgreSQL - Add new enum value to existing enum type
+                try:
+                    current_app.logger.info("Adding interventional_radiology to opportunitytype enum...")
+                    db.session.execute(text("""
+                        ALTER TYPE opportunitytype 
+                        ADD VALUE IF NOT EXISTS 'interventional_radiology'
+                    """))
+                    db.session.commit()
+                    current_app.logger.info("✅ interventional_radiology enum value added successfully")
+                except Exception as e:
+                    # Check if the value already exists
+                    if 'already exists' in str(e).lower():
+                        current_app.logger.info("✅ interventional_radiology enum value already exists")
+                    else:
+                        current_app.logger.warning(f"Enum migration warning: {e}")
+                        # Continue anyway as this might be a non-critical issue
+                        
+            elif 'sqlite' in db_url.lower():
+                # SQLite doesn't have enum types, so this migration is not needed
+                current_app.logger.info("✅ SQLite doesn't support enum types, skipping enum migration")
+            else:
+                current_app.logger.warning("Unsupported database type for enum migration")
+            
+            # Record interventional radiology enum migration as completed
+            db.session.execute(text("""
+                INSERT INTO migrations (migration_name) 
+                VALUES ('add_interventional_radiology_enum')
                 ON CONFLICT (migration_name) DO NOTHING
             """))
             db.session.commit()
