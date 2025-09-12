@@ -227,20 +227,27 @@ def migrate_database_columns():
             if 'postgresql' in db_url.lower():
                 # PostgreSQL - Add new enum value to existing enum type
                 try:
-                    current_app.logger.info("Adding interventional_radiology to opportunitytype enum...")
-                    db.session.execute(text("""
-                        ALTER TYPE opportunitytype 
-                        ADD VALUE IF NOT EXISTS 'interventional_radiology'
+                    # First check if the value already exists
+                    result = db.session.execute(text("""
+                        SELECT unnest(enum_range(NULL::opportunitytype)) as enum_value
                     """))
-                    db.session.commit()
-                    current_app.logger.info("✅ interventional_radiology enum value added successfully")
-                except Exception as e:
-                    # Check if the value already exists
-                    if 'already exists' in str(e).lower():
+                    enum_values = [row[0] for row in result.fetchall()]
+                    
+                    if 'interventional_radiology' in enum_values:
                         current_app.logger.info("✅ interventional_radiology enum value already exists")
                     else:
-                        current_app.logger.warning(f"Enum migration warning: {e}")
-                        # Continue anyway as this might be a non-critical issue
+                        current_app.logger.info("Adding interventional_radiology to opportunitytype enum...")
+                        db.session.execute(text("""
+                            ALTER TYPE opportunitytype 
+                            ADD VALUE 'interventional_radiology'
+                        """))
+                        db.session.commit()
+                        current_app.logger.info("✅ interventional_radiology enum value added successfully")
+                        
+                except Exception as e:
+                    current_app.logger.error(f"Enum migration failed: {e}")
+                    # Don't continue if this fails - it's critical
+                    return False
                         
             elif 'sqlite' in db_url.lower():
                 # SQLite doesn't have enum types, so this migration is not needed
