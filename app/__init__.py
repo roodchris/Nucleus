@@ -61,14 +61,7 @@ def migrate_database_columns():
         """))
         forum_comment_photos_migration_exists = result.fetchone() is not None
         
-        # Check if interventional radiology enum migration has already been completed
-        result = db.session.execute(text("""
-            SELECT migration_name FROM migrations 
-            WHERE migration_name = 'add_interventional_radiology_enum'
-        """))
-        interventional_radiology_migration_exists = result.fetchone() is not None
-        
-        if timezone_migration_exists and forum_photos_migration_exists and forum_comment_photos_migration_exists and interventional_radiology_migration_exists:
+        if timezone_migration_exists and forum_photos_migration_exists and forum_comment_photos_migration_exists:
             current_app.logger.info("✅ All migrations already completed, skipping")
             return True
         
@@ -222,46 +215,6 @@ def migrate_database_columns():
             """))
             db.session.commit()
         
-        # Migrate interventional radiology enum value if needed
-        if not interventional_radiology_migration_exists:
-            if 'postgresql' in db_url.lower():
-                # PostgreSQL - Add new enum value to existing enum type
-                try:
-                    # First check if the value already exists
-                    result = db.session.execute(text("""
-                        SELECT unnest(enum_range(NULL::opportunitytype)) as enum_value
-                    """))
-                    enum_values = [row[0] for row in result.fetchall()]
-                    
-                    if 'interventional_radiology' in enum_values:
-                        current_app.logger.info("✅ interventional_radiology enum value already exists")
-                    else:
-                        current_app.logger.info("Adding interventional_radiology to opportunitytype enum...")
-                        db.session.execute(text("""
-                            ALTER TYPE opportunitytype 
-                            ADD VALUE 'interventional_radiology'
-                        """))
-                        db.session.commit()
-                        current_app.logger.info("✅ interventional_radiology enum value added successfully")
-                        
-                except Exception as e:
-                    current_app.logger.error(f"Enum migration failed: {e}")
-                    # Don't continue if this fails - it's critical
-                    return False
-                        
-            elif 'sqlite' in db_url.lower():
-                # SQLite doesn't have enum types, so this migration is not needed
-                current_app.logger.info("✅ SQLite doesn't support enum types, skipping enum migration")
-            else:
-                current_app.logger.warning("Unsupported database type for enum migration")
-            
-            # Record interventional radiology enum migration as completed
-            db.session.execute(text("""
-                INSERT INTO migrations (migration_name) 
-                VALUES ('add_interventional_radiology_enum')
-                ON CONFLICT (migration_name) DO NOTHING
-            """))
-            db.session.commit()
             
     except Exception as e:
         current_app.logger.error(f"Migration failed: {e}")

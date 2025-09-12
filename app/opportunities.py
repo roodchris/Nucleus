@@ -196,54 +196,11 @@ def create_opportunity():
     
 
     if form.validate_on_submit():
-        # Debug: Log the form data
-        current_app.logger.info(f"Form opportunity_type.data: {form.opportunity_type.data}")
-        current_app.logger.info(f"Form opportunity_type.data type: {type(form.opportunity_type.data)}")
-        current_app.logger.info(f"Form opportunity_type.choices: {form.opportunity_type.choices}")
-        
-        # Handle opportunity_type conversion with fallback for case sensitivity issues
-        opportunity_type = None
-        if form.opportunity_type.data:
-            current_app.logger.info(f"Attempting to convert '{form.opportunity_type.data}' to enum")
-            
-            # Special handling for the known issue with INTERVENTIONAL_RADIOLOGY
-            if form.opportunity_type.data == "INTERVENTIONAL_RADIOLOGY":
-                current_app.logger.warning("Detected INTERVENTIONAL_RADIOLOGY (uppercase) - converting to correct value")
-                opportunity_type = OpportunityType.INTERVENTIONAL_RADIOLOGY
-                current_app.logger.info(f"Converted to enum: {opportunity_type.name} = {opportunity_type.value}")
-            else:
-                try:
-                    opportunity_type = OpportunityType(form.opportunity_type.data)
-                    current_app.logger.info(f"Successfully converted to enum: {opportunity_type.name} = {opportunity_type.value}")
-                except ValueError as e:
-                    current_app.logger.warning(f"Failed to create enum from value '{form.opportunity_type.data}': {e}")
-                    # Fallback: try to find by name if value lookup fails
-                    current_app.logger.info("Trying name lookup fallback...")
-                    try:
-                        # Try to find by name (case insensitive)
-                        for opp_type in OpportunityType:
-                            if opp_type.name.upper() == form.opportunity_type.data.upper():
-                                opportunity_type = opp_type
-                                current_app.logger.info(f"Found enum by name: {opp_type.name} = {opp_type.value}")
-                                break
-                        if not opportunity_type:
-                            current_app.logger.error(f"Could not find enum for '{form.opportunity_type.data}'")
-                            # Try direct string matching
-                            for opp_type in OpportunityType:
-                                if opp_type.value == form.opportunity_type.data:
-                                    opportunity_type = opp_type
-                                    current_app.logger.info(f"Found enum by direct value match: {opp_type.name} = {opp_type.value}")
-                                    break
-                    except Exception as e:
-                        current_app.logger.error(f"Error in fallback enum lookup: {e}")
-        
-        current_app.logger.info(f"Final opportunity_type: {opportunity_type}")
-        
         opp = Opportunity(
             employer_id=current_user.id,
             title=form.title.data if form.title.data else None,
             description=form.description.data if form.description.data else None,
-            opportunity_type=opportunity_type,
+            opportunity_type=OpportunityType(form.opportunity_type.data) if form.opportunity_type.data else None,
             zip_code=form.zip_code.data if form.zip_code.data else None,
             pgy_min=TrainingLevel(form.pgy_min.data) if form.pgy_min.data else None,
             pgy_max=TrainingLevel(form.pgy_max.data) if form.pgy_max.data else None,
@@ -329,35 +286,10 @@ def edit_opportunity(opportunity_id):
         form.work_duration.data = opportunity.work_duration.value if opportunity.work_duration else ""
     
     if form.validate_on_submit():
-        # Handle opportunity_type conversion with fallback for case sensitivity issues
-        opportunity_type = None
-        if form.opportunity_type.data:
-            # Special handling for the known issue with INTERVENTIONAL_RADIOLOGY
-            if form.opportunity_type.data == "INTERVENTIONAL_RADIOLOGY":
-                current_app.logger.warning("Detected INTERVENTIONAL_RADIOLOGY (uppercase) - converting to correct value")
-                opportunity_type = OpportunityType.INTERVENTIONAL_RADIOLOGY
-            else:
-                try:
-                    opportunity_type = OpportunityType(form.opportunity_type.data)
-                except ValueError:
-                    # Fallback: try to find by name if value lookup fails
-                    current_app.logger.warning(f"Failed to create enum from value '{form.opportunity_type.data}', trying name lookup")
-                    try:
-                        # Try to find by name (case insensitive)
-                        for opp_type in OpportunityType:
-                            if opp_type.name.upper() == form.opportunity_type.data.upper():
-                                opportunity_type = opp_type
-                                current_app.logger.info(f"Found enum by name: {opp_type.name} = {opp_type.value}")
-                                break
-                        if not opportunity_type:
-                            current_app.logger.error(f"Could not find enum for '{form.opportunity_type.data}'")
-                    except Exception as e:
-                        current_app.logger.error(f"Error in fallback enum lookup: {e}")
-        
         # Update the opportunity with new data
         opportunity.title = form.title.data if form.title.data else None
         opportunity.description = form.description.data if form.description.data else None
-        opportunity.opportunity_type = opportunity_type
+        opportunity.opportunity_type = OpportunityType(form.opportunity_type.data) if form.opportunity_type.data else None
         opportunity.zip_code = form.zip_code.data if form.zip_code.data else None
         opportunity.pgy_min = TrainingLevel(form.pgy_min.data) if form.pgy_min.data else None
         opportunity.pgy_max = TrainingLevel(form.pgy_max.data) if form.pgy_max.data else None
