@@ -196,6 +196,10 @@ def create_opportunity():
     
 
     if form.validate_on_submit():
+        # Debug: Log the form data
+        current_app.logger.info(f"Form opportunity_type.data: {form.opportunity_type.data}")
+        current_app.logger.info(f"Form opportunity_type.data type: {type(form.opportunity_type.data)}")
+        
         opp = Opportunity(
             employer_id=current_user.id,
             title=form.title.data if form.title.data else None,
