@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Job Opportunities - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-briefcase"></i> Manage Job Opportunities</h1>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if opportunities.items %}
+        <div class="row">
+            {% for opportunity in opportunities.items %}
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ opportunity.title or 'Untitled Opportunity' }}</h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-danger" 
+                                    onclick="adminDelete('/admin/api/delete/opportunity/{{ opportunity.id }}', 'job opportunity')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <strong>Employer:</strong><br>
+                                <span class="text-muted">{{ opportunity.employer.name }}</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <strong>Organization:</strong><br>
+                                <span class="text-muted">{{ opportunity.employer.organization or 'N/A' }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if opportunity.description %}
+                        <div class="mt-2">
+                            <strong>Description:</strong><br>
+                            <p class="text-muted">{{ opportunity.description[:200] }}{% if opportunity.description|length > 200 %}...{% endif %}</p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row mt-2">
+                            {% if opportunity.pay_amount %}
+                            <div class="col-sm-4">
+                                <strong>Pay:</strong><br>
+                                <span class="text-muted">${{ opportunity.pay_amount }}/{{ opportunity.pay_type.value if opportunity.pay_type else 'unit' }}</span>
+                            </div>
+                            {% endif %}
+                            {% if opportunity.zip_code %}
+                            <div class="col-sm-4">
+                                <strong>Location:</strong><br>
+                                <span class="text-muted">{{ opportunity.zip_code }}</span>
+                            </div>
+                            {% endif %}
+                            <div class="col-sm-4">
+                                <strong>Created:</strong><br>
+                                <span class="text-muted">{{ opportunity.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <span class="badge badge-{{ 'success' if opportunity.is_active else 'secondary' }}">
+                                    {{ 'Active' if opportunity.is_active else 'Inactive' }}
+                                </span>
+                                {% if opportunity.is_filled %}
+                                <span class="badge badge-info">Filled</span>
+                                {% endif %}
+                                {% if opportunity.opportunity_type %}
+                                <span class="badge badge-primary">{{ opportunity.opportunity_type.value.replace('_', ' ').title() }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if opportunities.pages > 1 %}
+        <nav aria-label="Opportunities pagination">
+            <ul class="pagination justify-content-center">
+                {% if opportunities.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.opportunities', page=opportunities.prev_num) }}">Previous</a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in opportunities.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != opportunities.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.opportunities', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if opportunities.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.opportunities', page=opportunities.next_num) }}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4>No Job Opportunities Found</h4>
+                    <p>There are currently no job opportunities in the system.</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Admin delete function
+function adminDelete(url, itemName) {
+    if (confirm(`Are you sure you want to delete this ${itemName}? This action cannot be undone.`)) {
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Compensation Data - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-dollar-sign"></i> Manage Compensation Data</h1>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>Note:</strong> Only user-submitted compensation data can be deleted. MGMA survey data is protected.
+            </div>
+        </div>
+    </div>
+
+    {% if data.items %}
+        <div class="row">
+            {% for item in data.items %}
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ item.specialty }} - {{ item.year }}</h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-danger" 
+                                    onclick="adminDelete('/admin/api/delete/compensation-data/{{ item.id }}', 'compensation data')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <strong>Region:</strong><br>
+                                <span class="text-muted">{{ item.region }}</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <strong>Practice Type:</strong><br>
+                                <span class="text-muted">{{ item.practice_type or 'N/A' }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-2">
+                            <div class="col-sm-6">
+                                <strong>Total Compensation:</strong><br>
+                                <span class="text-success font-weight-bold">${{ "{:,}".format(item.total_compensation) }}</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <strong>Base Salary:</strong><br>
+                                <span class="text-muted">${{ "{:,}".format(item.base_salary) }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-2">
+                            <div class="col-sm-6">
+                                <strong>Bonus/Incentive:</strong><br>
+                                <span class="text-muted">${{ "{:,}".format(item.bonus) }}</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <strong>Source:</strong><br>
+                                <span class="badge badge-{{ 'warning' if item.is_anonymous_submission else 'primary' }}">
+                                    {{ 'User Submission' if item.is_anonymous_submission else item.source }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        {% if item.rvu_per_work_rvu %}
+                        <div class="row mt-2">
+                            <div class="col-sm-6">
+                                <strong>Compensation per Work RVU:</strong><br>
+                                <span class="text-muted">${{ "%.2f"|format(item.rvu_per_work_rvu) }}</span>
+                            </div>
+                            {% if item.work_rvus %}
+                            <div class="col-sm-6">
+                                <strong>Work RVUs:</strong><br>
+                                <span class="text-muted">{{ "{:,}".format(item.work_rvus) }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if item.hours_per_week %}
+                        <div class="row mt-2">
+                            <div class="col-sm-6">
+                                <strong>Hours per Week:</strong><br>
+                                <span class="text-muted">{{ item.hours_per_week }} hours</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <strong>Weeks per Year:</strong><br>
+                                <span class="text-muted">{{ item.weeks_per_year }} weeks</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if item.experience_years %}
+                        <div class="row mt-2">
+                            <div class="col-sm-6">
+                                <strong>Experience:</strong><br>
+                                <span class="text-muted">{{ item.experience_years }} years</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row mt-2">
+                            <div class="col-sm-6">
+                                <strong>Created:</strong><br>
+                                <span class="text-muted">{{ item.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if data.pages > 1 %}
+        <nav aria-label="Compensation data pagination">
+            <ul class="pagination justify-content-center">
+                {% if data.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.compensation_data', page=data.prev_num) }}">Previous</a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in data.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != data.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.compensation_data', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if data.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.compensation_data', page=data.next_num) }}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4>No User-Submitted Compensation Data Found</h4>
+                    <p>There are currently no user-submitted compensation data entries in the system.</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Admin delete function
+function adminDelete(url, itemName) {
+    if (confirm(`Are you sure you want to delete this ${itemName}? This action cannot be undone.`)) {
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+        });
+    }
+}
+</script>
+{% endblock %}

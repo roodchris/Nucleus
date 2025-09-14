@@ -12,6 +12,7 @@ db = SQLAlchemy()
 class UserRole(Enum):
     EMPLOYER = "employer"
     RESIDENT = "resident"
+    ADMIN = "admin"
 
 
 class OpportunityType(Enum):
