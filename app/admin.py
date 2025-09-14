@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from functools import wraps
 from app.models import (
     db, User, Opportunity, ProgramReview, JobReview, CompensationData, 
-    ForumPost, ForumComment, Application, CalendarSlot, Message, Conversation
+    ForumPost, ForumComment, ForumVote, Application, CalendarSlot, Message, Conversation
 )
 from sqlalchemy import desc
 import os
@@ -242,7 +242,17 @@ def delete_forum_post(post_id):
     try:
         post = ForumPost.query.get_or_404(post_id)
         
-        # Delete all comments first (cascade should handle this, but being explicit)
+        # Get all comments for this post
+        comments = ForumComment.query.filter_by(post_id=post_id).all()
+        
+        # Delete votes for comments first
+        for comment in comments:
+            ForumVote.query.filter_by(comment_id=comment.id).delete()
+        
+        # Delete votes for the post itself
+        ForumVote.query.filter_by(post_id=post_id).delete()
+        
+        # Delete all comments
         ForumComment.query.filter_by(post_id=post_id).delete()
         
         # Delete the post
@@ -263,10 +273,14 @@ def delete_forum_comment(comment_id):
     try:
         comment = ForumComment.query.get_or_404(comment_id)
         
-        # If this comment has replies, we should handle them appropriately
-        # For now, we'll delete them too (cascade should handle this)
+        # Delete votes for this comment first
+        ForumVote.query.filter_by(comment_id=comment_id).delete()
+        
+        # If this comment has replies, handle them recursively
         replies = ForumComment.query.filter_by(parent_comment_id=comment_id).all()
         for reply in replies:
+            # Delete votes for replies
+            ForumVote.query.filter_by(comment_id=reply.id).delete()
             db.session.delete(reply)
         
         db.session.delete(comment)
@@ -311,7 +325,25 @@ def delete_user(user_id):
             db.session.delete(opp)
         
         # 4. Delete forum-related data
+        # Delete forum votes first
+        ForumVote.query.filter_by(user_id=user_id).delete()
+        
+        # Get user's comments and posts to delete their votes too
+        user_comments = ForumComment.query.filter_by(author_id=user_id).all()
+        user_posts = ForumPost.query.filter_by(author_id=user_id).all()
+        
+        # Delete votes on user's comments
+        for comment in user_comments:
+            ForumVote.query.filter_by(comment_id=comment.id).delete()
+        
+        # Delete votes on user's posts
+        for post in user_posts:
+            ForumVote.query.filter_by(post_id=post.id).delete()
+        
+        # Delete user's comments
         ForumComment.query.filter_by(author_id=user_id).delete()
+        
+        # Delete user's posts
         ForumPost.query.filter_by(author_id=user_id).delete()
         
         # 5. Delete reviews
