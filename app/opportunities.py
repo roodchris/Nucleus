@@ -268,6 +268,7 @@ def create_opportunity():
                 flash("The selected opportunity type is not yet available in the database. Please try again in a few minutes or contact support.", "error")
             else:
                 flash(f"Failed to create opportunity: {str(e)}", "error")
+            from datetime import date
             return render_template("opportunities/create.html", form=form, today=date.today())
         
         # Handle calendar slots from the form
