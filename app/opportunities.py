@@ -194,6 +194,9 @@ def create_opportunity():
         abort(403)
     form = OpportunityForm()
     
+    # Check if form is being submitted and log the data
+    if request.method == 'POST':
+        current_app.logger.info(f"Form submitted with opportunity_type: '{form.opportunity_type.data}'")
 
     if form.validate_on_submit():
         try:
@@ -206,7 +209,12 @@ def create_opportunity():
                     current_app.logger.info(f"Created enum: {opportunity_type_enum} (name: {opportunity_type_enum.name}, value: {opportunity_type_enum.value})")
                 except ValueError as e:
                     current_app.logger.error(f"ValueError creating OpportunityType: {e}")
-                    flash(f"Invalid opportunity type: {form.opportunity_type.data}. Please select a valid type.", "error")
+                    # Check if this is the interventional enum issue
+                    if form.opportunity_type.data == 'interventional':
+                        current_app.logger.error("❌ INTERVENTIONAL enum value is not available in the database!")
+                        flash("The Interventional Radiology option is temporarily unavailable due to a database update. Please try again in a few minutes or contact support.", "error")
+                    else:
+                        flash(f"Invalid opportunity type: {form.opportunity_type.data}. Please select a valid type.", "error")
                     return render_template("opportunities/create.html", form=form, today=date.today())
             
             opp = Opportunity(
