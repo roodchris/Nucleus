@@ -200,9 +200,12 @@ def create_opportunity():
             # Validate opportunity type before creating the opportunity
             opportunity_type_enum = None
             if form.opportunity_type.data:
+                current_app.logger.info(f"Form opportunity_type.data: '{form.opportunity_type.data}' (type: {type(form.opportunity_type.data)})")
                 try:
                     opportunity_type_enum = OpportunityType(form.opportunity_type.data)
+                    current_app.logger.info(f"Created enum: {opportunity_type_enum} (name: {opportunity_type_enum.name}, value: {opportunity_type_enum.value})")
                 except ValueError as e:
+                    current_app.logger.error(f"ValueError creating OpportunityType: {e}")
                     flash(f"Invalid opportunity type: {form.opportunity_type.data}. Please select a valid type.", "error")
                     return render_template("opportunities/create.html", form=form, today=date.today())
             
