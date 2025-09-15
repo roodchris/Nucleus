@@ -64,6 +64,19 @@
         <h2 class="data-title">Available Time Slots</h2>
         <p class="data-subtitle">{{ start_date.strftime('%B %Y') }} - {{ calendar_slots|length }} slot{{ 's' if calendar_slots|length != 1 else '' }} available</p>
         
+        <!-- Disclaimer -->
+        <div class="disclaimer-card">
+          <div class="disclaimer-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="disclaimer-content">
+            <h4>💡 Calendar Note</h4>
+            <p>For longer-term and permanent positions, the date displayed represents the employer's preferred start date. Longer-term and permanent positions that have remained unfilled can be viewed by navigating back in time in the calendar to the original preferred start date.</p>
+          </div>
+        </div>
       {% endif %}
     </div>
 
@@ -397,6 +410,47 @@
     font-size: 1.25rem;
     color: var(--text-secondary);
     font-weight: 300;
+  }
+
+  /* Disclaimer Card */
+  .disclaimer-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    box-shadow: var(--shadow);
+  }
+
+  .disclaimer-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .disclaimer-content h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .disclaimer-content p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
   }
 
   /* Submit Section */
