@@ -63,6 +63,20 @@
       {% else %}
         <h2 class="data-title">Available Time Slots</h2>
         <p class="data-subtitle">{{ start_date.strftime('%B %Y') }} - {{ calendar_slots|length }} slot{{ 's' if calendar_slots|length != 1 else '' }} available</p>
+        
+        <!-- Disclaimer -->
+        <div class="disclaimer-card">
+          <div class="disclaimer-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="disclaimer-content">
+            <h4>💡 Helpful Tip</h4>
+            <p>Adding individual time slots is most helpful for single shifts, or opportunities of limited duration. If the position is longer-term or permanent, it is recommended to specify a preferred start date using the time slot feature.</p>
+          </div>
+        </div>
       {% endif %}
     </div>
 
@@ -396,6 +410,45 @@
     font-size: 1.25rem;
     color: var(--text-secondary);
     font-weight: 300;
+  }
+
+  /* Disclaimer Card */
+  .disclaimer-card {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+    border: 1px solid #b3d9ff;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+  }
+
+  .disclaimer-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    background: #3b82f6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .disclaimer-content h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1e40af;
+  }
+
+  .disclaimer-content p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #1e40af;
+    line-height: 1.4;
   }
 
   /* Submit Section */
