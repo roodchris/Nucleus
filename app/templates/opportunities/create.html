@@ -218,22 +218,24 @@
 
   /* Disclaimer Card */
   .disclaimer-card {
-    background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
-    border: 1px solid #b3d9ff;
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: 1rem;
     margin-top: 1rem;
     display: flex;
     align-items: flex-start;
     gap: 0.75rem;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+    box-shadow: var(--shadow);
   }
 
   .disclaimer-icon {
     flex-shrink: 0;
     width: 32px;
     height: 32px;
-    background: #3b82f6;
+    background: var(--accent);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -245,13 +247,13 @@
     margin: 0 0 0.5rem 0;
     font-size: 0.9rem;
     font-weight: 700;
-    color: #1e40af;
+    color: var(--accent);
   }
 
   .disclaimer-content p {
     margin: 0;
     font-size: 0.85rem;
-    color: #1e40af;
+    color: var(--text-secondary);
     line-height: 1.4;
   }
 
