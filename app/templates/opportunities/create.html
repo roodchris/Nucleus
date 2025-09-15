@@ -93,6 +93,14 @@
           <small class="form-help">Specify the duration of work for this opportunity</small>
         </div>
         
+        <div class="form-group">
+          <label class="form-label">
+            {{ form.preferred_start_date.label }}
+          </label>
+          {{ form.preferred_start_date(class="form-input", min=today) }}
+          <small class="form-help">Optional: When would you prefer this opportunity to start? This helps with calendar positioning.</small>
+        </div>
+        
         <div class="form-group full-width">
           <label class="form-label">
             {{ form.description.label }}
@@ -115,6 +123,9 @@
         <div class="card-title">
           <h3>Available Time Slots</h3>
           <p>Specify when you need coverage (optional). You can add more slots after creating the opportunity.</p>
+          <div class="alert alert-info" style="margin-top: 12px; padding: 12px; background-color: #f0f8ff; border: 1px solid #b3d9ff; border-radius: 6px; font-size: 14px;">
+            <strong>💡 Helpful Tip:</strong> Adding individual time slots is most helpful for single shifts, or opportunities of limited duration. If the position is longer-term or permanent, it is recommended to specify a preferred start date above instead.
+          </div>
         </div>
       </div>
       

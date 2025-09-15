@@ -221,6 +221,7 @@ def create_opportunity():
                 hours_per_week=float(form.hours_per_week.data) if form.hours_per_week.data else None,
                 timezone=form.timezone.data if form.timezone.data else None,
                 work_duration=WorkDuration(form.work_duration.data) if form.work_duration.data else None,
+                preferred_start_date=form.preferred_start_date.data if form.preferred_start_date.data else None,
             )
             db.session.add(opp)
             db.session.commit()
@@ -301,6 +302,7 @@ def edit_opportunity(opportunity_id):
         form.hours_per_week.data = opportunity.hours_per_week
         form.timezone.data = opportunity.timezone
         form.work_duration.data = opportunity.work_duration.value if opportunity.work_duration else ""
+        form.preferred_start_date.data = opportunity.preferred_start_date
     
     if form.validate_on_submit():
         # Update the opportunity with new data
@@ -316,6 +318,7 @@ def edit_opportunity(opportunity_id):
         opportunity.hours_per_week = float(form.hours_per_week.data) if form.hours_per_week.data else None
         opportunity.timezone = form.timezone.data if form.timezone.data else None
         opportunity.work_duration = WorkDuration(form.work_duration.data) if form.work_duration.data else None
+        opportunity.preferred_start_date = form.preferred_start_date.data if form.preferred_start_date.data else None
         
         db.session.commit()
         flash('Opportunity updated successfully!', 'success')

@@ -188,6 +188,21 @@
             </div>
           {% endif %}
         </div>
+        
+        <div>
+          <label for="{{ form.preferred_start_date.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ form.preferred_start_date.label }}
+          </label>
+          {{ form.preferred_start_date(class="input") }}
+          <p class="text-sm text-gray-500 mt-1">Optional: When would you prefer this opportunity to start? This helps with calendar positioning.</p>
+          {% if form.preferred_start_date.errors %}
+            <div class="text-red-500 text-sm mt-2">
+              {% for error in form.preferred_start_date.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
       </div>
     </div>
 
