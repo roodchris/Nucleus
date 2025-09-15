@@ -222,62 +222,6 @@ def migrate_database_columns():
             """))
             db.session.commit()
         
-        # ALWAYS attempt to migrate preferred_start_date column (critical for new feature)
-        current_app.logger.info("🔄 Checking preferred_start_date column migration...")
-        
-        # Check if column exists directly, regardless of migration table
-        column_exists = False
-        try:
-            if 'postgresql' in db_url.lower():
-                result = db.session.execute(text("""
-                    SELECT column_name 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'opportunity' AND column_name = 'preferred_start_date'
-                """))
-                column_exists = result.fetchone() is not None
-            elif 'sqlite' in db_url.lower():
-                result = db.session.execute(text("""
-                    PRAGMA table_info(opportunity)
-                """))
-                columns = [row[1] for row in result.fetchall()]
-                column_exists = 'preferred_start_date' in columns
-        except Exception as e:
-            current_app.logger.error(f"Error checking column existence: {e}")
-            column_exists = False
-        
-        if not column_exists:
-            current_app.logger.info("➕ Adding preferred_start_date column to opportunity table...")
-            
-            if 'postgresql' in db_url.lower():
-                # PostgreSQL
-                db.session.execute(text("""
-                    ALTER TABLE opportunity 
-                    ADD COLUMN preferred_start_date DATE
-                """))
-                db.session.commit()
-                current_app.logger.info("✅ preferred_start_date column added successfully (PostgreSQL)")
-                    
-            elif 'sqlite' in db_url.lower():
-                # SQLite
-                db.session.execute(text("""
-                    ALTER TABLE opportunity 
-                    ADD COLUMN preferred_start_date DATE
-                """))
-                db.session.commit()
-                current_app.logger.info("✅ preferred_start_date column added successfully (SQLite)")
-            else:
-                current_app.logger.warning("Unsupported database type for migration")
-                return False
-        else:
-            current_app.logger.info("✅ preferred_start_date column already exists")
-            
-            # Record preferred_start_date migration as completed
-            db.session.execute(text("""
-                INSERT INTO migrations (migration_name) 
-                VALUES ('add_preferred_start_date_column')
-                ON CONFLICT (migration_name) DO NOTHING
-            """))
-            db.session.commit()
         
             
     except Exception as e:

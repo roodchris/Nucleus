@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from wtforms import StringField, PasswordField, BooleanField, SelectField, IntegerField, DecimalField, TextAreaField, DateField
+from wtforms import StringField, PasswordField, BooleanField, SelectField, IntegerField, DecimalField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, NumberRange, Optional
 from wtforms import ValidationError
 from flask_wtf import FlaskForm
@@ -106,7 +106,6 @@ class OpportunityForm(FlaskForm):
     hours_per_week = DecimalField("Hours per week", validators=[Optional(), NumberRange(min=0)], places=1)
     timezone = SelectField("Timezone", choices=TIMEZONE_CHOICES, validators=[Optional()])
     work_duration = SelectField("Work Duration", choices=WORK_DURATION_CHOICES, validators=[Optional()])
-    preferred_start_date = DateField("Preferred Start Date", validators=[Optional()])
 
     def validate(self, extra_validators=None):
         if not super().validate(extra_validators=extra_validators):

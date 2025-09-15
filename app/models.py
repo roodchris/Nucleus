@@ -119,8 +119,6 @@ class Opportunity(db.Model):
     # Work duration type
     work_duration = db.Column(db.Enum(WorkDuration), nullable=True, index=True)
     
-    # Preferred start date for the opportunity
-    preferred_start_date = db.Column(db.Date, nullable=True, index=True)
 
     is_active = db.Column(db.Boolean, default=True, nullable=False, index=True)
     is_filled = db.Column(db.Boolean, default=False, nullable=False, index=True)  # New field
