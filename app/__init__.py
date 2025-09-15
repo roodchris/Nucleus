@@ -227,22 +227,42 @@ def migrate_database_columns():
             if 'postgresql' in db_url.lower():
                 # PostgreSQL - add new enum value
                 current_app.logger.info("Adding INTERVENTIONAL to OpportunityType enum...")
-                db.session.execute(text("""
-                    ALTER TYPE opportunitytype 
-                    ADD VALUE IF NOT EXISTS 'interventional'
-                """))
-                db.session.commit()
-                current_app.logger.info("✅ INTERVENTIONAL enum value added successfully")
+                try:
+                    # First check if the enum value already exists
+                    result = db.session.execute(text("""
+                        SELECT unnest(enum_range(NULL::opportunitytype)) as enum_value
+                    """))
+                    existing_values = [row[0] for row in result.fetchall()]
+                    current_app.logger.info(f"Existing enum values: {existing_values}")
+                    
+                    if 'interventional' not in existing_values:
+                        db.session.execute(text("""
+                            ALTER TYPE opportunitytype 
+                            ADD VALUE 'interventional'
+                        """))
+                        db.session.commit()
+                        current_app.logger.info("✅ INTERVENTIONAL enum value added successfully")
+                    else:
+                        current_app.logger.info("✅ INTERVENTIONAL enum value already exists")
+                        
+                except Exception as enum_error:
+                    current_app.logger.error(f"Failed to add INTERVENTIONAL enum value: {enum_error}")
+                    # Don't fail the entire migration, just log the error
+                    db.session.rollback()
             else:
                 current_app.logger.info("✅ SQLite - no enum migration needed for INTERVENTIONAL")
             
             # Record interventional radiology migration as completed
-            db.session.execute(text("""
-                INSERT INTO migrations (migration_name) 
-                VALUES ('add_interventional_radiology_enum')
-                ON CONFLICT (migration_name) DO NOTHING
-            """))
-            db.session.commit()
+            try:
+                db.session.execute(text("""
+                    INSERT INTO migrations (migration_name) 
+                    VALUES ('add_interventional_radiology_enum')
+                    ON CONFLICT (migration_name) DO NOTHING
+                """))
+                db.session.commit()
+            except Exception as record_error:
+                current_app.logger.error(f"Failed to record migration: {record_error}")
+                db.session.rollback()
         
             
     except Exception as e:

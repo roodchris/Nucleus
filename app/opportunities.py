@@ -196,23 +196,41 @@ def create_opportunity():
     
 
     if form.validate_on_submit():
-        opp = Opportunity(
-            employer_id=current_user.id,
-            title=form.title.data if form.title.data else None,
-            description=form.description.data if form.description.data else None,
-            opportunity_type=OpportunityType(form.opportunity_type.data) if form.opportunity_type.data else None,
-            zip_code=form.zip_code.data if form.zip_code.data else None,
-            pgy_min=TrainingLevel(form.pgy_min.data) if form.pgy_min.data else None,
-            pgy_max=TrainingLevel(form.pgy_max.data) if form.pgy_max.data else None,
-            pay_amount=float(form.pay_amount.data) if form.pay_amount.data else None,
-            pay_type=PayType(form.pay_type.data) if form.pay_type.data else None,
-            shift_length_hours=float(form.shift_length_hours.data) if form.shift_length_hours.data else None,
-            hours_per_week=float(form.hours_per_week.data) if form.hours_per_week.data else None,
-            timezone=form.timezone.data if form.timezone.data else None,
-            work_duration=WorkDuration(form.work_duration.data) if form.work_duration.data else None,
-        )
-        db.session.add(opp)
-        db.session.commit()
+        try:
+            # Validate opportunity type before creating the opportunity
+            opportunity_type_enum = None
+            if form.opportunity_type.data:
+                try:
+                    opportunity_type_enum = OpportunityType(form.opportunity_type.data)
+                except ValueError as e:
+                    flash(f"Invalid opportunity type: {form.opportunity_type.data}. Please select a valid type.", "error")
+                    return render_template("opportunities/create.html", form=form, today=date.today())
+            
+            opp = Opportunity(
+                employer_id=current_user.id,
+                title=form.title.data if form.title.data else None,
+                description=form.description.data if form.description.data else None,
+                opportunity_type=opportunity_type_enum,
+                zip_code=form.zip_code.data if form.zip_code.data else None,
+                pgy_min=TrainingLevel(form.pgy_min.data) if form.pgy_min.data else None,
+                pgy_max=TrainingLevel(form.pgy_max.data) if form.pgy_max.data else None,
+                pay_amount=float(form.pay_amount.data) if form.pay_amount.data else None,
+                pay_type=PayType(form.pay_type.data) if form.pay_type.data else None,
+                shift_length_hours=float(form.shift_length_hours.data) if form.shift_length_hours.data else None,
+                hours_per_week=float(form.hours_per_week.data) if form.hours_per_week.data else None,
+                timezone=form.timezone.data if form.timezone.data else None,
+                work_duration=WorkDuration(form.work_duration.data) if form.work_duration.data else None,
+            )
+            db.session.add(opp)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Failed to create opportunity: {e}")
+            if "invalid input value for enum opportunitytype" in str(e):
+                flash("The selected opportunity type is not yet available in the database. Please try again in a few minutes or contact support.", "error")
+            else:
+                flash(f"Failed to create opportunity: {str(e)}", "error")
+            return render_template("opportunities/create.html", form=form, today=date.today())
         
         # Handle calendar slots from the form
         slot_count = 0
