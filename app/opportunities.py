@@ -233,6 +233,7 @@ def create_opportunity():
                     if 'interventional' not in db_enum_values:
                         current_app.logger.error("❌ 'interventional' enum value NOT found in database!")
                         flash("The Interventional Radiology option is not yet available in the database. Please try again in a few minutes.", "error")
+                        from datetime import date
                         return render_template("opportunities/create.html", form=form, today=date.today())
                     else:
                         current_app.logger.info("✅ 'interventional' enum value found in database!")
@@ -240,6 +241,7 @@ def create_opportunity():
                 except Exception as db_check_error:
                     current_app.logger.error(f"❌ Database enum check failed: {db_check_error}")
                     flash("Database check failed. Please try again.", "error")
+                    from datetime import date
                     return render_template("opportunities/create.html", form=form, today=date.today())
             
             opp = Opportunity(
