@@ -222,7 +222,34 @@ def migrate_database_columns():
             """))
             db.session.commit()
         
-        
+        # Remove preferred_start_date column if it exists (cleanup from reverted feature)
+        try:
+            if 'postgresql' in db_url.lower():
+                # Check if column exists
+                result = db.session.execute(text("""
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'opportunity' AND column_name = 'preferred_start_date'
+                """))
+                column_exists = result.fetchone() is not None
+                
+                if column_exists:
+                    current_app.logger.info("🗑️ Removing preferred_start_date column from opportunity table...")
+                    db.session.execute(text("""
+                        ALTER TABLE opportunity 
+                        DROP COLUMN preferred_start_date
+                    """))
+                    db.session.commit()
+                    current_app.logger.info("✅ preferred_start_date column removed successfully")
+                    
+            elif 'sqlite' in db_url.lower():
+                # SQLite doesn't support DROP COLUMN easily, so we'll leave it
+                # The column will just be ignored by SQLAlchemy
+                current_app.logger.info("ℹ️ SQLite detected - preferred_start_date column will be ignored")
+                
+        except Exception as e:
+            current_app.logger.error(f"Error removing preferred_start_date column: {e}")
+            # Don't fail the entire migration for this cleanup step
             
     except Exception as e:
         current_app.logger.error(f"Migration failed: {e}")
