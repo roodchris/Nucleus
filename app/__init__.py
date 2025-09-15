@@ -222,49 +222,80 @@ def migrate_database_columns():
             """))
             db.session.commit()
         
-        # ALWAYS attempt to migrate interventional radiology enum (ignore migration table for this critical fix)
-        current_app.logger.info("🔄 Checking INTERVENTIONAL enum migration (always run)...")
+        # MISSION CRITICAL: ALWAYS attempt to migrate interventional enum (ignore migration table for this critical fix)
+        current_app.logger.info("🚨 MISSION CRITICAL: Checking INTERVENTIONAL enum migration (always run)...")
         if 'postgresql' in db_url.lower():
             # PostgreSQL - add new enum value
-            current_app.logger.info("🔄 Starting INTERVENTIONAL enum migration...")
+            current_app.logger.info("🚨 MISSION CRITICAL: Starting INTERVENTIONAL enum migration...")
             try:
                 # First check if the enum value already exists
                 result = db.session.execute(text("""
                     SELECT unnest(enum_range(NULL::opportunitytype)) as enum_value
                 """))
                 existing_values = [row[0] for row in result.fetchall()]
-                current_app.logger.info(f"📋 Existing enum values: {existing_values}")
+                current_app.logger.info(f"📋 EXISTING ENUM VALUES: {existing_values}")
                 
                 if 'interventional' not in existing_values:
-                    current_app.logger.info("➕ Adding 'interventional' to OpportunityType enum...")
-                    # Use a more direct approach - try multiple methods
+                    current_app.logger.warning("🚨 CRITICAL: 'interventional' enum value MISSING from database!")
+                    current_app.logger.info("➕ Attempting to add 'interventional' to OpportunityType enum...")
+                    
+                    # Method 1: Standard ADD VALUE
                     try:
-                        # Method 1: Standard ADD VALUE
+                        current_app.logger.info("🔧 Method 1: Standard ALTER TYPE ADD VALUE...")
                         db.session.execute(text("""
                             ALTER TYPE opportunitytype 
                             ADD VALUE 'interventional'
                         """))
                         db.session.commit()
-                        current_app.logger.info("✅ INTERVENTIONAL enum value added successfully (Method 1)")
+                        current_app.logger.info("✅ SUCCESS: INTERVENTIONAL enum value added (Method 1)")
+                        
                     except Exception as method1_error:
-                        current_app.logger.warning(f"Method 1 failed: {method1_error}")
+                        current_app.logger.error(f"❌ Method 1 FAILED: {method1_error}")
                         db.session.rollback()
                         
+                        # Method 2: Try with IF NOT EXISTS (PostgreSQL 9.1+)
                         try:
-                            # Method 2: Try with IF NOT EXISTS (PostgreSQL 9.1+)
+                            current_app.logger.info("🔧 Method 2: DO $$ BEGIN IF NOT EXISTS...")
                             db.session.execute(text("""
                                 DO $$ BEGIN
-                                    IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'interventional' AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'opportunitytype')) THEN
+                                    IF NOT EXISTS (
+                                        SELECT 1 FROM pg_enum 
+                                        WHERE enumlabel = 'interventional' 
+                                        AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'opportunitytype')
+                                    ) THEN
                                         ALTER TYPE opportunitytype ADD VALUE 'interventional';
+                                        RAISE NOTICE 'Added interventional enum value';
+                                    ELSE
+                                        RAISE NOTICE 'interventional enum value already exists';
                                     END IF;
                                 END $$;
                             """))
                             db.session.commit()
-                            current_app.logger.info("✅ INTERVENTIONAL enum value added successfully (Method 2)")
+                            current_app.logger.info("✅ SUCCESS: INTERVENTIONAL enum value added (Method 2)")
+                            
                         except Exception as method2_error:
-                            current_app.logger.error(f"Method 2 also failed: {method2_error}")
+                            current_app.logger.error(f"❌ Method 2 FAILED: {method2_error}")
                             db.session.rollback()
-                            raise method2_error
+                            
+                            # Method 3: Try direct insertion into pg_enum
+                            try:
+                                current_app.logger.info("🔧 Method 3: Direct pg_enum insertion...")
+                                db.session.execute(text("""
+                                    INSERT INTO pg_enum (enumtypid, enumlabel, enumsortorder)
+                                    SELECT 
+                                        (SELECT oid FROM pg_type WHERE typname = 'opportunitytype'),
+                                        'interventional',
+                                        COALESCE(MAX(enumsortorder), 0) + 1
+                                    FROM pg_enum 
+                                    WHERE enumtypid = (SELECT oid FROM pg_type WHERE typname = 'opportunitytype')
+                                """))
+                                db.session.commit()
+                                current_app.logger.info("✅ SUCCESS: INTERVENTIONAL enum value added (Method 3)")
+                                
+                            except Exception as method3_error:
+                                current_app.logger.error(f"❌ Method 3 FAILED: {method3_error}")
+                                db.session.rollback()
+                                raise method3_error
                 else:
                     current_app.logger.info("✅ INTERVENTIONAL enum value already exists")
                     
@@ -273,16 +304,16 @@ def migrate_database_columns():
                     SELECT unnest(enum_range(NULL::opportunitytype)) as enum_value
                 """))
                 final_values = [row[0] for row in result.fetchall()]
-                current_app.logger.info(f"📋 Final enum values: {final_values}")
+                current_app.logger.info(f"📋 FINAL ENUM VALUES: {final_values}")
                 
                 if 'interventional' in final_values:
-                    current_app.logger.info("✅ INTERVENTIONAL enum migration completed successfully!")
+                    current_app.logger.info("🎉 SUCCESS: INTERVENTIONAL enum migration completed!")
                 else:
-                    current_app.logger.error("❌ INTERVENTIONAL enum value still missing after migration!")
+                    current_app.logger.error("🚨 CRITICAL FAILURE: INTERVENTIONAL enum value still missing!")
                     
             except Exception as enum_error:
-                current_app.logger.error(f"❌ Failed to add INTERVENTIONAL enum value: {enum_error}")
-                current_app.logger.error(f"❌ Migration will be marked as failed to retry on next startup")
+                current_app.logger.error(f"🚨 CRITICAL ERROR: Failed to add INTERVENTIONAL enum value: {enum_error}")
+                current_app.logger.error(f"🚨 Migration will be marked as failed to retry on next startup")
                 db.session.rollback()
                 # Don't record migration as completed if it failed
                 return False
