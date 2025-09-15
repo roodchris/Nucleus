@@ -39,15 +39,30 @@ TIMEZONE_CHOICES: List[Tuple[str, str]] = [
     ("America/Phoenix", "Arizona Time (MST)"),
 ]
 
-OPP_TYPE_CHOICES: List[Tuple[str, str]] = [
-    ("", "Any Type"),
-    (OpportunityType.IN_PERSON_CONTRAST.value, "In-person contrast coverage"),
-    (OpportunityType.TELE_CONTRAST.value, "Tele contrast coverage"),
-    (OpportunityType.DIAGNOSTIC_INTERPRETATION.value, "Diagnostic interpretation"),
-    (OpportunityType.TELE_DIAGNOSTIC_INTERPRETATION.value, "Tele diagnostic interpretation"),
-    (OpportunityType.INTERVENTIONAL.value, "Interventional"),
-    (OpportunityType.CONSULTING_OTHER.value, "Consulting & Other Opportunities"),
-]
+# Create OPP_TYPE_CHOICES dynamically to handle interventional enum availability
+def get_opp_type_choices():
+    """Get opportunity type choices, excluding interventional if not available in database"""
+    choices = [
+        ("", "Any Type"),
+        (OpportunityType.IN_PERSON_CONTRAST.value, "In-person contrast coverage"),
+        (OpportunityType.TELE_CONTRAST.value, "Tele contrast coverage"),
+        (OpportunityType.DIAGNOSTIC_INTERPRETATION.value, "Diagnostic interpretation"),
+        (OpportunityType.TELE_DIAGNOSTIC_INTERPRETATION.value, "Tele diagnostic interpretation"),
+        (OpportunityType.CONSULTING_OTHER.value, "Consulting & Other Opportunities"),
+    ]
+    
+    # Only add interventional if the enum value exists in the database
+    try:
+        # This will fail if the enum value doesn't exist in the database
+        OpportunityType('interventional')
+        choices.insert(-1, (OpportunityType.INTERVENTIONAL.value, "Interventional"))
+    except ValueError:
+        # Interventional enum value not available yet, skip it
+        pass
+    
+    return choices
+
+OPP_TYPE_CHOICES: List[Tuple[str, str]] = get_opp_type_choices()
 
 TRAINING_LEVEL_CHOICES: List[Tuple[str, str]] = [
     ("", "Select Training Level"),
@@ -97,7 +112,7 @@ class LoginForm(FlaskForm):
 class OpportunityForm(FlaskForm):
     title = StringField("Title", validators=[Optional(), Length(max=255)])
     description = TextAreaField("Description", validators=[Optional(), Length(max=5000)])
-    opportunity_type = SelectField("Type", choices=[("", "Select Type")] + [(t.value, t.name.replace("_", " ").title()) for t in OpportunityType], validators=[Optional()])
+    opportunity_type = SelectField("Type", choices=[("", "Select Type")] + get_opp_type_choices()[1:], validators=[Optional()])
     zip_code = StringField("Zip Code", validators=[Optional(), Length(min=5, max=10)])
     pgy_min = SelectField("Training Level Minimum", choices=[("", "Select Minimum")] + TRAINING_LEVEL_CHOICES[1:], validators=[Optional()])
     pgy_max = SelectField("Training Level Maximum", choices=[("", "Select Maximum")] + TRAINING_LEVEL_CHOICES[1:], validators=[Optional()])
