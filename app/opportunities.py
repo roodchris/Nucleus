@@ -217,6 +217,31 @@ def create_opportunity():
                         flash(f"Invalid opportunity type: {form.opportunity_type.data}. Please select a valid type.", "error")
                     return render_template("opportunities/create.html", form=form, today=date.today())
             
+            # Check if this is the interventional enum and handle it specially
+            if opportunity_type_enum and opportunity_type_enum.name == 'INTERVENTIONAL':
+                current_app.logger.info(f"🔍 Handling INTERVENTIONAL enum - name: {opportunity_type_enum.name}, value: {opportunity_type_enum.value}")
+                # For interventional, let's try a direct database approach
+                current_app.logger.info("🔧 Attempting direct database enum check...")
+                
+                # First, let's verify the enum exists in the database
+                try:
+                    from sqlalchemy import text
+                    result = db.session.execute(text("SELECT unnest(enum_range(NULL::opportunitytype)) as enum_value"))
+                    db_enum_values = [row[0] for row in result.fetchall()]
+                    current_app.logger.info(f"📋 Database enum values: {db_enum_values}")
+                    
+                    if 'interventional' not in db_enum_values:
+                        current_app.logger.error("❌ 'interventional' enum value NOT found in database!")
+                        flash("The Interventional Radiology option is not yet available in the database. Please try again in a few minutes.", "error")
+                        return render_template("opportunities/create.html", form=form, today=date.today())
+                    else:
+                        current_app.logger.info("✅ 'interventional' enum value found in database!")
+                        
+                except Exception as db_check_error:
+                    current_app.logger.error(f"❌ Database enum check failed: {db_check_error}")
+                    flash("Database check failed. Please try again.", "error")
+                    return render_template("opportunities/create.html", form=form, today=date.today())
+            
             opp = Opportunity(
                 employer_id=current_user.id,
                 title=form.title.data if form.title.data else None,
