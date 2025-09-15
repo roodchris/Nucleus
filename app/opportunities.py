@@ -194,55 +194,18 @@ def create_opportunity():
         abort(403)
     form = OpportunityForm()
     
-    # Check if form is being submitted and log the data
-    if request.method == 'POST':
-        current_app.logger.info(f"Form submitted with opportunity_type: '{form.opportunity_type.data}'")
 
     if form.validate_on_submit():
         try:
             # Validate opportunity type before creating the opportunity
             opportunity_type_enum = None
             if form.opportunity_type.data:
-                current_app.logger.info(f"Form opportunity_type.data: '{form.opportunity_type.data}' (type: {type(form.opportunity_type.data)})")
                 try:
                     opportunity_type_enum = OpportunityType(form.opportunity_type.data)
-                    current_app.logger.info(f"Created enum: {opportunity_type_enum} (name: {opportunity_type_enum.name}, value: {opportunity_type_enum.value})")
                 except ValueError as e:
-                    current_app.logger.error(f"ValueError creating OpportunityType: {e}")
-                    # Check if this is the interventional enum issue
-                    if form.opportunity_type.data == 'interventional':
-                        current_app.logger.error("❌ INTERVENTIONAL enum value is not available in the database!")
-                        flash("The Interventional Radiology option is temporarily unavailable due to a database update. Please try again in a few minutes or contact support.", "error")
-                    else:
-                        flash(f"Invalid opportunity type: {form.opportunity_type.data}. Please select a valid type.", "error")
+                    flash(f"Invalid opportunity type: {form.opportunity_type.data}. Please select a valid type.", "error")
                     return render_template("opportunities/create.html", form=form, today=date.today())
             
-            # Check if this is the interventional enum and handle it specially
-            if opportunity_type_enum and opportunity_type_enum.name == 'INTERVENTIONAL':
-                current_app.logger.info(f"🔍 Handling INTERVENTIONAL enum - name: {opportunity_type_enum.name}, value: {opportunity_type_enum.value}")
-                # For interventional, let's try a direct database approach
-                current_app.logger.info("🔧 Attempting direct database enum check...")
-                
-                # First, let's verify the enum exists in the database
-                try:
-                    from sqlalchemy import text
-                    result = db.session.execute(text("SELECT unnest(enum_range(NULL::opportunitytype)) as enum_value"))
-                    db_enum_values = [row[0] for row in result.fetchall()]
-                    current_app.logger.info(f"📋 Database enum values: {db_enum_values}")
-                    
-                    if 'interventional' not in db_enum_values:
-                        current_app.logger.error("❌ 'interventional' enum value NOT found in database!")
-                        flash("The Interventional Radiology option is not yet available in the database. Please try again in a few minutes.", "error")
-                        from datetime import date
-                        return render_template("opportunities/create.html", form=form, today=date.today())
-                    else:
-                        current_app.logger.info("✅ 'interventional' enum value found in database!")
-                        
-                except Exception as db_check_error:
-                    current_app.logger.error(f"❌ Database enum check failed: {db_check_error}")
-                    flash("Database check failed. Please try again.", "error")
-                    from datetime import date
-                    return render_template("opportunities/create.html", form=form, today=date.today())
             
             opp = Opportunity(
                 employer_id=current_user.id,
@@ -264,10 +227,7 @@ def create_opportunity():
         except Exception as e:
             db.session.rollback()
             current_app.logger.error(f"Failed to create opportunity: {e}")
-            if "invalid input value for enum opportunitytype" in str(e):
-                flash("The selected opportunity type is not yet available in the database. Please try again in a few minutes or contact support.", "error")
-            else:
-                flash(f"Failed to create opportunity: {str(e)}", "error")
+            flash(f"Failed to create opportunity: {str(e)}", "error")
             from datetime import date
             return render_template("opportunities/create.html", form=form, today=date.today())
         
