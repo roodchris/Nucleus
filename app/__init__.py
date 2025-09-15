@@ -61,7 +61,14 @@ def migrate_database_columns():
         """))
         forum_comment_photos_migration_exists = result.fetchone() is not None
         
-        if timezone_migration_exists and forum_photos_migration_exists and forum_comment_photos_migration_exists:
+        # Check if interventional radiology enum migration has already been completed
+        result = db.session.execute(text("""
+            SELECT migration_name FROM migrations 
+            WHERE migration_name = 'add_interventional_radiology_enum'
+        """))
+        interventional_radiology_migration_exists = result.fetchone() is not None
+        
+        if timezone_migration_exists and forum_photos_migration_exists and forum_comment_photos_migration_exists and interventional_radiology_migration_exists:
             current_app.logger.info("✅ All migrations already completed, skipping")
             return True
         
@@ -211,6 +218,28 @@ def migrate_database_columns():
             db.session.execute(text("""
                 INSERT INTO migrations (migration_name) 
                 VALUES ('add_forum_comment_photos_column')
+                ON CONFLICT (migration_name) DO NOTHING
+            """))
+            db.session.commit()
+        
+        # Migrate interventional radiology enum if needed
+        if not interventional_radiology_migration_exists:
+            if 'postgresql' in db_url.lower():
+                # PostgreSQL - add new enum value
+                current_app.logger.info("Adding INTERVENTIONAL_RADIOLOGY to OpportunityType enum...")
+                db.session.execute(text("""
+                    ALTER TYPE opportunitytype 
+                    ADD VALUE IF NOT EXISTS 'interventional_radiology'
+                """))
+                db.session.commit()
+                current_app.logger.info("✅ INTERVENTIONAL_RADIOLOGY enum value added successfully")
+            else:
+                current_app.logger.info("✅ SQLite - no enum migration needed for INTERVENTIONAL_RADIOLOGY")
+            
+            # Record interventional radiology migration as completed
+            db.session.execute(text("""
+                INSERT INTO migrations (migration_name) 
+                VALUES ('add_interventional_radiology_enum')
                 ON CONFLICT (migration_name) DO NOTHING
             """))
             db.session.commit()
