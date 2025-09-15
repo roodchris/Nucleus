@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from wtforms import StringField, PasswordField, BooleanField, SelectField, IntegerField, DecimalField, TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, SelectField, IntegerField, DecimalField, TextAreaField, DateField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, NumberRange, Optional
 from wtforms import ValidationError
 from flask_wtf import FlaskForm
