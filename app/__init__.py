@@ -226,15 +226,15 @@ def migrate_database_columns():
         if not interventional_radiology_migration_exists:
             if 'postgresql' in db_url.lower():
                 # PostgreSQL - add new enum value
-                current_app.logger.info("Adding INTERVENTIONAL_RADIOLOGY to OpportunityType enum...")
+                current_app.logger.info("Adding INTERVENTIONAL to OpportunityType enum...")
                 db.session.execute(text("""
                     ALTER TYPE opportunitytype 
-                    ADD VALUE IF NOT EXISTS 'interventional_radiology'
+                    ADD VALUE IF NOT EXISTS 'interventional'
                 """))
                 db.session.commit()
-                current_app.logger.info("✅ INTERVENTIONAL_RADIOLOGY enum value added successfully")
+                current_app.logger.info("✅ INTERVENTIONAL enum value added successfully")
             else:
-                current_app.logger.info("✅ SQLite - no enum migration needed for INTERVENTIONAL_RADIOLOGY")
+                current_app.logger.info("✅ SQLite - no enum migration needed for INTERVENTIONAL")
             
             # Record interventional radiology migration as completed
             db.session.execute(text("""
