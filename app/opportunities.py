@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, current_app
 from flask_login import login_required, current_user
-from sqlalchemy import and_
+from sqlalchemy import and_, text
 from .models import db, Opportunity, OpportunityType, UserRole, CalendarSlot, User, Application, ApplicationStatus, TrainingLevel, WorkDuration, PayType
 from .forms import OpportunityForm, FilterForm
 from datetime import date, datetime, timedelta
@@ -8,6 +8,47 @@ import math
 from pyzipcode import ZipCodeDatabase
 
 opp_bp = Blueprint("opportunities", __name__)
+
+
+def ensure_preferred_start_date_column():
+    """Ensure the preferred_start_date column exists in the opportunity table"""
+    try:
+        # Check if column exists
+        db_url = current_app.config.get('SQLALCHEMY_DATABASE_URI', '')
+        if 'postgresql' in db_url.lower():
+            result = db.session.execute(text("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = 'opportunity' AND column_name = 'preferred_start_date'
+            """))
+            column_exists = result.fetchone() is not None
+        elif 'sqlite' in db_url.lower():
+            result = db.session.execute(text("""
+                PRAGMA table_info(opportunity)
+            """))
+            columns = [row[1] for row in result.fetchall()]
+            column_exists = 'preferred_start_date' in columns
+        else:
+            column_exists = True  # Assume exists for other DB types
+        
+        if not column_exists:
+            current_app.logger.info("🔄 Adding missing preferred_start_date column...")
+            if 'postgresql' in db_url.lower():
+                db.session.execute(text("""
+                    ALTER TABLE opportunity 
+                    ADD COLUMN preferred_start_date DATE
+                """))
+            elif 'sqlite' in db_url.lower():
+                db.session.execute(text("""
+                    ALTER TABLE opportunity 
+                    ADD COLUMN preferred_start_date DATE
+                """))
+            db.session.commit()
+            current_app.logger.info("✅ preferred_start_date column added successfully")
+            
+    except Exception as e:
+        current_app.logger.error(f"Error ensuring preferred_start_date column: {e}")
+        db.session.rollback()
 
 
 def get_zip_location(zip_code):
@@ -97,6 +138,9 @@ def healthz():
 def list_opportunities():
     if not current_user.is_authenticated:
         return render_template("auth/login_required.html")
+    
+    # Ensure the preferred_start_date column exists
+    ensure_preferred_start_date_column()
         
     form = FilterForm(data=request.args)
     
