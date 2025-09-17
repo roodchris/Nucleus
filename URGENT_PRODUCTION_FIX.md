@@ -1,11 +1,16 @@
 # 🚨 URGENT: Production Database Migration Required
 
-## Issue
-The production website is showing 500 errors because the database migration hasn't been run yet. The error shows:
+## Issues Fixed
+The production website was showing 500 errors on multiple pages because the database migration hasn't been run yet. The errors were:
 
-```
-sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedColumn) column resident_profile.medical_specialty does not exist
-```
+1. **Application Decisions page**: `column resident_profile.medical_specialty does not exist`
+2. **Forum page**: `column forum_post.specialty does not exist`
+
+## Hotfixes Applied
+✅ **Immediate hotfixes have been deployed** to prevent 500 errors:
+- Application Decisions page now has fallback query
+- Forum specialty features temporarily disabled
+- Site will function normally until migration is run
 
 ## Immediate Fix Required
 
@@ -68,6 +73,7 @@ If the Python script doesn't work, you can run these SQL commands directly on yo
 ALTER TABLE job_review ADD COLUMN IF NOT EXISTS specialty VARCHAR(100);
 ALTER TABLE resident_profile ADD COLUMN IF NOT EXISTS medical_specialty VARCHAR(100);
 ALTER TABLE employer_profile ADD COLUMN IF NOT EXISTS medical_specialty VARCHAR(100);
+ALTER TABLE forum_post ADD COLUMN IF NOT EXISTS specialty VARCHAR(100);
 
 -- Remove old column (if exists)
 ALTER TABLE employer_profile DROP COLUMN IF EXISTS modalities;
@@ -76,6 +82,15 @@ ALTER TABLE employer_profile DROP COLUMN IF EXISTS modalities;
 UPDATE job_review SET practice_type = 'Telemedicine' WHERE practice_type = 'Teleradiology';
 UPDATE employer_profile SET practice_setting = 'Telemedicine' WHERE practice_setting = 'Teleradiology';
 UPDATE compensation_data SET practice_type = 'Telemedicine' WHERE practice_type = 'Teleradiology';
+```
+
+## After Migration: Re-enable Specialty Features
+After running the migration, run this script to re-enable all specialty features:
+```bash
+python re_enable_specialty_features.py
+git add .
+git commit -m "feat: Re-enable all specialty features after production migration"
+git push origin main
 ```
 
 ## Verification
