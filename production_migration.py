@@ -87,8 +87,53 @@ def run_production_migration():
             else:
                 print("  ✅ specialty column already exists in forum_post")
             
-            # Migration 5: Update practice type values
-            print("\n🔄 Migration 5: Update practice type values")
+            # Migration 5: Update PostgreSQL enum types
+            print("\n🔧 Migration 5: Update PostgreSQL enum types")
+            
+            # List of all specialty values that should be in the enum
+            all_specialty_values = [
+                'AEROSPACE_MEDICINE', 'ANESTHESIOLOGY', 'CHILD_NEUROLOGY', 'DERMATOLOGY',
+                'EMERGENCY_MEDICINE', 'FAMILY_MEDICINE', 'INTERNAL_MEDICINE', 'MEDICAL_GENETICS',
+                'INTERVENTIONAL_RADIOLOGY', 'NEUROLOGICAL_SURGERY', 'NEUROLOGY', 'NUCLEAR_MEDICINE',
+                'OBSTETRICS_GYNECOLOGY', 'OCCUPATIONAL_ENVIRONMENTAL_MEDICINE', 'ORTHOPAEDIC_SURGERY',
+                'OTOLARYNGOLOGY', 'PATHOLOGY', 'PEDIATRICS', 'PHYSICAL_MEDICINE_REHABILITATION',
+                'PLASTIC_SURGERY', 'PSYCHIATRY', 'RADIATION_ONCOLOGY', 'RADIOLOGY_DIAGNOSTIC',
+                'GENERAL_SURGERY', 'THORACIC_SURGERY', 'UROLOGY', 'VASCULAR_SURGERY'
+            ]
+            
+            try:
+                with db.engine.connect() as connection:
+                    # Check if we're using PostgreSQL
+                    if 'postgresql' in str(connection.engine.url):
+                        print("  Detected PostgreSQL - updating enum types...")
+                        
+                        # Get current enum values
+                        result = connection.execute(db.text("""
+                            SELECT unnest(enum_range(NULL::opportunitytype))::text as enum_value
+                        """))
+                        existing_values = {row[0] for row in result.fetchall()}
+                        
+                        # Add missing values to opportunitytype enum
+                        for value in all_specialty_values:
+                            if value not in existing_values:
+                                try:
+                                    connection.execute(db.text(f"ALTER TYPE opportunitytype ADD VALUE '{value}'"))
+                                    print(f"    ✅ Added enum value: {value}")
+                                except Exception as e:
+                                    print(f"    ⚠️  Could not add enum value {value}: {e}")
+                            else:
+                                print(f"    ✅ Enum value already exists: {value}")
+                        
+                        connection.commit()
+                        print("  ✅ Updated PostgreSQL enum types")
+                    else:
+                        print("  ✅ SQLite detected - enum updates not needed")
+                        
+            except Exception as e:
+                print(f"  ❌ Error updating enum types: {e}")
+            
+            # Migration 6: Update practice type values
+            print("\n🔄 Migration 6: Update practice type values")
             
             # Update JobReview records
             job_reviews_updated = db.session.query(JobReview).filter(
