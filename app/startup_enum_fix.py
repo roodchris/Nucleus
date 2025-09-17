@@ -86,7 +86,7 @@ def fix_enum_on_startup():
                     logger.error(f"❌ Still missing after fix: {sorted(final_missing)}")
                     return False
                 else:
-                logger.info(f"🎉 All {len(required_specialties)} medical specialties now available!")
+                    logger.info(f"🎉 All {len(required_specialties)} medical specialties now available!")
                 
                 # Also ensure forum_post table has specialty column
                 try:
