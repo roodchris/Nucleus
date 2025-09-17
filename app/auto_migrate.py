@@ -84,49 +84,77 @@ def run_auto_migration():
             connection.commit()
         
         # Migration 5: Update PostgreSQL enum types to include all specialty values
+        logger.info("🔧 Updating PostgreSQL enum types...")
+        
+        # List of all specialty values that should be in the enum
+        all_specialty_values = [
+            'AEROSPACE_MEDICINE', 'ANESTHESIOLOGY', 'CHILD_NEUROLOGY', 'DERMATOLOGY',
+            'EMERGENCY_MEDICINE', 'FAMILY_MEDICINE', 'INTERNAL_MEDICINE', 'MEDICAL_GENETICS',
+            'INTERVENTIONAL_RADIOLOGY', 'NEUROLOGICAL_SURGERY', 'NEUROLOGY', 'NUCLEAR_MEDICINE',
+            'OBSTETRICS_GYNECOLOGY', 'OCCUPATIONAL_ENVIRONMENTAL_MEDICINE', 'ORTHOPAEDIC_SURGERY',
+            'OTOLARYNGOLOGY', 'PATHOLOGY', 'PEDIATRICS', 'PHYSICAL_MEDICINE_REHABILITATION',
+            'PLASTIC_SURGERY', 'PSYCHIATRY', 'RADIATION_ONCOLOGY', 'RADIOLOGY_DIAGNOSTIC',
+            'GENERAL_SURGERY', 'THORACIC_SURGERY', 'UROLOGY', 'VASCULAR_SURGERY'
+        ]
+        
         try:
-            logger.info("🔧 Updating PostgreSQL enum types...")
-            
-            # List of all specialty values that should be in the enum
-            all_specialty_values = [
-                'AEROSPACE_MEDICINE', 'ANESTHESIOLOGY', 'CHILD_NEUROLOGY', 'DERMATOLOGY',
-                'EMERGENCY_MEDICINE', 'FAMILY_MEDICINE', 'INTERNAL_MEDICINE', 'MEDICAL_GENETICS',
-                'INTERVENTIONAL_RADIOLOGY', 'NEUROLOGICAL_SURGERY', 'NEUROLOGY', 'NUCLEAR_MEDICINE',
-                'OBSTETRICS_GYNECOLOGY', 'OCCUPATIONAL_ENVIRONMENTAL_MEDICINE', 'ORTHOPAEDIC_SURGERY',
-                'OTOLARYNGOLOGY', 'PATHOLOGY', 'PEDIATRICS', 'PHYSICAL_MEDICINE_REHABILITATION',
-                'PLASTIC_SURGERY', 'PSYCHIATRY', 'RADIATION_ONCOLOGY', 'RADIOLOGY_DIAGNOSTIC',
-                'GENERAL_SURGERY', 'THORACIC_SURGERY', 'UROLOGY', 'VASCULAR_SURGERY'
-            ]
-            
             with db.engine.connect() as connection:
-                # Check if we're using PostgreSQL
-                if 'postgresql' in str(connection.engine.url):
-                    logger.info("  Detected PostgreSQL - updating enum types...")
-                    
-                    # Get current enum values first
+                # Check if we're using PostgreSQL by looking for the opportunitytype enum
+                try:
                     result = connection.execute(text("""
-                        SELECT unnest(enum_range(NULL::opportunitytype))::text as enum_value
+                        SELECT EXISTS (
+                            SELECT 1 FROM pg_type WHERE typname = 'opportunitytype'
+                        )
                     """))
-                    existing_values = {row[0] for row in result.fetchall()}
+                    has_enum = result.scalar()
                     
-                    # Add missing values to opportunitytype enum
-                    for value in all_specialty_values:
-                        if value not in existing_values:
-                            try:
-                                connection.execute(text(f"ALTER TYPE opportunitytype ADD VALUE '{value}'"))
-                                logger.info(f"    ✅ Added enum value: {value}")
-                            except Exception as e:
-                                logger.warning(f"    ⚠️  Could not add enum value {value}: {e}")
+                    if has_enum:
+                        logger.info("  Detected PostgreSQL with opportunitytype enum - updating...")
+                        
+                        # Get current enum values
+                        result = connection.execute(text("""
+                            SELECT unnest(enum_range(NULL::opportunitytype))::text as enum_value
+                        """))
+                        existing_values = {row[0] for row in result.fetchall()}
+                        logger.info(f"  Current enum values: {sorted(existing_values)}")
+                        
+                        # Add missing values to opportunitytype enum
+                        added_count = 0
+                        for value in all_specialty_values:
+                            if value not in existing_values:
+                                try:
+                                    # Use a separate transaction for each enum addition
+                                    connection.execute(text(f"ALTER TYPE opportunitytype ADD VALUE '{value}'"))
+                                    logger.info(f"    ✅ Added enum value: {value}")
+                                    added_count += 1
+                                except Exception as e:
+                                    logger.warning(f"    ⚠️  Could not add enum value {value}: {e}")
+                            else:
+                                logger.debug(f"    ✅ Enum value already exists: {value}")
+                        
+                        if added_count > 0:
+                            logger.info(f"  ✅ Added {added_count} new enum values")
                         else:
-                            logger.info(f"    ✅ Enum value already exists: {value}")
-                    
-                    connection.commit()
-                    logger.info("  ✅ Updated PostgreSQL enum types")
-                else:
-                    logger.info("  ✅ SQLite detected - enum updates not needed")
+                            logger.info("  ✅ All enum values already exist")
+                            
+                        connection.commit()
+                        
+                        # Verify final state
+                        result = connection.execute(text("""
+                            SELECT unnest(enum_range(NULL::opportunitytype))::text as enum_value
+                        """))
+                        final_values = {row[0] for row in result.fetchall()}
+                        logger.info(f"  Final enum values count: {len(final_values)}")
+                        
+                    else:
+                        logger.info("  ✅ No opportunitytype enum found - likely SQLite")
+                        
+                except Exception as enum_check_error:
+                    logger.info(f"  ✅ Non-PostgreSQL database detected: {enum_check_error}")
                     
         except Exception as e:
             logger.error(f"❌ Error updating enum types: {e}")
+            # Don't crash the app if enum update fails
         
         # Update practice type values from Teleradiology to Telemedicine
         try:

@@ -285,6 +285,24 @@ def create_app(config_class: type = Config) -> Flask:
             except Exception as migration_error:
                 app.logger.warning(f"Specialty migration failed (non-critical): {migration_error}")
             
+            # Validate database schema after migrations
+            try:
+                from .database_validator import run_database_validation
+                validation_passed = run_database_validation()
+                if not validation_passed:
+                    app.logger.warning("Database validation detected issues - some features may be limited")
+            except Exception as validation_error:
+                app.logger.warning(f"Database validation failed: {validation_error}")
+            
+            # Run comprehensive health check
+            try:
+                from .startup_health_check import run_startup_health_check
+                health_passed = run_startup_health_check()
+                app.config['HEALTH_CHECK_PASSED'] = health_passed
+            except Exception as health_error:
+                app.logger.warning(f"Health check failed: {health_error}")
+                app.config['HEALTH_CHECK_PASSED'] = False
+            
             app.logger.info(f"Database initialized successfully with URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
     except Exception as e:
         app.logger.error(f"Database initialization failed: {e}")
@@ -338,7 +356,7 @@ def create_app(config_class: type = Config) -> Flask:
     # Add health check route
     @app.route('/health')
     def health_check():
-        """Health check endpoint to diagnose issues"""
+        """Enhanced health check endpoint for monitoring"""
         try:
             # Test database connection using SQLAlchemy 2.0 syntax
             from sqlalchemy import text
@@ -352,15 +370,25 @@ def create_app(config_class: type = Config) -> Flask:
                 tables_status = f"OK - User table exists with {user_count} users"
             except Exception as e:
                 tables_status = f"ERROR - Tables issue: {str(e)}"
+            
+            # Get detailed health status including enum validation
+            try:
+                from .startup_health_check import get_health_status
+                detailed_health = get_health_status()
+            except Exception as health_error:
+                detailed_health = {"error": f"Could not get detailed health status: {health_error}"}
                 
         except Exception as e:
             db_status = f"ERROR: {str(e)}"
             tables_status = "Not tested due to connection error"
+            detailed_health = {"error": "Database connection failed"}
         
         return {
             "status": "OK" if db_status == "OK" else "ERROR",
             "database": db_status,
             "tables": tables_status,
+            "health_check_passed": app.config.get('HEALTH_CHECK_PASSED', False),
+            "detailed_health": detailed_health,
             "database_uri": app.config.get('SQLALCHEMY_DATABASE_URI', 'Not set'),
             "python_version": f"{__import__('sys').version_info.major}.{__import__('sys').version_info.minor}.{__import__('sys').version_info.micro}",
             "flask_version": __import__('flask').__version__,
