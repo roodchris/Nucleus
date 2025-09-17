@@ -120,24 +120,28 @@ def run_auto_migration():
                         
                         # Add missing values to opportunitytype enum
                         added_count = 0
+                        failed_count = 0
+                        
                         for value in all_specialty_values:
                             if value not in existing_values:
                                 try:
-                                    # Use a separate transaction for each enum addition
-                                    connection.execute(text(f"ALTER TYPE opportunitytype ADD VALUE '{value}'"))
+                                    # Each enum addition needs to be in its own transaction
+                                    with db.engine.begin() as trans:
+                                        trans.execute(text(f"ALTER TYPE opportunitytype ADD VALUE '{value}'"))
                                     logger.info(f"    ✅ Added enum value: {value}")
                                     added_count += 1
                                 except Exception as e:
-                                    logger.warning(f"    ⚠️  Could not add enum value {value}: {e}")
+                                    logger.error(f"    ❌ Failed to add enum value {value}: {e}")
+                                    failed_count += 1
                             else:
                                 logger.debug(f"    ✅ Enum value already exists: {value}")
                         
                         if added_count > 0:
-                            logger.info(f"  ✅ Added {added_count} new enum values")
-                        else:
+                            logger.info(f"  ✅ Successfully added {added_count} new enum values")
+                        if failed_count > 0:
+                            logger.error(f"  ❌ Failed to add {failed_count} enum values")
+                        if added_count == 0 and failed_count == 0:
                             logger.info("  ✅ All enum values already exist")
-                            
-                        connection.commit()
                         
                         # Verify final state
                         result = connection.execute(text("""
