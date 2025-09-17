@@ -220,82 +220,21 @@ def index():
                              reviews=reviews,
                              avg_ratings=avg_ratings,
                              current_specialty=specialty)
-    elif specialty:
-        # Filter by specialty only - show all programs that have reviews for this specialty
-        programs_with_reviews = db.session.query(ProgramReview.program_name).filter_by(specialty=specialty).distinct().all()
-        program_names = [p[0] for p in programs_with_reviews]
-        
-        programs_data = []
-        for program in program_names:
-            stats = db.session.query(
-                func.count(ProgramReview.id).label('review_count'),
-                func.avg(ProgramReview.educational_quality).label('avg_educational'),
-                func.avg(ProgramReview.work_life_balance).label('avg_work_life'),
-                func.avg(ProgramReview.attending_quality).label('avg_attending'),
-                func.avg(ProgramReview.facilities_quality).label('avg_facilities'),
-                func.avg(ProgramReview.research_opportunities).label('avg_research'),
-                func.avg(ProgramReview.culture).label('avg_culture')
-            ).filter_by(program_name=program, specialty=specialty).first()
-            
-            if stats.review_count > 0:
-                programs_data.append({
-                    'name': program,
-                    'review_count': stats.review_count,
-                    'avg_educational': round(stats.avg_educational, 1) if stats.avg_educational else 0,
-                    'avg_work_life': round(stats.avg_work_life, 1) if stats.avg_work_life else 0,
-                    'avg_attending': round(stats.avg_attending, 1) if stats.avg_attending else 0,
-                    'avg_facilities': round(stats.avg_facilities, 1) if stats.avg_facilities else 0,
-                    'avg_research': round(stats.avg_research, 1) if stats.avg_research else 0,
-                    'avg_culture': round(stats.avg_culture, 1) if stats.avg_culture else 0,
-                    'overall_avg': round((stats.avg_educational + stats.avg_work_life + stats.avg_attending + 
-                                        stats.avg_facilities + stats.avg_research + stats.avg_culture) / 6, 1) if all([stats.avg_educational, stats.avg_work_life, stats.avg_attending, stats.avg_facilities, stats.avg_research, stats.avg_culture]) else 0
-                })
-        
-        # Sort by overall average rating
-        programs_data.sort(key=lambda x: x['overall_avg'], reverse=True)
-        
-        return render_template('program_reviews/index.html',
-                             programs=programs_data,
-                             all_programs=RADIOLOGY_PROGRAMS,
-                             current_specialty=specialty,
-                             filter_mode='specialty')
     else:
-        # Get all programs that have reviews with their counts and average ratings
-        programs_with_reviews = db.session.query(ProgramReview.program_name).distinct().all()
-        program_names = [p[0] for p in programs_with_reviews]
+        # Get all individual reviews, similar to job reviews page
+        query = ProgramReview.query
         
-        programs_data = []
-        for program in program_names:
-            stats = db.session.query(
-                func.count(ProgramReview.id).label('review_count'),
-                func.avg(ProgramReview.educational_quality).label('avg_educational'),
-                func.avg(ProgramReview.work_life_balance).label('avg_work_life'),
-                func.avg(ProgramReview.attending_quality).label('avg_attending'),
-                func.avg(ProgramReview.facilities_quality).label('avg_facilities'),
-                func.avg(ProgramReview.research_opportunities).label('avg_research'),
-                func.avg(ProgramReview.culture).label('avg_culture')
-            ).filter_by(program_name=program).first()
-            
-            if stats.review_count > 0:
-                programs_data.append({
-                    'name': program,
-                    'review_count': stats.review_count,
-                    'avg_educational': round(stats.avg_educational, 1) if stats.avg_educational else 0,
-                    'avg_work_life': round(stats.avg_work_life, 1) if stats.avg_work_life else 0,
-                    'avg_attending': round(stats.avg_attending, 1) if stats.avg_attending else 0,
-                    'avg_facilities': round(stats.avg_facilities, 1) if stats.avg_facilities else 0,
-                    'avg_research': round(stats.avg_research, 1) if stats.avg_research else 0,
-                    'avg_culture': round(stats.avg_culture, 1) if stats.avg_culture else 0,
-                    'overall_avg': round((stats.avg_educational + stats.avg_work_life + stats.avg_attending + 
-                                        stats.avg_facilities + stats.avg_research + stats.avg_culture) / 6, 1) if all([stats.avg_educational, stats.avg_work_life, stats.avg_attending, stats.avg_facilities, stats.avg_research, stats.avg_culture]) else 0
-                })
+        # Add specialty filter if provided
+        if specialty:
+            query = query.filter_by(specialty=specialty)
         
-        # Sort by overall average rating
-        programs_data.sort(key=lambda x: x['overall_avg'], reverse=True)
+        # Get all individual reviews, ordered by most recent
+        reviews = query.order_by(ProgramReview.created_at.desc()).all()
         
         return render_template('program_reviews/index.html',
-                             programs=programs_data,
-                             all_programs=RADIOLOGY_PROGRAMS)
+                             reviews=reviews,
+                             all_programs=RADIOLOGY_PROGRAMS,
+                             current_specialty=specialty)
 
 @program_reviews_bp.route('/program-reviews/new', methods=['GET', 'POST'])
 @login_required

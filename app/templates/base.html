@@ -331,9 +331,9 @@
 
     p { margin-bottom: 1rem; }
 
-    /* Header - Glass Morphism */
+    /* Header - Glass Morphism with Transparent Cyan */
     header {
-      background: var(--glass);
+      background: rgba(0, 212, 255, 0.1);
       backdrop-filter: var(--blur);
       -webkit-backdrop-filter: var(--blur);
       border-bottom: 1px solid var(--glass-border);
@@ -531,8 +531,6 @@
       letter-spacing: -0.025em;
       position: relative;
       padding: 0.25rem;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 50%, transparent 100%);
     }
 
     /* Logo */
@@ -788,32 +786,131 @@
       50% { opacity: 0.6; }
     }
 
-    /* Theme Toggle */
-    .theme-toggle {
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
+    /* Theme Toggle Switch */
+    .theme-toggle-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      min-width: 60px;
+    }
+
+    .theme-toggle-container:hover {
+      background: var(--surface-2);
+    }
+
+    .theme-toggle-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.5rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.3s ease;
+      text-align: center;
+    }
+
+    .theme-toggle-label:hover {
+      color: var(--text);
+    }
+
+    .theme-toggle-text {
+      white-space: nowrap;
+      font-size: 0.5rem;
+    }
+
+    .theme-toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+    }
+
+    .theme-toggle-input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .theme-toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .theme-toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 2px;
+      bottom: 2px;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: none;
+    }
+
+    .theme-toggle-input:checked + .theme-toggle-slider {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .theme-toggle-input:checked + .theme-toggle-slider:before {
+      transform: translateX(16px);
+      background: white;
+      border-color: var(--accent);
+    }
+
+    .theme-toggle-input:focus + .theme-toggle-slider {
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+
+    /* Icons inside the toggle slider */
+    .theme-toggle-slider .toggle-icon {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 10px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      backdrop-filter: var(--blur);
-      -webkit-backdrop-filter: var(--blur);
+      pointer-events: none;
     }
 
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      box-shadow: var(--accent-glow);
+    .theme-toggle-slider .moon-icon {
+      left: 5px;
+      color: var(--text-secondary);
     }
 
-    .theme-toggle svg {
-      width: 20px;
-      height: 20px;
-      color: var(--text);
-      transition: all 0.3s ease;
+    .theme-toggle-slider .sun-icon {
+      right: 5px;
+      color: var(--accent);
+      opacity: 0.5;
+    }
+
+    .theme-toggle-input:checked + .theme-toggle-slider .moon-icon {
+      opacity: 0.3;
+    }
+
+    .theme-toggle-input:checked + .theme-toggle-slider .sun-icon {
+      opacity: 1;
+      color: white;
     }
 
     /* Container */
@@ -1839,14 +1936,26 @@
           </div>
         </div>
         <div style="margin-left: auto; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-          <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
-            <svg class="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-            </svg>
-            <svg class="moon-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-            </svg>
-          </button>
+          <!-- Theme Toggle Switch -->
+          <div class="theme-toggle-container" onclick="toggleTheme()">
+            <div class="theme-toggle-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="theme-toggle-text">Theme</span>
+            </div>
+            <div class="theme-toggle-switch">
+              <input type="checkbox" id="theme-toggle" class="theme-toggle-input">
+              <span class="theme-toggle-slider">
+                <svg class="toggle-icon moon-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <svg class="toggle-icon sun-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </div>
+          </div>
           
           <!-- Notification Toggle Switch -->
           <div class="notification-toggle-container" onclick="toggleNotificationSwitch()">
@@ -2158,16 +2267,10 @@
       html.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
       
-      // Update icon visibility
-      const sunIcon = document.querySelector('.sun-icon');
-      const moonIcon = document.querySelector('.moon-icon');
-      
-      if (newTheme === 'light') {
-        sunIcon.style.display = 'none';
-        moonIcon.style.display = 'block';
-      } else {
-        sunIcon.style.display = 'block';
-        moonIcon.style.display = 'none';
+      // Update toggle switch state
+      const themeToggle = document.getElementById('theme-toggle');
+      if (themeToggle) {
+        themeToggle.checked = (newTheme === 'light');
       }
 
       // Add fade-in animation to content
@@ -2248,17 +2351,13 @@
     document.addEventListener('DOMContentLoaded', function() {
       const savedTheme = localStorage.getItem('theme') || 'dark';
       const html = document.documentElement;
-      const sunIcon = document.querySelector('.sun-icon');
-      const moonIcon = document.querySelector('.moon-icon');
+      const themeToggle = document.getElementById('theme-toggle');
       
       html.setAttribute('data-theme', savedTheme);
       
-      if (savedTheme === 'light') {
-        sunIcon.style.display = 'none';
-        moonIcon.style.display = 'block';
-      } else {
-        sunIcon.style.display = 'block';
-        moonIcon.style.display = 'none';
+      // Set toggle switch state based on theme
+      if (themeToggle) {
+        themeToggle.checked = (savedTheme === 'light');
       }
       
       // Initialize header state from localStorage (only on desktop)
