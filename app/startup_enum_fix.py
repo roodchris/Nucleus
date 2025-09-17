@@ -86,8 +86,28 @@ def fix_enum_on_startup():
                     logger.error(f"❌ Still missing after fix: {sorted(final_missing)}")
                     return False
                 else:
-                    logger.info(f"🎉 All {len(required_specialties)} medical specialties now available!")
-                    return True
+                logger.info(f"🎉 All {len(required_specialties)} medical specialties now available!")
+                
+                # Also ensure forum_post table has specialty column
+                try:
+                    logger.info("🔧 Ensuring forum_post table has specialty column...")
+                    cursor.execute("""
+                        SELECT column_name FROM information_schema.columns 
+                        WHERE table_name = 'forum_post' AND column_name = 'specialty'
+                    """)
+                    specialty_column_exists = cursor.fetchone() is not None
+                    
+                    if not specialty_column_exists:
+                        cursor.execute("ALTER TABLE forum_post ADD COLUMN specialty VARCHAR(100)")
+                        conn.commit()
+                        logger.info("✅ Added specialty column to forum_post table")
+                    else:
+                        logger.info("✅ forum_post.specialty column already exists")
+                        
+                except Exception as forum_error:
+                    logger.error(f"❌ Failed to add forum_post.specialty column: {forum_error}")
+                
+                return True
         
     except ImportError:
         logger.error("❌ psycopg package not available - cannot fix enum")

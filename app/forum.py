@@ -151,11 +151,22 @@ def new_post():
             'photos': photos_json if photos else None
         }
         
-        # Only add specialty if the column exists
+        # Only add specialty if the column exists and feature is enabled
         if should_enable_forum_specialty() and specialty:
-            post_data['specialty'] = specialty
+            # Check if the ForumPost model actually has the specialty attribute
+            from .models import ForumPost
+            if hasattr(ForumPost, 'specialty'):
+                post_data['specialty'] = specialty
         
-        post = ForumPost(**post_data)
+        try:
+            post = ForumPost(**post_data)
+        except TypeError as e:
+            if 'specialty' in str(e):
+                # Specialty column doesn't exist yet, create post without it
+                post_data_without_specialty = {k: v for k, v in post_data.items() if k != 'specialty'}
+                post = ForumPost(**post_data_without_specialty)
+            else:
+                raise e
         
         db.session.add(post)
         db.session.commit()
