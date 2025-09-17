@@ -16,12 +16,33 @@ class UserRole(Enum):
 
 
 class OpportunityType(Enum):
-    IN_PERSON_CONTRAST = "in_person_contrast"
-    TELE_CONTRAST = "tele_contrast"
-    DIAGNOSTIC_INTERPRETATION = "diagnostic_interpretation"
-    TELE_DIAGNOSTIC_INTERPRETATION = "tele_diagnostic_interpretation"
-    INTERVENTIONAL_RADIOLOGY = "interventional_radiology"
-    CONSULTING_OTHER = "consulting_other"
+    AEROSPACE_MEDICINE = "AEROSPACE_MEDICINE"
+    ANESTHESIOLOGY = "ANESTHESIOLOGY"
+    CHILD_NEUROLOGY = "CHILD_NEUROLOGY"
+    DERMATOLOGY = "DERMATOLOGY"
+    EMERGENCY_MEDICINE = "EMERGENCY_MEDICINE"
+    FAMILY_MEDICINE = "FAMILY_MEDICINE"
+    INTERNAL_MEDICINE = "INTERNAL_MEDICINE"
+    MEDICAL_GENETICS = "MEDICAL_GENETICS"
+    INTERVENTIONAL_RADIOLOGY = "INTERVENTIONAL_RADIOLOGY"
+    NEUROLOGICAL_SURGERY = "NEUROLOGICAL_SURGERY"
+    NEUROLOGY = "NEUROLOGY"
+    NUCLEAR_MEDICINE = "NUCLEAR_MEDICINE"
+    OBSTETRICS_GYNECOLOGY = "OBSTETRICS_GYNECOLOGY"
+    OCCUPATIONAL_ENVIRONMENTAL_MEDICINE = "OCCUPATIONAL_ENVIRONMENTAL_MEDICINE"
+    ORTHOPAEDIC_SURGERY = "ORTHOPAEDIC_SURGERY"
+    OTOLARYNGOLOGY = "OTOLARYNGOLOGY"
+    PATHOLOGY = "PATHOLOGY"
+    PEDIATRICS = "PEDIATRICS"
+    PHYSICAL_MEDICINE_REHABILITATION = "PHYSICAL_MEDICINE_REHABILITATION"
+    PLASTIC_SURGERY = "PLASTIC_SURGERY"
+    PSYCHIATRY = "PSYCHIATRY"
+    RADIATION_ONCOLOGY = "RADIATION_ONCOLOGY"
+    RADIOLOGY_DIAGNOSTIC = "RADIOLOGY_DIAGNOSTIC"
+    GENERAL_SURGERY = "GENERAL_SURGERY"
+    THORACIC_SURGERY = "THORACIC_SURGERY"
+    UROLOGY = "UROLOGY"
+    VASCULAR_SURGERY = "VASCULAR_SURGERY"
 
 
 class ApplicationStatus(Enum):
@@ -32,10 +53,13 @@ class ApplicationStatus(Enum):
 
 
 class TrainingLevel(Enum):
-    R1 = "R1"
-    R2 = "R2"
-    R3 = "R3"
-    R4 = "R4"
+    PGY1 = "PGY1"
+    PGY2 = "PGY2"
+    PGY3 = "PGY3"
+    PGY4 = "PGY4"
+    PGY5 = "PGY5"
+    PGY6 = "PGY6"
+    PGY7 = "PGY7"
     FELLOW = "FELLOW"
     ATTENDING = "ATTENDING"
 
@@ -130,8 +154,9 @@ class Opportunity(db.Model):
 
     def is_training_level_eligible(self, training_level: TrainingLevel) -> bool:
         # Convert enum values to numeric for comparison
-        level_order = {TrainingLevel.R1: 1, TrainingLevel.R2: 2, TrainingLevel.R3: 3, 
-                      TrainingLevel.R4: 4, TrainingLevel.FELLOW: 5, TrainingLevel.ATTENDING: 6}
+        level_order = {TrainingLevel.PGY1: 1, TrainingLevel.PGY2: 2, TrainingLevel.PGY3: 3, 
+                      TrainingLevel.PGY4: 4, TrainingLevel.PGY5: 5, TrainingLevel.PGY6: 6, 
+                      TrainingLevel.PGY7: 7, TrainingLevel.FELLOW: 8, TrainingLevel.ATTENDING: 9}
         min_level = level_order.get(self.pgy_min, 0)
         max_level = level_order.get(self.pgy_max, 0)
         user_level = level_order.get(training_level, 0)
@@ -199,6 +224,7 @@ class ResidentProfile(db.Model):
     medical_school = db.Column(db.String(200), nullable=True)
     residency_program = db.Column(db.String(200), nullable=True)
     training_year = db.Column(db.Enum(TrainingLevel), nullable=True)  # Training level
+    medical_specialty = db.Column(db.String(100), nullable=True)  # Medical specialty
     bio = db.Column(db.Text, nullable=True)
     photo_filename = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
@@ -212,8 +238,8 @@ class EmployerProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, unique=True, index=True)
     practice_setting = db.Column(db.String(200), nullable=True)  # e.g., "Academic Medical Center", "Private Practice"
-    modalities = db.Column(db.Text, nullable=True)  # e.g., "CT, MRI, X-ray, Ultrasound"
-    location = db.Column(db.String(500), nullable=True)  # Detailed location information
+    medical_specialty = db.Column(db.String(100), nullable=True)  # Primary medical specialty
+    location = db.Column(db.String(500), nullable=True)  # City, state and other location details
     practice_description = db.Column(db.Text, nullable=True)  # General description of the practice
     photo_filename = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
@@ -239,6 +265,7 @@ class ForumPost(db.Model):
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     category = db.Column(db.Enum(ForumCategory), nullable=False, index=True)
+    specialty = db.Column(db.String(100), nullable=True, index=True)  # Medical specialty
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     is_pinned = db.Column(db.Boolean, default=False, nullable=False)
@@ -316,10 +343,11 @@ class ForumVote(db.Model):
     )
 
 class ProgramReview(db.Model):
-    """Model for radiology residency program reviews"""
+    """Model for medical residency program reviews"""
     id = db.Column(db.Integer, primary_key=True)
     program_name = db.Column(db.String(200), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    specialty = db.Column(db.String(100), nullable=True, index=True)  # Medical specialty
     educational_quality = db.Column(db.Integer, nullable=False)  # 1-5 rating
     work_life_balance = db.Column(db.Integer, nullable=False)   # 1-5 rating
     attending_quality = db.Column(db.Integer, nullable=False)   # 1-5 rating
@@ -368,6 +396,7 @@ class JobReview(db.Model):
     practice_name = db.Column(db.String(200), nullable=False)
     location = db.Column(db.String(200), nullable=False)
     practice_type = db.Column(db.String(100), nullable=True)  # Private practice, academic, etc.
+    specialty = db.Column(db.String(100), nullable=True)      # Medical specialty, optional
     work_life_balance = db.Column(db.Integer, nullable=True)  # 1-5 rating, optional
     compensation = db.Column(db.Integer, nullable=True)       # 1-5 rating, optional
     culture = db.Column(db.Integer, nullable=True)           # 1-5 rating, optional

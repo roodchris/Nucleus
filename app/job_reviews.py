@@ -15,6 +15,7 @@ def index():
     practice_name = request.args.get('practice_name', '').strip()
     state = request.args.get('state', '').strip()
     practice_type = request.args.get('practice_type', '').strip()
+    specialty = request.args.get('specialty', '').strip()
     
     # Build query with filters
     query = JobReview.query
@@ -27,6 +28,9 @@ def index():
     
     if practice_type:
         query = query.filter(JobReview.practice_type == practice_type)
+    
+    if specialty:
+        query = query.filter(JobReview.specialty == specialty)
     
     # Get filtered reviews, ordered by most recent
     reviews = query.order_by(desc(JobReview.created_at)).all()
@@ -101,6 +105,7 @@ def submit_review():
             practice_name=form.practice_name.data,
             location=form.location.data,
             practice_type=form.practice_type.data if form.practice_type.data and form.practice_type.data != '' else None,
+            specialty=form.specialty.data if form.specialty.data and form.specialty.data != '' else None,
             work_life_balance=work_life_balance,
             compensation=compensation,
             culture=culture,
@@ -160,6 +165,7 @@ def edit_review(review_id):
         review.practice_name = form.practice_name.data
         review.location = form.location.data
         review.practice_type = form.practice_type.data if form.practice_type.data and form.practice_type.data != '' else None
+        review.specialty = form.specialty.data if form.specialty.data and form.specialty.data != '' else None
         review.work_life_balance = work_life_balance
         review.compensation = compensation
         review.culture = culture

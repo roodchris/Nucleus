@@ -3,7 +3,7 @@
   <!-- Page Header -->
   <div class="page-header">
     <h1 class="page-title page-title-animated">🏥 Practice Profile</h1>
-    <p class="page-subtitle page-subtitle-animated">Manage your practice information for residents to view</p>
+    <p class="page-subtitle page-subtitle-animated">Manage your practice information for physicians to view</p>
   </div>
 
 <div class="data-section">
@@ -27,22 +27,53 @@
           <label class="form-label">Practice Setting</label>
           <select name="practice_setting" class="form-input">
             <option value="">Select practice setting</option>
-            <option value="Academic Medical Center" {% if profile and profile.practice_setting == 'Academic Medical Center' %}selected{% endif %}>Academic Medical Center</option>
             <option value="Private Practice" {% if profile and profile.practice_setting == 'Private Practice' %}selected{% endif %}>Private Practice</option>
-            <option value="Hospital-based" {% if profile and profile.practice_setting == 'Hospital-based' %}selected{% endif %}>Hospital-based</option>
-            <option value="Teleradiology" {% if profile and profile.practice_setting == 'Teleradiology' %}selected{% endif %}>Teleradiology</option>
+            <option value="Academic" {% if profile and profile.practice_setting == 'Academic' %}selected{% endif %}>Academic</option>
+            <option value="Hospital Employed" {% if profile and profile.practice_setting == 'Hospital Employed' %}selected{% endif %}>Hospital Employed</option>
+            <option value="Government" {% if profile and profile.practice_setting == 'Government' %}selected{% endif %}>Government</option>
+            <option value="Telemedicine" {% if profile and profile.practice_setting == 'Telemedicine' %}selected{% endif %}>Telemedicine</option>
+            <option value="1099 Contractor" {% if profile and profile.practice_setting == '1099 Contractor' %}selected{% endif %}>1099 Contractor</option>
             <option value="Other" {% if profile and profile.practice_setting == 'Other' %}selected{% endif %}>Other</option>
           </select>
         </div>
         
-        <div class="form-group full-width">
-          <label class="form-label">Modalities Used</label>
-          <textarea name="modalities" class="form-input" rows="3" placeholder="e.g., CT, MRI, X-ray, Ultrasound, Mammography, Nuclear Medicine">{{ profile.modalities or '' }}</textarea>
+        <div class="form-group">
+          <label class="form-label">Medical Specialty</label>
+          <select name="medical_specialty" class="form-input">
+            <option value="">Select medical specialty</option>
+            <option value="AEROSPACE_MEDICINE" {% if profile and profile.medical_specialty == 'AEROSPACE_MEDICINE' %}selected{% endif %}>Aerospace Medicine</option>
+            <option value="ANESTHESIOLOGY" {% if profile and profile.medical_specialty == 'ANESTHESIOLOGY' %}selected{% endif %}>Anesthesiology</option>
+            <option value="CHILD_NEUROLOGY" {% if profile and profile.medical_specialty == 'CHILD_NEUROLOGY' %}selected{% endif %}>Child Neurology</option>
+            <option value="DERMATOLOGY" {% if profile and profile.medical_specialty == 'DERMATOLOGY' %}selected{% endif %}>Dermatology</option>
+            <option value="EMERGENCY_MEDICINE" {% if profile and profile.medical_specialty == 'EMERGENCY_MEDICINE' %}selected{% endif %}>Emergency Medicine</option>
+            <option value="FAMILY_MEDICINE" {% if profile and profile.medical_specialty == 'FAMILY_MEDICINE' %}selected{% endif %}>Family Medicine</option>
+            <option value="INTERNAL_MEDICINE" {% if profile and profile.medical_specialty == 'INTERNAL_MEDICINE' %}selected{% endif %}>Internal Medicine</option>
+            <option value="MEDICAL_GENETICS" {% if profile and profile.medical_specialty == 'MEDICAL_GENETICS' %}selected{% endif %}>Medical Genetics</option>
+            <option value="INTERVENTIONAL_RADIOLOGY" {% if profile and profile.medical_specialty == 'INTERVENTIONAL_RADIOLOGY' %}selected{% endif %}>Interventional Radiology</option>
+            <option value="NEUROLOGICAL_SURGERY" {% if profile and profile.medical_specialty == 'NEUROLOGICAL_SURGERY' %}selected{% endif %}>Neurological Surgery</option>
+            <option value="NEUROLOGY" {% if profile and profile.medical_specialty == 'NEUROLOGY' %}selected{% endif %}>Neurology</option>
+            <option value="NUCLEAR_MEDICINE" {% if profile and profile.medical_specialty == 'NUCLEAR_MEDICINE' %}selected{% endif %}>Nuclear Medicine</option>
+            <option value="OBSTETRICS_GYNECOLOGY" {% if profile and profile.medical_specialty == 'OBSTETRICS_GYNECOLOGY' %}selected{% endif %}>Obstetrics and Gynecology</option>
+            <option value="OCCUPATIONAL_ENVIRONMENTAL_MEDICINE" {% if profile and profile.medical_specialty == 'OCCUPATIONAL_ENVIRONMENTAL_MEDICINE' %}selected{% endif %}>Occupational and Environmental Medicine</option>
+            <option value="ORTHOPAEDIC_SURGERY" {% if profile and profile.medical_specialty == 'ORTHOPAEDIC_SURGERY' %}selected{% endif %}>Orthopaedic Surgery</option>
+            <option value="OTOLARYNGOLOGY" {% if profile and profile.medical_specialty == 'OTOLARYNGOLOGY' %}selected{% endif %}>Otolaryngology - Head and Neck Surgery</option>
+            <option value="PATHOLOGY" {% if profile and profile.medical_specialty == 'PATHOLOGY' %}selected{% endif %}>Pathology-Anatomic and Clinical</option>
+            <option value="PEDIATRICS" {% if profile and profile.medical_specialty == 'PEDIATRICS' %}selected{% endif %}>Pediatrics</option>
+            <option value="PHYSICAL_MEDICINE_REHABILITATION" {% if profile and profile.medical_specialty == 'PHYSICAL_MEDICINE_REHABILITATION' %}selected{% endif %}>Physical Medicine and Rehabilitation</option>
+            <option value="PLASTIC_SURGERY" {% if profile and profile.medical_specialty == 'PLASTIC_SURGERY' %}selected{% endif %}>Plastic Surgery</option>
+            <option value="PSYCHIATRY" {% if profile and profile.medical_specialty == 'PSYCHIATRY' %}selected{% endif %}>Psychiatry</option>
+            <option value="RADIATION_ONCOLOGY" {% if profile and profile.medical_specialty == 'RADIATION_ONCOLOGY' %}selected{% endif %}>Radiation Oncology</option>
+            <option value="RADIOLOGY_DIAGNOSTIC" {% if profile and profile.medical_specialty == 'RADIOLOGY_DIAGNOSTIC' %}selected{% endif %}>Radiology-Diagnostic</option>
+            <option value="GENERAL_SURGERY" {% if profile and profile.medical_specialty == 'GENERAL_SURGERY' %}selected{% endif %}>General Surgery</option>
+            <option value="THORACIC_SURGERY" {% if profile and profile.medical_specialty == 'THORACIC_SURGERY' %}selected{% endif %}>Thoracic Surgery</option>
+            <option value="UROLOGY" {% if profile and profile.medical_specialty == 'UROLOGY' %}selected{% endif %}>Urology</option>
+            <option value="VASCULAR_SURGERY" {% if profile and profile.medical_specialty == 'VASCULAR_SURGERY' %}selected{% endif %}>Vascular Surgery</option>
+          </select>
         </div>
         
         <div class="form-group full-width">
-          <label class="form-label">Location & Address</label>
-          <textarea name="location" class="form-input" rows="3" placeholder="Detailed location information including city, state, and any relevant details">{{ profile.location or '' }}</textarea>
+          <label class="form-label">Location (City and State)</label>
+          <textarea name="location" class="form-input" rows="2" placeholder="e.g., New York, NY - Include city, state, and any additional location details">{{ profile.location or '' }}</textarea>
         </div>
         
         <div class="form-group full-width">
@@ -95,7 +126,7 @@
       </div>
       <div class="card-title">
         <h3>Profile Preview</h3>
-        <p>How your practice profile appears to residents</p>
+        <p>How your practice profile appears to physicians</p>
       </div>
     </div>
     
@@ -117,10 +148,40 @@
         </div>
         {% endif %}
         
-        {% if profile.modalities %}
-        <div class="detail-row full-width">
-          <span class="detail-label">Modalities</span>
-          <div class="detail-value">{{ profile.modalities }}</div>
+        {% if profile.medical_specialty %}
+        <div class="detail-row">
+          <span class="detail-label">Medical Specialty</span>
+          <div class="detail-value">
+            {% if profile.medical_specialty == 'AEROSPACE_MEDICINE' %}Aerospace Medicine
+            {% elif profile.medical_specialty == 'ANESTHESIOLOGY' %}Anesthesiology
+            {% elif profile.medical_specialty == 'CHILD_NEUROLOGY' %}Child Neurology
+            {% elif profile.medical_specialty == 'DERMATOLOGY' %}Dermatology
+            {% elif profile.medical_specialty == 'EMERGENCY_MEDICINE' %}Emergency Medicine
+            {% elif profile.medical_specialty == 'FAMILY_MEDICINE' %}Family Medicine
+            {% elif profile.medical_specialty == 'INTERNAL_MEDICINE' %}Internal Medicine
+            {% elif profile.medical_specialty == 'MEDICAL_GENETICS' %}Medical Genetics
+            {% elif profile.medical_specialty == 'INTERVENTIONAL_RADIOLOGY' %}Interventional Radiology
+            {% elif profile.medical_specialty == 'NEUROLOGICAL_SURGERY' %}Neurological Surgery
+            {% elif profile.medical_specialty == 'NEUROLOGY' %}Neurology
+            {% elif profile.medical_specialty == 'NUCLEAR_MEDICINE' %}Nuclear Medicine
+            {% elif profile.medical_specialty == 'OBSTETRICS_GYNECOLOGY' %}Obstetrics and Gynecology
+            {% elif profile.medical_specialty == 'OCCUPATIONAL_ENVIRONMENTAL_MEDICINE' %}Occupational and Environmental Medicine
+            {% elif profile.medical_specialty == 'ORTHOPAEDIC_SURGERY' %}Orthopaedic Surgery
+            {% elif profile.medical_specialty == 'OTOLARYNGOLOGY' %}Otolaryngology - Head and Neck Surgery
+            {% elif profile.medical_specialty == 'PATHOLOGY' %}Pathology-Anatomic and Clinical
+            {% elif profile.medical_specialty == 'PEDIATRICS' %}Pediatrics
+            {% elif profile.medical_specialty == 'PHYSICAL_MEDICINE_REHABILITATION' %}Physical Medicine and Rehabilitation
+            {% elif profile.medical_specialty == 'PLASTIC_SURGERY' %}Plastic Surgery
+            {% elif profile.medical_specialty == 'PSYCHIATRY' %}Psychiatry
+            {% elif profile.medical_specialty == 'RADIATION_ONCOLOGY' %}Radiation Oncology
+            {% elif profile.medical_specialty == 'RADIOLOGY_DIAGNOSTIC' %}Radiology-Diagnostic
+            {% elif profile.medical_specialty == 'GENERAL_SURGERY' %}General Surgery
+            {% elif profile.medical_specialty == 'THORACIC_SURGERY' %}Thoracic Surgery
+            {% elif profile.medical_specialty == 'UROLOGY' %}Urology
+            {% elif profile.medical_specialty == 'VASCULAR_SURGERY' %}Vascular Surgery
+            {% else %}{{ profile.medical_specialty }}
+            {% endif %}
+          </div>
         </div>
         {% endif %}
         

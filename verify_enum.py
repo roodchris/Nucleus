@@ -72,3 +72,4 @@ if __name__ == "__main__":
     success = verify_enum()
     if not success:
         sys.exit(1)
+

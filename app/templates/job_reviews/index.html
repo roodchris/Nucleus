@@ -3,7 +3,7 @@
   <!-- Page Header -->
   <div class="page-header">
     <h1 class="page-title page-title-animated">Job Reviews</h1>
-    <p class="page-subtitle page-subtitle-animated">Read reviews from attending radiologists about their current and previous practice experiences</p>
+    <p class="page-subtitle page-subtitle-animated">Read reviews from attending physicians about their current and previous practice experiences</p>
     {% if reviews %}
     <p class="page-stats">
       Showing {{ reviews|length }} review{{ 's' if reviews|length != 1 else '' }}
@@ -139,9 +139,48 @@
             <option value="Academic" {% if request.args.get('practice_type') == 'Academic' %}selected{% endif %}>Academic</option>
             <option value="Hospital Employed" {% if request.args.get('practice_type') == 'Hospital Employed' %}selected{% endif %}>Hospital Employed</option>
             <option value="Government" {% if request.args.get('practice_type') == 'Government' %}selected{% endif %}>Government</option>
-            <option value="Teleradiology" {% if request.args.get('practice_type') == 'Teleradiology' %}selected{% endif %}>Teleradiology</option>
+            <option value="Telemedicine" {% if request.args.get('practice_type') == 'Telemedicine' %}selected{% endif %}>Telemedicine</option>
             <option value="1099 Contractor" {% if request.args.get('practice_type') == '1099 Contractor' %}selected{% endif %}>1099 Contractor</option>
             <option value="Other" {% if request.args.get('practice_type') == 'Other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 7h16M7 12h10M10 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Medical Specialty
+          </label>
+          <select name="specialty" id="specialty" class="filter-input">
+            <option value="">All Specialties</option>
+            <option value="AEROSPACE_MEDICINE" {% if request.args.get('specialty') == 'AEROSPACE_MEDICINE' %}selected{% endif %}>Aerospace Medicine</option>
+            <option value="ANESTHESIOLOGY" {% if request.args.get('specialty') == 'ANESTHESIOLOGY' %}selected{% endif %}>Anesthesiology</option>
+            <option value="CHILD_NEUROLOGY" {% if request.args.get('specialty') == 'CHILD_NEUROLOGY' %}selected{% endif %}>Child Neurology</option>
+            <option value="DERMATOLOGY" {% if request.args.get('specialty') == 'DERMATOLOGY' %}selected{% endif %}>Dermatology</option>
+            <option value="EMERGENCY_MEDICINE" {% if request.args.get('specialty') == 'EMERGENCY_MEDICINE' %}selected{% endif %}>Emergency Medicine</option>
+            <option value="FAMILY_MEDICINE" {% if request.args.get('specialty') == 'FAMILY_MEDICINE' %}selected{% endif %}>Family Medicine</option>
+            <option value="INTERNAL_MEDICINE" {% if request.args.get('specialty') == 'INTERNAL_MEDICINE' %}selected{% endif %}>Internal Medicine</option>
+            <option value="MEDICAL_GENETICS" {% if request.args.get('specialty') == 'MEDICAL_GENETICS' %}selected{% endif %}>Medical Genetics</option>
+            <option value="INTERVENTIONAL_RADIOLOGY" {% if request.args.get('specialty') == 'INTERVENTIONAL_RADIOLOGY' %}selected{% endif %}>Interventional Radiology</option>
+            <option value="NEUROLOGICAL_SURGERY" {% if request.args.get('specialty') == 'NEUROLOGICAL_SURGERY' %}selected{% endif %}>Neurological Surgery</option>
+            <option value="NEUROLOGY" {% if request.args.get('specialty') == 'NEUROLOGY' %}selected{% endif %}>Neurology</option>
+            <option value="NUCLEAR_MEDICINE" {% if request.args.get('specialty') == 'NUCLEAR_MEDICINE' %}selected{% endif %}>Nuclear Medicine</option>
+            <option value="OBSTETRICS_GYNECOLOGY" {% if request.args.get('specialty') == 'OBSTETRICS_GYNECOLOGY' %}selected{% endif %}>Obstetrics and Gynecology</option>
+            <option value="OCCUPATIONAL_ENVIRONMENTAL_MEDICINE" {% if request.args.get('specialty') == 'OCCUPATIONAL_ENVIRONMENTAL_MEDICINE' %}selected{% endif %}>Occupational and Environmental Medicine</option>
+            <option value="ORTHOPAEDIC_SURGERY" {% if request.args.get('specialty') == 'ORTHOPAEDIC_SURGERY' %}selected{% endif %}>Orthopaedic Surgery</option>
+            <option value="OTOLARYNGOLOGY" {% if request.args.get('specialty') == 'OTOLARYNGOLOGY' %}selected{% endif %}>Otolaryngology - Head and Neck Surgery</option>
+            <option value="PATHOLOGY" {% if request.args.get('specialty') == 'PATHOLOGY' %}selected{% endif %}>Pathology-Anatomic and Clinical</option>
+            <option value="PEDIATRICS" {% if request.args.get('specialty') == 'PEDIATRICS' %}selected{% endif %}>Pediatrics</option>
+            <option value="PHYSICAL_MEDICINE_REHABILITATION" {% if request.args.get('specialty') == 'PHYSICAL_MEDICINE_REHABILITATION' %}selected{% endif %}>Physical Medicine and Rehabilitation</option>
+            <option value="PLASTIC_SURGERY" {% if request.args.get('specialty') == 'PLASTIC_SURGERY' %}selected{% endif %}>Plastic Surgery</option>
+            <option value="PSYCHIATRY" {% if request.args.get('specialty') == 'PSYCHIATRY' %}selected{% endif %}>Psychiatry</option>
+            <option value="RADIATION_ONCOLOGY" {% if request.args.get('specialty') == 'RADIATION_ONCOLOGY' %}selected{% endif %}>Radiation Oncology</option>
+            <option value="RADIOLOGY_DIAGNOSTIC" {% if request.args.get('specialty') == 'RADIOLOGY_DIAGNOSTIC' %}selected{% endif %}>Radiology-Diagnostic</option>
+            <option value="GENERAL_SURGERY" {% if request.args.get('specialty') == 'GENERAL_SURGERY' %}selected{% endif %}>General Surgery</option>
+            <option value="THORACIC_SURGERY" {% if request.args.get('specialty') == 'THORACIC_SURGERY' %}selected{% endif %}>Thoracic Surgery</option>
+            <option value="UROLOGY" {% if request.args.get('specialty') == 'UROLOGY' %}selected{% endif %}>Urology</option>
+            <option value="VASCULAR_SURGERY" {% if request.args.get('specialty') == 'VASCULAR_SURGERY' %}selected{% endif %}>Vascular Surgery</option>
           </select>
         </div>
         
@@ -152,7 +191,7 @@
             </svg>
             Filter
           </button>
-          {% if request.args.get('practice_name') or request.args.get('state') or request.args.get('practice_type') %}
+          {% if request.args.get('practice_name') or request.args.get('state') or request.args.get('practice_type') or request.args.get('specialty') %}
           <a href="{{ url_for('job_reviews.index') }}" class="btn secondary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -276,6 +315,42 @@
             <span class="detail-label">Practice Type</span>
             <span class="detail-value">{{ review.practice_type or 'N/A' }}</span>
           </div>
+          {% if review.specialty %}
+          <div class="detail-row">
+            <span class="detail-label">Medical Specialty</span>
+            <span class="specialty-bubble">
+              {% if review.specialty == 'AEROSPACE_MEDICINE' %}Aerospace Medicine
+              {% elif review.specialty == 'ANESTHESIOLOGY' %}Anesthesiology
+              {% elif review.specialty == 'CHILD_NEUROLOGY' %}Child Neurology
+              {% elif review.specialty == 'DERMATOLOGY' %}Dermatology
+              {% elif review.specialty == 'EMERGENCY_MEDICINE' %}Emergency Medicine
+              {% elif review.specialty == 'FAMILY_MEDICINE' %}Family Medicine
+              {% elif review.specialty == 'INTERNAL_MEDICINE' %}Internal Medicine
+              {% elif review.specialty == 'MEDICAL_GENETICS' %}Medical Genetics
+              {% elif review.specialty == 'INTERVENTIONAL_RADIOLOGY' %}Interventional Radiology
+              {% elif review.specialty == 'NEUROLOGICAL_SURGERY' %}Neurological Surgery
+              {% elif review.specialty == 'NEUROLOGY' %}Neurology
+              {% elif review.specialty == 'NUCLEAR_MEDICINE' %}Nuclear Medicine
+              {% elif review.specialty == 'OBSTETRICS_GYNECOLOGY' %}Obstetrics and Gynecology
+              {% elif review.specialty == 'OCCUPATIONAL_ENVIRONMENTAL_MEDICINE' %}Occupational and Environmental Medicine
+              {% elif review.specialty == 'ORTHOPAEDIC_SURGERY' %}Orthopaedic Surgery
+              {% elif review.specialty == 'OTOLARYNGOLOGY' %}Otolaryngology - Head and Neck Surgery
+              {% elif review.specialty == 'PATHOLOGY' %}Pathology-Anatomic and Clinical
+              {% elif review.specialty == 'PEDIATRICS' %}Pediatrics
+              {% elif review.specialty == 'PHYSICAL_MEDICINE_REHABILITATION' %}Physical Medicine and Rehabilitation
+              {% elif review.specialty == 'PLASTIC_SURGERY' %}Plastic Surgery
+              {% elif review.specialty == 'PSYCHIATRY' %}Psychiatry
+              {% elif review.specialty == 'RADIATION_ONCOLOGY' %}Radiation Oncology
+              {% elif review.specialty == 'RADIOLOGY_DIAGNOSTIC' %}Radiology-Diagnostic
+              {% elif review.specialty == 'GENERAL_SURGERY' %}General Surgery
+              {% elif review.specialty == 'THORACIC_SURGERY' %}Thoracic Surgery
+              {% elif review.specialty == 'UROLOGY' %}Urology
+              {% elif review.specialty == 'VASCULAR_SURGERY' %}Vascular Surgery
+              {% else %}{{ review.specialty }}
+              {% endif %}
+            </span>
+          </div>
+          {% endif %}
         </div>
         
         <div class="review-ratings">
@@ -650,6 +725,20 @@
   .detail-value {
     color: var(--text-secondary);
     font-size: 0.8rem;
+  }
+
+  .specialty-bubble {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: var(--accent-glow);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .review-ratings {

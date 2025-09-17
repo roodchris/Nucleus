@@ -180,13 +180,20 @@ def index():
         return render_template("auth/login_required.html")
         
     program_name = request.args.get('program', '')
+    specialty = request.args.get('specialty', '')
     
     if program_name:
         # Get reviews for specific program
-        reviews = ProgramReview.query.filter_by(program_name=program_name).order_by(ProgramReview.created_at.desc()).all()
+        query = ProgramReview.query.filter_by(program_name=program_name)
+        
+        # Add specialty filter if provided
+        if specialty:
+            query = query.filter_by(specialty=specialty)
+            
+        reviews = query.order_by(ProgramReview.created_at.desc()).all()
         
         # Calculate average ratings with individual counts
-        avg_ratings = db.session.query(
+        avg_query = db.session.query(
             func.avg(ProgramReview.educational_quality).label('avg_educational'),
             func.avg(ProgramReview.work_life_balance).label('avg_work_life'),
             func.avg(ProgramReview.attending_quality).label('avg_attending'),
@@ -200,16 +207,65 @@ def index():
             func.count(ProgramReview.facilities_quality).label('facilities_count'),
             func.count(ProgramReview.research_opportunities).label('research_count'),
             func.count(ProgramReview.culture).label('culture_count')
-        ).filter_by(program_name=program_name).first()
+        ).filter_by(program_name=program_name)
+        
+        # Add specialty filter to average calculation if provided
+        if specialty:
+            avg_query = avg_query.filter_by(specialty=specialty)
+            
+        avg_ratings = avg_query.first()
         
         return render_template('program_reviews/program.html',
                              program_name=program_name,
                              reviews=reviews,
-                             avg_ratings=avg_ratings)
-    else:
-        # Get all programs with review counts and average ratings
+                             avg_ratings=avg_ratings,
+                             current_specialty=specialty)
+    elif specialty:
+        # Filter by specialty only - show all programs that have reviews for this specialty
+        programs_with_reviews = db.session.query(ProgramReview.program_name).filter_by(specialty=specialty).distinct().all()
+        program_names = [p[0] for p in programs_with_reviews]
+        
         programs_data = []
-        for program in RADIOLOGY_PROGRAMS:
+        for program in program_names:
+            stats = db.session.query(
+                func.count(ProgramReview.id).label('review_count'),
+                func.avg(ProgramReview.educational_quality).label('avg_educational'),
+                func.avg(ProgramReview.work_life_balance).label('avg_work_life'),
+                func.avg(ProgramReview.attending_quality).label('avg_attending'),
+                func.avg(ProgramReview.facilities_quality).label('avg_facilities'),
+                func.avg(ProgramReview.research_opportunities).label('avg_research'),
+                func.avg(ProgramReview.culture).label('avg_culture')
+            ).filter_by(program_name=program, specialty=specialty).first()
+            
+            if stats.review_count > 0:
+                programs_data.append({
+                    'name': program,
+                    'review_count': stats.review_count,
+                    'avg_educational': round(stats.avg_educational, 1) if stats.avg_educational else 0,
+                    'avg_work_life': round(stats.avg_work_life, 1) if stats.avg_work_life else 0,
+                    'avg_attending': round(stats.avg_attending, 1) if stats.avg_attending else 0,
+                    'avg_facilities': round(stats.avg_facilities, 1) if stats.avg_facilities else 0,
+                    'avg_research': round(stats.avg_research, 1) if stats.avg_research else 0,
+                    'avg_culture': round(stats.avg_culture, 1) if stats.avg_culture else 0,
+                    'overall_avg': round((stats.avg_educational + stats.avg_work_life + stats.avg_attending + 
+                                        stats.avg_facilities + stats.avg_research + stats.avg_culture) / 6, 1) if all([stats.avg_educational, stats.avg_work_life, stats.avg_attending, stats.avg_facilities, stats.avg_research, stats.avg_culture]) else 0
+                })
+        
+        # Sort by overall average rating
+        programs_data.sort(key=lambda x: x['overall_avg'], reverse=True)
+        
+        return render_template('program_reviews/index.html',
+                             programs=programs_data,
+                             all_programs=RADIOLOGY_PROGRAMS,
+                             current_specialty=specialty,
+                             filter_mode='specialty')
+    else:
+        # Get all programs that have reviews with their counts and average ratings
+        programs_with_reviews = db.session.query(ProgramReview.program_name).distinct().all()
+        program_names = [p[0] for p in programs_with_reviews]
+        
+        programs_data = []
+        for program in program_names:
             stats = db.session.query(
                 func.count(ProgramReview.id).label('review_count'),
                 func.avg(ProgramReview.educational_quality).label('avg_educational'),
@@ -247,6 +303,7 @@ def new_review():
     """Create a new program review"""
     if request.method == 'POST':
         program_name = request.form.get('program_name')
+        specialty = request.form.get('specialty', '')
         educational_quality = int(request.form.get('educational_quality'))
         work_life_balance = int(request.form.get('work_life_balance'))
         attending_quality = int(request.form.get('attending_quality'))
@@ -266,6 +323,7 @@ def new_review():
         review = ProgramReview(
             program_name=program_name,
             user_id=current_user.id,
+            specialty=specialty if specialty else None,
             educational_quality=educational_quality,
             work_life_balance=work_life_balance,
             attending_quality=attending_quality,
@@ -282,4 +340,4 @@ def new_review():
         flash('Review submitted successfully!', 'success')
         return redirect(url_for('program_reviews.index', program=program_name))
     
-    return render_template('program_reviews/new.html', programs=RADIOLOGY_PROGRAMS)
+    return render_template('program_reviews/new.html')

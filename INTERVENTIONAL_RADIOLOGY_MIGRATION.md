@@ -56,3 +56,4 @@ If you need to rollback, you'll need to:
 - The new job type will appear between "Tele diagnostic interpretation" and "Consulting & Other Opportunities" in the dropdown
 - All existing functionality will continue to work unchanged
 - The migration is safe to run multiple times (idempotent)
+

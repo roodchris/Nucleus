@@ -41,22 +41,46 @@ TIMEZONE_CHOICES: List[Tuple[str, str]] = [
 
 OPP_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("", "Any Type"),
-    (OpportunityType.IN_PERSON_CONTRAST.value, "In-person contrast coverage"),
-    (OpportunityType.TELE_CONTRAST.value, "Tele contrast coverage"),
-    (OpportunityType.DIAGNOSTIC_INTERPRETATION.value, "Diagnostic interpretation"),
-    (OpportunityType.TELE_DIAGNOSTIC_INTERPRETATION.value, "Tele diagnostic interpretation"),
-    (OpportunityType.INTERVENTIONAL_RADIOLOGY.value, "Interventional radiology"),
-    (OpportunityType.CONSULTING_OTHER.value, "Consulting & Other Opportunities"),
+    ("AEROSPACE_MEDICINE", "Aerospace Medicine"),
+    ("ANESTHESIOLOGY", "Anesthesiology"),
+    ("CHILD_NEUROLOGY", "Child Neurology"),
+    ("DERMATOLOGY", "Dermatology"),
+    ("EMERGENCY_MEDICINE", "Emergency Medicine"),
+    ("FAMILY_MEDICINE", "Family Medicine"),
+    ("INTERNAL_MEDICINE", "Internal Medicine"),
+    ("MEDICAL_GENETICS", "Medical Genetics"),
+    ("INTERVENTIONAL_RADIOLOGY", "Interventional Radiology"),
+    ("NEUROLOGICAL_SURGERY", "Neurological Surgery"),
+    ("NEUROLOGY", "Neurology"),
+    ("NUCLEAR_MEDICINE", "Nuclear Medicine"),
+    ("OBSTETRICS_GYNECOLOGY", "Obstetrics and Gynecology"),
+    ("OCCUPATIONAL_ENVIRONMENTAL_MEDICINE", "Occupational and Environmental Medicine"),
+    ("ORTHOPAEDIC_SURGERY", "Orthopaedic Surgery"),
+    ("OTOLARYNGOLOGY", "Otolaryngology - Head and Neck Surgery"),
+    ("PATHOLOGY", "Pathology-Anatomic and Clinical"),
+    ("PEDIATRICS", "Pediatrics"),
+    ("PHYSICAL_MEDICINE_REHABILITATION", "Physical Medicine and Rehabilitation"),
+    ("PLASTIC_SURGERY", "Plastic Surgery"),
+    ("PSYCHIATRY", "Psychiatry"),
+    ("RADIATION_ONCOLOGY", "Radiation Oncology"),
+    ("RADIOLOGY_DIAGNOSTIC", "Radiology-Diagnostic"),
+    ("GENERAL_SURGERY", "General Surgery"),
+    ("THORACIC_SURGERY", "Thoracic Surgery"),
+    ("UROLOGY", "Urology"),
+    ("VASCULAR_SURGERY", "Vascular Surgery"),
 ]
 
 TRAINING_LEVEL_CHOICES: List[Tuple[str, str]] = [
     ("", "Select Training Level"),
-    (TrainingLevel.R1.value, "R1"),
-    (TrainingLevel.R2.value, "R2"),
-    (TrainingLevel.R3.value, "R3"),
-    (TrainingLevel.R4.value, "R4"),
-    (TrainingLevel.FELLOW.value, "FELLOW"),
-    (TrainingLevel.ATTENDING.value, "ATTENDING"),
+    (TrainingLevel.PGY1.value, "PGY-1"),
+    (TrainingLevel.PGY2.value, "PGY-2"),
+    (TrainingLevel.PGY3.value, "PGY-3"),
+    (TrainingLevel.PGY4.value, "PGY-4"),
+    (TrainingLevel.PGY5.value, "PGY-5"),
+    (TrainingLevel.PGY6.value, "PGY-6"),
+    (TrainingLevel.PGY7.value, "PGY-7"),
+    (TrainingLevel.FELLOW.value, "Fellow"),
+    (TrainingLevel.ATTENDING.value, "Attending"),
 ]
 
 PAY_TYPE_CHOICES: List[Tuple[str, str]] = [
@@ -114,8 +138,9 @@ class OpportunityForm(FlaskForm):
         
         # Only validate training level logic if both fields are provided
         if self.pgy_min.data and self.pgy_min.data != "" and self.pgy_max.data and self.pgy_max.data != "":
-            level_order = {TrainingLevel.R1: 1, TrainingLevel.R2: 2, TrainingLevel.R3: 3, 
-                          TrainingLevel.R4: 4, TrainingLevel.FELLOW: 5, TrainingLevel.ATTENDING: 6}
+            level_order = {TrainingLevel.PGY1: 1, TrainingLevel.PGY2: 2, TrainingLevel.PGY3: 3, 
+                          TrainingLevel.PGY4: 4, TrainingLevel.PGY5: 5, TrainingLevel.PGY6: 6, 
+                          TrainingLevel.PGY7: 7, TrainingLevel.FELLOW: 8, TrainingLevel.ATTENDING: 9}
             min_level = level_order.get(TrainingLevel(self.pgy_min.data), 0)
             max_level = level_order.get(TrainingLevel(self.pgy_max.data), 0)
             if min_level > max_level:
@@ -145,8 +170,33 @@ class CompensationSubmissionForm(FlaskForm):
     ], validators=[DataRequired()])
     specialty = SelectField("Specialty", choices=[
         ('', 'Select Specialty'),
-        ('Diagnostic', 'Diagnostic'),
-        ('Interventional', 'Interventional')
+        ('aerospace_medicine', 'Aerospace Medicine'),
+        ('anesthesiology', 'Anesthesiology'),
+        ('child_neurology', 'Child Neurology'),
+        ('dermatology', 'Dermatology'),
+        ('emergency_medicine', 'Emergency Medicine'),
+        ('family_medicine', 'Family Medicine'),
+        ('internal_medicine', 'Internal Medicine'),
+        ('medical_genetics', 'Medical Genetics'),
+        ('interventional_radiology', 'Interventional Radiology'),
+        ('neurological_surgery', 'Neurological Surgery'),
+        ('neurology', 'Neurology'),
+        ('nuclear_medicine', 'Nuclear Medicine'),
+        ('obstetrics_gynecology', 'Obstetrics and Gynecology'),
+        ('occupational_environmental_medicine', 'Occupational and Environmental Medicine'),
+        ('orthopaedic_surgery', 'Orthopaedic Surgery'),
+        ('otolaryngology', 'Otolaryngology - Head and Neck Surgery'),
+        ('pathology', 'Pathology-Anatomic and Clinical'),
+        ('pediatrics', 'Pediatrics'),
+        ('physical_medicine_rehabilitation', 'Physical Medicine and Rehabilitation'),
+        ('plastic_surgery', 'Plastic Surgery'),
+        ('psychiatry', 'Psychiatry'),
+        ('radiation_oncology', 'Radiation Oncology'),
+        ('radiology_diagnostic', 'Radiology-Diagnostic'),
+        ('general_surgery', 'General Surgery'),
+        ('thoracic_surgery', 'Thoracic Surgery'),
+        ('urology', 'Urology'),
+        ('vascular_surgery', 'Vascular Surgery')
     ], validators=[DataRequired()])
     total_compensation = StringField("Total Annual Compensation ($)", validators=[DataRequired(), comma_separated_number(min_val=50000, max_val=2000000)])
     practice_type = SelectField("Practice Type", choices=[
@@ -155,7 +205,7 @@ class CompensationSubmissionForm(FlaskForm):
         ('Academic', 'Academic'),
         ('Hospital Employed', 'Hospital Employed'),
         ('Government', 'Government'),
-        ('Teleradiology', 'Teleradiology'),
+        ('Telemedicine', 'Telemedicine'),
         ('1099 Contractor', '1099 Contractor'),
         ('Other', 'Other')
     ], validators=[DataRequired()])
@@ -176,9 +226,39 @@ class JobReviewForm(FlaskForm):
         ('Academic', 'Academic'),
         ('Hospital Employed', 'Hospital Employed'),
         ('Government', 'Government'),
-        ('Teleradiology', 'Teleradiology'),
+        ('Telemedicine', 'Telemedicine'),
         ('1099 Contractor', '1099 Contractor'),
         ('Other', 'Other')
+    ], validators=[Optional()])
+    specialty = SelectField("Medical Specialty (optional)", choices=[
+        ('', 'Select Specialty'),
+        ('AEROSPACE_MEDICINE', 'Aerospace Medicine'),
+        ('ANESTHESIOLOGY', 'Anesthesiology'),
+        ('CHILD_NEUROLOGY', 'Child Neurology'),
+        ('DERMATOLOGY', 'Dermatology'),
+        ('EMERGENCY_MEDICINE', 'Emergency Medicine'),
+        ('FAMILY_MEDICINE', 'Family Medicine'),
+        ('INTERNAL_MEDICINE', 'Internal Medicine'),
+        ('MEDICAL_GENETICS', 'Medical Genetics'),
+        ('INTERVENTIONAL_RADIOLOGY', 'Interventional Radiology'),
+        ('NEUROLOGICAL_SURGERY', 'Neurological Surgery'),
+        ('NEUROLOGY', 'Neurology'),
+        ('NUCLEAR_MEDICINE', 'Nuclear Medicine'),
+        ('OBSTETRICS_GYNECOLOGY', 'Obstetrics and Gynecology'),
+        ('OCCUPATIONAL_ENVIRONMENTAL_MEDICINE', 'Occupational and Environmental Medicine'),
+        ('ORTHOPAEDIC_SURGERY', 'Orthopaedic Surgery'),
+        ('OTOLARYNGOLOGY', 'Otolaryngology - Head and Neck Surgery'),
+        ('PATHOLOGY', 'Pathology-Anatomic and Clinical'),
+        ('PEDIATRICS', 'Pediatrics'),
+        ('PHYSICAL_MEDICINE_REHABILITATION', 'Physical Medicine and Rehabilitation'),
+        ('PLASTIC_SURGERY', 'Plastic Surgery'),
+        ('PSYCHIATRY', 'Psychiatry'),
+        ('RADIATION_ONCOLOGY', 'Radiation Oncology'),
+        ('RADIOLOGY_DIAGNOSTIC', 'Radiology-Diagnostic'),
+        ('GENERAL_SURGERY', 'General Surgery'),
+        ('THORACIC_SURGERY', 'Thoracic Surgery'),
+        ('UROLOGY', 'Urology'),
+        ('VASCULAR_SURGERY', 'Vascular Surgery')
     ], validators=[Optional()])
     work_life_balance = SelectField("Work-Life Balance (optional)", choices=[
         ('', 'Not Rated'),

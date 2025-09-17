@@ -3,7 +3,7 @@
   <!-- Page Header -->
   <div class="page-header">
     <h1 class="page-title page-title-animated">💰 Compensation Data</h1>
-    <p class="page-subtitle page-subtitle-animated">Community-Submitted Radiology Compensation Data. Because $500K in student loans at 7% interest ain't gonna pay itself.</p>
+    <p class="page-subtitle page-subtitle-animated">Community-Submitted Medical Compensation Data. Because $500K in student loans at 7% interest ain't gonna pay itself.</p>
   </div>
 
   <!-- Submit Data Button -->
@@ -136,8 +136,8 @@
           </label>
           <select name="specialty" id="specialty" class="filter-input">
             <option value="">All Specialties</option>
-            {% for specialty in specialties %}
-            <option value="{{ specialty }}" {% if specialty == current_filters.specialty %}selected{% endif %}>{{ specialty }}</option>
+            {% for specialty_option in specialty_options %}
+            <option value="{{ specialty_option.code }}" {% if specialty_option.code == current_filters.specialty %}selected{% endif %}>{{ specialty_option.name }}</option>
             {% endfor %}
           </select>
         </div>
@@ -201,7 +201,7 @@
         <div class="compensation-details">
           <div class="detail-row">
             <span class="detail-label">Specialty</span>
-            <span class="detail-value">{{ item.specialty }}</span>
+            <span class="detail-value">{{ get_specialty_display_name(item.specialty) }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Practice Type</span>

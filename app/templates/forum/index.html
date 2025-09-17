@@ -3,7 +3,7 @@
   <!-- Page Header -->
   <div class="page-header">
     <h1 class="page-title page-title-animated">💬 Community Forum</h1>
-    <p class="page-subtitle page-subtitle-animated">Connect with fellow radiologists and employers. Or just shitpost and meme.</p>
+    <p class="page-subtitle page-subtitle-animated">Connect with fellow physicians and employers. Or just shitpost and meme.</p>
   </div>
 
   <!-- New Post Button -->
@@ -44,6 +44,46 @@
         </select>
       </div>
       
+      <!-- Medical Specialty Filter -->
+      <div class="filter-group">
+        <label class="filter-label">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 7h16M7 12h10M10 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Medical Specialty
+        </label>
+        <select onchange="window.location.href='?category={{ current_category }}&sort={{ current_sort }}&specialty=' + this.value" class="filter-input">
+          <option value="" {% if current_specialty == "" %}selected{% endif %}>All Specialties</option>
+          <option value="aerospace_medicine" {% if current_specialty == "aerospace_medicine" %}selected{% endif %}>Aerospace Medicine</option>
+          <option value="anesthesiology" {% if current_specialty == "anesthesiology" %}selected{% endif %}>Anesthesiology</option>
+          <option value="child_neurology" {% if current_specialty == "child_neurology" %}selected{% endif %}>Child Neurology</option>
+          <option value="dermatology" {% if current_specialty == "dermatology" %}selected{% endif %}>Dermatology</option>
+          <option value="emergency_medicine" {% if current_specialty == "emergency_medicine" %}selected{% endif %}>Emergency Medicine</option>
+          <option value="family_medicine" {% if current_specialty == "family_medicine" %}selected{% endif %}>Family Medicine</option>
+          <option value="internal_medicine" {% if current_specialty == "internal_medicine" %}selected{% endif %}>Internal Medicine</option>
+          <option value="medical_genetics" {% if current_specialty == "medical_genetics" %}selected{% endif %}>Medical Genetics</option>
+          <option value="interventional_radiology" {% if current_specialty == "interventional_radiology" %}selected{% endif %}>Interventional Radiology</option>
+          <option value="neurological_surgery" {% if current_specialty == "neurological_surgery" %}selected{% endif %}>Neurological Surgery</option>
+          <option value="neurology" {% if current_specialty == "neurology" %}selected{% endif %}>Neurology</option>
+          <option value="nuclear_medicine" {% if current_specialty == "nuclear_medicine" %}selected{% endif %}>Nuclear Medicine</option>
+          <option value="obstetrics_gynecology" {% if current_specialty == "obstetrics_gynecology" %}selected{% endif %}>Obstetrics and Gynecology</option>
+          <option value="occupational_environmental_medicine" {% if current_specialty == "occupational_environmental_medicine" %}selected{% endif %}>Occupational and Environmental Medicine</option>
+          <option value="orthopaedic_surgery" {% if current_specialty == "orthopaedic_surgery" %}selected{% endif %}>Orthopaedic Surgery</option>
+          <option value="otolaryngology" {% if current_specialty == "otolaryngology" %}selected{% endif %}>Otolaryngology - Head and Neck Surgery</option>
+          <option value="pathology" {% if current_specialty == "pathology" %}selected{% endif %}>Pathology-Anatomic and Clinical</option>
+          <option value="pediatrics" {% if current_specialty == "pediatrics" %}selected{% endif %}>Pediatrics</option>
+          <option value="physical_medicine_rehabilitation" {% if current_specialty == "physical_medicine_rehabilitation" %}selected{% endif %}>Physical Medicine and Rehabilitation</option>
+          <option value="plastic_surgery" {% if current_specialty == "plastic_surgery" %}selected{% endif %}>Plastic Surgery</option>
+          <option value="psychiatry" {% if current_specialty == "psychiatry" %}selected{% endif %}>Psychiatry</option>
+          <option value="radiation_oncology" {% if current_specialty == "radiation_oncology" %}selected{% endif %}>Radiation Oncology</option>
+          <option value="radiology_diagnostic" {% if current_specialty == "radiology_diagnostic" %}selected{% endif %}>Radiology-Diagnostic</option>
+          <option value="general_surgery" {% if current_specialty == "general_surgery" %}selected{% endif %}>General Surgery</option>
+          <option value="thoracic_surgery" {% if current_specialty == "thoracic_surgery" %}selected{% endif %}>Thoracic Surgery</option>
+          <option value="urology" {% if current_specialty == "urology" %}selected{% endif %}>Urology</option>
+          <option value="vascular_surgery" {% if current_specialty == "vascular_surgery" %}selected{% endif %}>Vascular Surgery</option>
+        </select>
+      </div>
+      
       <!-- Sort Options -->
       <div class="filter-group">
         <label class="filter-label">
@@ -54,7 +94,7 @@
           </svg>
           Sort by
         </label>
-        <select onchange="window.location.href='?category={{ current_category }}&sort=' + this.value" class="filter-input">
+        <select onchange="window.location.href='?category={{ current_category }}&sort=' + this.value + '&specialty={{ current_specialty }}'" class="filter-input">
           <option value="newest" {% if current_sort == "newest" %}selected{% endif %}>Newest First</option>
           <option value="oldest" {% if current_sort == "oldest" %}selected{% endif %}>Oldest First</option>
           <option value="most_voted" {% if current_sort == "most_voted" %}selected{% endif %}>Most Upvoted</option>
@@ -87,6 +127,9 @@
             </h3>
             <div class="post-badges">
               <span class="category-badge">{{ post.category.value.replace('_', ' ').title() }}</span>
+              {% if post.specialty %}
+                <span class="specialty-badge">{{ post.specialty.replace('_', ' ').title() }}</span>
+              {% endif %}
               {% if post.is_pinned %}
                 <span class="badge pinned">📌 Pinned</span>
               {% endif %}
@@ -455,6 +498,15 @@
 
   .category-badge {
     background: var(--accent);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.65rem;
+    font-weight: 600;
+  }
+
+  .specialty-badge {
+    background: #10b981;
     color: white;
     padding: 0.25rem 0.5rem;
     border-radius: 12px;

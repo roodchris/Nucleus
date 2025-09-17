@@ -6,6 +6,43 @@ from sqlalchemy import func
 
 compensation_bp = Blueprint('compensation', __name__)
 
+# Specialty code to readable name mapping
+SPECIALTY_DISPLAY_NAMES = {
+    'aerospace_medicine': 'Aerospace Medicine',
+    'anesthesiology': 'Anesthesiology',
+    'child_neurology': 'Child Neurology',
+    'dermatology': 'Dermatology',
+    'emergency_medicine': 'Emergency Medicine',
+    'family_medicine': 'Family Medicine',
+    'internal_medicine': 'Internal Medicine',
+    'medical_genetics': 'Medical Genetics',
+    'interventional_radiology': 'Interventional Radiology',
+    'neurological_surgery': 'Neurological Surgery',
+    'neurology': 'Neurology',
+    'nuclear_medicine': 'Nuclear Medicine',
+    'obstetrics_gynecology': 'Obstetrics and Gynecology',
+    'occupational_environmental_medicine': 'Occupational and Environmental Medicine',
+    'orthopaedic_surgery': 'Orthopaedic Surgery',
+    'otolaryngology': 'Otolaryngology - Head and Neck Surgery',
+    'pathology': 'Pathology-Anatomic and Clinical',
+    'pediatrics': 'Pediatrics',
+    'physical_medicine_rehabilitation': 'Physical Medicine and Rehabilitation',
+    'plastic_surgery': 'Plastic Surgery',
+    'psychiatry': 'Psychiatry',
+    'radiation_oncology': 'Radiation Oncology',
+    'radiology_diagnostic': 'Radiology-Diagnostic',
+    'general_surgery': 'General Surgery',
+    'thoracic_surgery': 'Thoracic Surgery',
+    'urology': 'Urology',
+    'vascular_surgery': 'Vascular Surgery'
+}
+
+def get_specialty_display_name(specialty_code):
+    """Convert specialty code to readable display name"""
+    if not specialty_code:
+        return 'N/A'
+    return SPECIALTY_DISPLAY_NAMES.get(specialty_code, specialty_code.replace('_', ' ').title())
+
 @compensation_bp.route('/compensation')
 def index():
     """Display compensation data dashboard"""
@@ -35,10 +72,10 @@ def index():
     regions = db.session.query(CompensationData.region).distinct().order_by(CompensationData.region).all()
     specialties = db.session.query(CompensationData.specialty).distinct().order_by(CompensationData.specialty).all()
     
-    # Get all possible practice types from the form definition
+    # Get all possible practice types from the form definition (matching job reviews form)
     all_practice_types = [
         'Private Practice', 'Academic', 'Hospital Employed', 'Government', 
-        'Teleradiology', '1099 Contractor', 'Other'
+        'Telemedicine', '1099 Contractor', 'Other'
     ]
     
     # Get summary statistics based on filtered data - only include non-null values for averages
@@ -67,14 +104,20 @@ def index():
     # Get compensation data
     compensation_data = query.order_by(CompensationData.year.desc(), CompensationData.total_compensation.desc()).limit(100).all()
     
+    # Create list of specialties with both codes and display names for the filter dropdown
+    specialty_options = [{'code': s[0], 'name': get_specialty_display_name(s[0])} for s in specialties]
+    specialty_options.sort(key=lambda x: x['name'])  # Sort by display name
+    
     return render_template('compensation/index.html',
                          compensation_data=compensation_data,
                          years=[y[0] for y in years],
                          regions=[r[0] for r in regions],
                          specialties=[s[0] for s in specialties],
+                         specialty_options=specialty_options,
                          practice_types=all_practice_types,
                          summary_stats=summary_stats,
-                         current_filters={'year': year, 'region': region, 'specialty': specialty, 'practice_type': practice_type})
+                         current_filters={'year': year, 'region': region, 'specialty': specialty, 'practice_type': practice_type},
+                         get_specialty_display_name=get_specialty_display_name)
 
 @compensation_bp.route('/compensation/api/data')
 def api_data():

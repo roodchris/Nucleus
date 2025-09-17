@@ -16,7 +16,7 @@
       </div>
       <div class="info-text">
         <h3>💡 Pro Tip</h3>
-        <p>We encourage radiologists to share relevant information including their resume, job expectations, and availability when contacting you. This helps facilitate your selection process and allows you to make more informed decisions about potential candidates.</p>
+        <p>We encourage physicians to share relevant information including their resume, job expectations, and availability when contacting you. This helps facilitate your selection process and allows you to make more informed decisions about potential candidates.</p>
       </div>
     </div>
   </div>
@@ -96,7 +96,7 @@
         
         {% if listing.residents %}
         <div class="interested-section">
-          <h4 class="section-title">Interested Radiologists ({{ listing.residents|length }})</h4>
+          <h4 class="section-title">Interested Physicians ({{ listing.residents|length }})</h4>
           
           <div class="residents-grid">
             {% for resident_data in listing.residents %}
@@ -157,7 +157,7 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <p>No radiologists have contacted you about this opportunity yet.</p>
+            <p>No physicians have contacted you about this opportunity yet.</p>
           </div>
         </div>
         {% endif %}

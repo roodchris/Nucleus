@@ -51,6 +51,41 @@
           My Personal Calendar
         </a>
       </div>
+      
+      <!-- Medical Specialty Filter -->
+      <div class="specialty-filter">
+        <label for="specialty-filter" class="filter-label">Filter by Medical Specialty:</label>
+        <select id="specialty-filter" name="specialty" class="specialty-select" onchange="filterBySpecialty(this.value)">
+          <option value="">All Specialties</option>
+          <option value="AEROSPACE_MEDICINE" {{ 'selected' if current_specialty == 'AEROSPACE_MEDICINE' else '' }}>Aerospace Medicine</option>
+          <option value="ANESTHESIOLOGY" {{ 'selected' if current_specialty == 'ANESTHESIOLOGY' else '' }}>Anesthesiology</option>
+          <option value="CHILD_NEUROLOGY" {{ 'selected' if current_specialty == 'CHILD_NEUROLOGY' else '' }}>Child Neurology</option>
+          <option value="DERMATOLOGY" {{ 'selected' if current_specialty == 'DERMATOLOGY' else '' }}>Dermatology</option>
+          <option value="EMERGENCY_MEDICINE" {{ 'selected' if current_specialty == 'EMERGENCY_MEDICINE' else '' }}>Emergency Medicine</option>
+          <option value="FAMILY_MEDICINE" {{ 'selected' if current_specialty == 'FAMILY_MEDICINE' else '' }}>Family Medicine</option>
+          <option value="INTERNAL_MEDICINE" {{ 'selected' if current_specialty == 'INTERNAL_MEDICINE' else '' }}>Internal Medicine</option>
+          <option value="MEDICAL_GENETICS" {{ 'selected' if current_specialty == 'MEDICAL_GENETICS' else '' }}>Medical Genetics</option>
+          <option value="INTERVENTIONAL_RADIOLOGY" {{ 'selected' if current_specialty == 'INTERVENTIONAL_RADIOLOGY' else '' }}>Interventional Radiology</option>
+          <option value="NEUROLOGICAL_SURGERY" {{ 'selected' if current_specialty == 'NEUROLOGICAL_SURGERY' else '' }}>Neurological Surgery</option>
+          <option value="NEUROLOGY" {{ 'selected' if current_specialty == 'NEUROLOGY' else '' }}>Neurology</option>
+          <option value="NUCLEAR_MEDICINE" {{ 'selected' if current_specialty == 'NUCLEAR_MEDICINE' else '' }}>Nuclear Medicine</option>
+          <option value="OBSTETRICS_GYNECOLOGY" {{ 'selected' if current_specialty == 'OBSTETRICS_GYNECOLOGY' else '' }}>Obstetrics and Gynecology</option>
+          <option value="OCCUPATIONAL_ENVIRONMENTAL_MEDICINE" {{ 'selected' if current_specialty == 'OCCUPATIONAL_ENVIRONMENTAL_MEDICINE' else '' }}>Occupational and Environmental Medicine</option>
+          <option value="ORTHOPAEDIC_SURGERY" {{ 'selected' if current_specialty == 'ORTHOPAEDIC_SURGERY' else '' }}>Orthopaedic Surgery</option>
+          <option value="OTOLARYNGOLOGY" {{ 'selected' if current_specialty == 'OTOLARYNGOLOGY' else '' }}>Otolaryngology - Head and Neck Surgery</option>
+          <option value="PATHOLOGY" {{ 'selected' if current_specialty == 'PATHOLOGY' else '' }}>Pathology-Anatomic and Clinical</option>
+          <option value="PEDIATRICS" {{ 'selected' if current_specialty == 'PEDIATRICS' else '' }}>Pediatrics</option>
+          <option value="PHYSICAL_MEDICINE_REHABILITATION" {{ 'selected' if current_specialty == 'PHYSICAL_MEDICINE_REHABILITATION' else '' }}>Physical Medicine and Rehabilitation</option>
+          <option value="PLASTIC_SURGERY" {{ 'selected' if current_specialty == 'PLASTIC_SURGERY' else '' }}>Plastic Surgery</option>
+          <option value="PSYCHIATRY" {{ 'selected' if current_specialty == 'PSYCHIATRY' else '' }}>Psychiatry</option>
+          <option value="RADIATION_ONCOLOGY" {{ 'selected' if current_specialty == 'RADIATION_ONCOLOGY' else '' }}>Radiation Oncology</option>
+          <option value="RADIOLOGY_DIAGNOSTIC" {{ 'selected' if current_specialty == 'RADIOLOGY_DIAGNOSTIC' else '' }}>Radiology-Diagnostic</option>
+          <option value="GENERAL_SURGERY" {{ 'selected' if current_specialty == 'GENERAL_SURGERY' else '' }}>General Surgery</option>
+          <option value="THORACIC_SURGERY" {{ 'selected' if current_specialty == 'THORACIC_SURGERY' else '' }}>Thoracic Surgery</option>
+          <option value="UROLOGY" {{ 'selected' if current_specialty == 'UROLOGY' else '' }}>Urology</option>
+          <option value="VASCULAR_SURGERY" {{ 'selected' if current_specialty == 'VASCULAR_SURGERY' else '' }}>Vascular Surgery</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -1249,6 +1284,51 @@
   transform: scale(1.1);
 }
 
+/* Specialty Filter Styles */
+.specialty-filter {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.filter-label {
+  display: block;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.specialty-select {
+  background: var(--glass);
+  border: 2px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-weight: 500;
+  font-size: 0.9rem;
+  min-width: 300px;
+  max-width: 100%;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px;
+  padding-right: 2.5rem;
+}
+
+.specialty-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  background-color: var(--glass-light);
+}
+
+.specialty-select:hover {
+  border-color: var(--accent);
+  background-color: var(--glass-light);
+}
+
 /* Responsive filter toggle */
 @media (max-width: 768px) {
   .calendar-filter {
@@ -1267,6 +1347,11 @@
     padding: 1rem 1.5rem;
     min-width: auto;
     font-size: 0.9rem;
+  }
+  
+  .specialty-select {
+    min-width: 100%;
+    font-size: 0.85rem;
   }
 }
 </style>
@@ -1293,5 +1378,36 @@ function showDayDetails(date, slotCount) {
     });
   }
 }
+
+function filterBySpecialty(specialty) {
+  // Get current URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const month = urlParams.get('month') || '{{ start_date.strftime("%Y-%m") }}';
+  const personal = urlParams.get('personal');
+  
+  // Build new URL
+  let newUrl = `?month=${month}`;
+  if (personal) {
+    newUrl += '&personal=1';
+  }
+  if (specialty) {
+    newUrl += `&specialty=${encodeURIComponent(specialty)}`;
+  }
+  
+  // Navigate to new URL
+  window.location.href = newUrl;
+}
+
+// Set the selected specialty from URL parameters
+document.addEventListener('DOMContentLoaded', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const selectedSpecialty = urlParams.get('specialty');
+  if (selectedSpecialty) {
+    const specialtySelect = document.getElementById('specialty-filter');
+    if (specialtySelect) {
+      specialtySelect.value = selectedSpecialty;
+    }
+  }
+});
 </script>
 {% endblock %}

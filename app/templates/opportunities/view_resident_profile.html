@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
   <div class="job-card" style="padding:24px;">
-    <h2 style="margin-top:0;">Radiologist Profile</h2>
+    <h2 style="margin-top:0;">Physician Profile</h2>
     <div class="muted">{{ user.name }}</div>
     
     <div style="margin-top:20px;">
       <a class="btn" href="/opportunities">← Back to opportunities</a>
       {% if current_user.is_authenticated and current_user.role.value == 'employer' %}
-        <a class="btn" href="/messages/start?resident_id={{ user.id }}" style="margin-left:12px;">Message Radiologist</a>
+        <a class="btn" href="/messages/start?resident_id={{ user.id }}" style="margin-left:12px;">Message Physician</a>
       {% endif %}
     </div>
   </div>
@@ -55,7 +55,7 @@
     </div>
   {% else %}
     <div class="job-card" style="padding:24px;">
-      <p class="muted">This radiologist hasn't created a profile yet.</p>
+      <p class="muted">This physician hasn't created a profile yet.</p>
     </div>
   {% endif %}
 {% endblock %}

@@ -101,7 +101,12 @@
               {{ review.user.username }}
             {% endif %}
           </h4>
-          <p class="review-date" data-timestamp="{{ review.created_at.isoformat() }}" data-format="date">{{ review.created_at.strftime('%B %Y') }}</p>
+          <div class="review-meta">
+            <p class="review-date" data-timestamp="{{ review.created_at.isoformat() }}" data-format="date">{{ review.created_at.strftime('%B %Y') }}</p>
+            {% if review.specialty %}
+            <span class="specialty-bubble">{{ review.specialty|replace('_', ' ')|title }}</span>
+            {% endif %}
+          </div>
         </div>
         <div class="overall-rating">
           {% set review_overall = (review.educational_quality + review.work_life_balance + review.attending_quality + review.facilities_quality + review.research_opportunities + review.culture) / 6 %}
@@ -401,6 +406,29 @@
     line-height: 1.6;
     color: var(--text);
     margin: 0;
+  }
+
+  /* Review Meta Section */
+  .review-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  /* Specialty Bubble */
+  .specialty-bubble {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    white-space: nowrap;
   }
 
   /* Responsive Design for Reviews */

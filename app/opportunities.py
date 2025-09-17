@@ -155,8 +155,9 @@ def list_opportunities():
             # Show opportunities where: opportunity_min <= user_level <= opportunity_max
             # Example: If user is FELLOW, show opportunities that allow R1-R4, R1-FELLOW, R1-ATTENDING, etc.
             # But exclude opportunities that only allow R1-R4 (since FELLOW exceeds R4)
-            level_order = {TrainingLevel.R1: 1, TrainingLevel.R2: 2, TrainingLevel.R3: 3, 
-                          TrainingLevel.R4: 4, TrainingLevel.FELLOW: 5, TrainingLevel.ATTENDING: 6}
+            level_order = {TrainingLevel.PGY1: 1, TrainingLevel.PGY2: 2, TrainingLevel.PGY3: 3, 
+                          TrainingLevel.PGY4: 4, TrainingLevel.PGY5: 5, TrainingLevel.PGY6: 6, 
+                          TrainingLevel.PGY7: 7, TrainingLevel.FELLOW: 8, TrainingLevel.ATTENDING: 9}
             user_current_level_num = level_order.get(user_level, 0)
             
             filtered_opportunities = []
@@ -204,6 +205,7 @@ def create_opportunity():
                     opportunity_type_enum = OpportunityType(form.opportunity_type.data)
                 except ValueError as e:
                     flash(f"Invalid opportunity type: {form.opportunity_type.data}. Please select a valid type.", "error")
+                    from datetime import date
                     return render_template("opportunities/create.html", form=form, today=date.today())
             
             
@@ -437,6 +439,9 @@ def global_calendar():
     else:
         start_date = date.today()
     
+    # Get specialty filter parameter
+    specialty = request.args.get('specialty', '')
+    
     # Get calendar slots for the month
     end_date = (start_date.replace(day=1) + timedelta(days=32)).replace(day=1) - timedelta(days=1)
     
@@ -447,7 +452,7 @@ def global_calendar():
         # Get accepted applications for the current user
         from .models import Application, ApplicationStatus
         
-        personal_slots = db.session.query(CalendarSlot, Opportunity, User).join(
+        personal_query = db.session.query(CalendarSlot, Opportunity, User).join(
             Opportunity, CalendarSlot.opportunity_id == Opportunity.id
         ).join(
             User, Opportunity.employer_id == User.id
@@ -458,13 +463,23 @@ def global_calendar():
             Application.status == ApplicationStatus.ACCEPTED,
             CalendarSlot.date >= start_date.replace(day=1),
             CalendarSlot.date <= end_date
-        ).order_by(CalendarSlot.date, CalendarSlot.start_time).all()
+        )
+        
+        # Add specialty filter if provided
+        if specialty:
+            try:
+                specialty_enum = OpportunityType(specialty)
+                personal_query = personal_query.filter(Opportunity.opportunity_type == specialty_enum)
+            except ValueError:
+                pass  # Invalid specialty, ignore filter
+        
+        personal_slots = personal_query.order_by(CalendarSlot.date, CalendarSlot.start_time).all()
         
         calendar_slots = []
         flexible_opportunities = []
     else:
         # Get all available calendar slots
-        calendar_slots = db.session.query(CalendarSlot, Opportunity, User).join(
+        calendar_query = db.session.query(CalendarSlot, Opportunity, User).join(
             Opportunity, CalendarSlot.opportunity_id == Opportunity.id
         ).join(
             User, Opportunity.employer_id == User.id
@@ -473,14 +488,45 @@ def global_calendar():
             CalendarSlot.date <= end_date,
             CalendarSlot.is_available == True,
             Opportunity.is_active == True
-        ).order_by(CalendarSlot.date, CalendarSlot.start_time).all()
+        )
+        
+        # Add specialty filter if provided
+        if specialty:
+            try:
+                specialty_enum = OpportunityType(specialty)
+                calendar_query = calendar_query.filter(Opportunity.opportunity_type == specialty_enum)
+            except ValueError:
+                pass  # Invalid specialty, ignore filter
+        
+        calendar_slots = calendar_query.order_by(CalendarSlot.date, CalendarSlot.start_time).all()
         
         # Get opportunities without specific calendar slots (flexible scheduling)
-        all_opportunities = Opportunity.query.filter_by(is_active=True).all()
-        opportunities_with_slots = db.session.query(Opportunity).join(CalendarSlot).filter(
+        all_opportunities_query = Opportunity.query.filter_by(is_active=True)
+        
+        # Add specialty filter to all opportunities if provided
+        if specialty:
+            try:
+                specialty_enum = OpportunityType(specialty)
+                all_opportunities_query = all_opportunities_query.filter(Opportunity.opportunity_type == specialty_enum)
+            except ValueError:
+                pass  # Invalid specialty, ignore filter
+        
+        all_opportunities = all_opportunities_query.all()
+        
+        opportunities_with_slots_query = db.session.query(Opportunity).join(CalendarSlot).filter(
             Opportunity.is_active == True,
             CalendarSlot.is_available == True
-        ).distinct().all()
+        )
+        
+        # Add specialty filter to opportunities with slots if provided
+        if specialty:
+            try:
+                specialty_enum = OpportunityType(specialty)
+                opportunities_with_slots_query = opportunities_with_slots_query.filter(Opportunity.opportunity_type == specialty_enum)
+            except ValueError:
+                pass  # Invalid specialty, ignore filter
+        
+        opportunities_with_slots = opportunities_with_slots_query.distinct().all()
         flexible_opportunities = [opp for opp in all_opportunities if opp not in opportunities_with_slots]
         
         personal_slots = []
@@ -490,7 +536,8 @@ def global_calendar():
                          personal_slots=personal_slots,
                          flexible_opportunities=flexible_opportunities,
                          start_date=start_date, 
-                         timedelta=timedelta)
+                         timedelta=timedelta,
+                         current_specialty=specialty)
 
 
 # Resident Profile Routes
@@ -520,6 +567,7 @@ def resident_profile():
                 profile.training_year = None
         else:
             profile.training_year = None
+        profile.medical_specialty = request.form.get("medical_specialty", "").strip()
         profile.bio = request.form.get("bio", "").strip()
         
         # Handle photo upload
@@ -580,7 +628,7 @@ def employer_profile():
             db.session.add(profile)
         
         profile.practice_setting = request.form.get("practice_setting", "").strip()
-        profile.modalities = request.form.get("modalities", "").strip()
+        profile.medical_specialty = request.form.get("medical_specialty", "").strip()
         profile.location = request.form.get("location", "").strip()
         profile.practice_description = request.form.get("practice_description", "").strip()
         

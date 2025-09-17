@@ -3,13 +3,13 @@
 <!-- Page Header -->
 <div class="page-header">
   <h1 class="page-title page-title-animated">🏥 Write a Program Review</h1>
-  <p class="page-subtitle page-subtitle-animated">Share your experience with a radiology residency program to help future residents make informed decisions</p>
+  <p class="page-subtitle page-subtitle-animated">Share your experience with a medical residency program to help future residents make informed decisions</p>
 </div>
 
 <div class="card max-w-4xl mx-auto">
   <h3 class="text-2xl font-bold mb-4">Program Review</h3>
   <p class="text-secondary mb-8 text-lg leading-relaxed">
-    Your review will help future radiology residents choose the right program for their career goals.
+    Your review will help future medical residents choose the right program for their career goals.
   </p>
   
   <form method="POST" class="space-y-8">
@@ -24,12 +24,46 @@
           <label for="program_name" class="block text-sm font-medium mb-2">Program *</label>
           <select name="program_name" id="program_name" class="input" required>
             <option value="">Choose a program...</option>
-            {% for program in programs %}
-            <option value="{{ program }}">{{ program }}</option>
-            {% endfor %}
+            <!-- Programs will be loaded dynamically via JavaScript -->
           </select>
           <div class="info-box">
-            <p class="text-sm">Select the radiology residency program you're reviewing</p>
+            <p class="text-sm">Select the medical residency program you're reviewing</p>
+          </div>
+        </div>
+        <div>
+          <label for="specialty" class="block text-sm font-medium mb-2">Medical Specialty (Optional)</label>
+          <select name="specialty" id="specialty" class="input">
+            <option value="">General (All Specialties)</option>
+            <option value="aerospace_medicine">Aerospace Medicine</option>
+            <option value="anesthesiology">Anesthesiology</option>
+            <option value="child_neurology">Child Neurology</option>
+            <option value="dermatology">Dermatology</option>
+            <option value="emergency_medicine">Emergency Medicine</option>
+            <option value="family_medicine">Family Medicine</option>
+            <option value="internal_medicine">Internal Medicine</option>
+            <option value="medical_genetics">Medical Genetics</option>
+            <option value="interventional_radiology">Interventional Radiology</option>
+            <option value="neurological_surgery">Neurological Surgery</option>
+            <option value="neurology">Neurology</option>
+            <option value="nuclear_medicine">Nuclear Medicine</option>
+            <option value="obstetrics_gynecology">Obstetrics and Gynecology</option>
+            <option value="occupational_environmental_medicine">Occupational and Environmental Medicine</option>
+            <option value="orthopaedic_surgery">Orthopaedic Surgery</option>
+            <option value="otolaryngology">Otolaryngology - Head and Neck Surgery</option>
+            <option value="pathology">Pathology-Anatomic and Clinical</option>
+            <option value="pediatrics">Pediatrics</option>
+            <option value="physical_medicine_rehabilitation">Physical Medicine and Rehabilitation</option>
+            <option value="plastic_surgery">Plastic Surgery</option>
+            <option value="psychiatry">Psychiatry</option>
+            <option value="radiation_oncology">Radiation Oncology</option>
+            <option value="radiology_diagnostic">Radiology-Diagnostic</option>
+            <option value="general_surgery">General Surgery</option>
+            <option value="thoracic_surgery">Thoracic Surgery</option>
+            <option value="urology">Urology</option>
+            <option value="vascular_surgery">Vascular Surgery</option>
+          </select>
+          <div class="info-box">
+            <p class="text-sm">Select the medical specialty this review is written for (optional)</p>
           </div>
         </div>
       </div>
@@ -143,7 +177,7 @@
       <div class="form-grid">
         <div>
           <label for="comments" class="block text-sm font-medium mb-2">Detailed Review</label>
-          <textarea name="comments" id="comments" rows="6" class="input" placeholder="Share your detailed experience, pros and cons, advice for future radiologists, or any other insights..."></textarea>
+          <textarea name="comments" id="comments" rows="6" class="input" placeholder="Share your detailed experience, pros and cons, advice for future physicians, or any other insights..."></textarea>
           <div class="info-box">
             <p class="text-sm">Optional: Provide detailed feedback about your experience, including specific examples and advice for future residents</p>
           </div>
@@ -241,4 +275,26 @@
   }
 }
 </style>
+
+<script src="/static/js/program-data.js"></script>
+<script>
+// Load all programs into the program dropdown
+document.addEventListener('DOMContentLoaded', function() {
+  const programSelect = document.getElementById('program_name');
+  
+  if (programSelect && typeof allPrograms !== 'undefined') {
+    // Clear existing options except the first one
+    programSelect.innerHTML = '<option value="">Choose a program...</option>';
+    
+    // Add all programs from the comprehensive list
+    allPrograms.forEach(function(program) {
+      const option = document.createElement('option');
+      option.value = program;
+      option.textContent = program;
+      programSelect.appendChild(option);
+    });
+  }
+});
+</script>
+
 {% endblock %}

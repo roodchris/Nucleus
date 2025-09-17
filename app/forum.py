@@ -20,6 +20,7 @@ def forum_index():
         
     page = request.args.get("page", 1, type=int)
     category = request.args.get("category", "")
+    specialty = request.args.get("specialty", "")
     sort_by = request.args.get("sort", "newest")
     
     # Build query
@@ -32,6 +33,10 @@ def forum_index():
             query = query.filter(ForumPost.category == category_enum)
         except ValueError:
             pass
+    
+    # Filter by specialty if specified
+    if specialty:
+        query = query.filter(ForumPost.specialty == specialty)
     
     # Sort posts
     if sort_by == "newest":
@@ -85,6 +90,7 @@ def forum_index():
                          posts=posts, 
                          categories=ForumCategory,
                          current_category=category,
+                         current_specialty=specialty,
                          current_sort=sort_by)
 
 
@@ -96,6 +102,7 @@ def new_post():
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "").strip()
         category = request.form.get("category", "")
+        specialty = request.form.get("specialty", "")
         photos_json = request.form.get("photos", "[]")
         
         if not title or not content or not category:
@@ -122,6 +129,7 @@ def new_post():
             title=title,
             content=content,
             category=category_enum,
+            specialty=specialty if specialty else None,
             photos=photos_json if photos else None
         )
         
