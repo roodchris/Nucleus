@@ -104,8 +104,27 @@ def fix_enum_on_startup():
                     else:
                         logger.info("✅ forum_post.specialty column already exists")
                         
-                except Exception as forum_error:
-                    logger.error(f"❌ Failed to add forum_post.specialty column: {forum_error}")
+                except Exception as e:
+                    logger.error(f"❌ Error ensuring forum_post specialty column: {e}")
+                
+                # Also ensure program_review table has specialty column
+                try:
+                    logger.info("🔧 Ensuring program_review table has specialty column...")
+                    cursor.execute("""
+                        SELECT column_name FROM information_schema.columns 
+                        WHERE table_name = 'program_review' AND column_name = 'specialty'
+                    """)
+                    specialty_column_exists = cursor.fetchone() is not None
+                    
+                    if not specialty_column_exists:
+                        cursor.execute("ALTER TABLE program_review ADD COLUMN specialty VARCHAR(100)")
+                        conn.commit()
+                        logger.info("✅ Added specialty column to program_review table")
+                    else:
+                        logger.info("✅ program_review.specialty column already exists")
+                        
+                except Exception as e:
+                    logger.error(f"❌ Error ensuring program_review specialty column: {e}")
                 
                 return True
         

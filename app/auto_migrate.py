@@ -48,6 +48,9 @@ def run_auto_migration():
             
         if not check_column_exists('forum_post', 'specialty'):
             migrations_needed.append(('forum_post', 'specialty', 'VARCHAR(100)'))
+            
+        if not check_column_exists('program_review', 'specialty'):
+            migrations_needed.append(('program_review', 'specialty', 'VARCHAR(100)'))
         
         # Check if modalities column still exists (should be removed)
         if check_column_exists('employer_profile', 'modalities'):
