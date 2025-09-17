@@ -108,6 +108,8 @@ def forum_index():
 @login_required
 def new_post():
     """Create a new forum post"""
+    from .enable_specialty_features import should_enable_forum_specialty
+    
     if request.method == "POST":
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "").strip()
