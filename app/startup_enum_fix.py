@@ -1,0 +1,135 @@
+"""
+Startup enum fix that runs during app initialization
+This ensures enums are fixed when the app starts, using the corrected environment
+"""
+
+import logging
+import os
+
+logger = logging.getLogger(__name__)
+
+def fix_enum_on_startup():
+    """Fix PostgreSQL enum during app startup with robust error handling"""
+    
+    try:
+        logger.info("🔧 Starting startup enum fix...")
+        
+        # Get database URL from environment
+        database_url = os.environ.get('DATABASE_URL')
+        if not database_url:
+            logger.warning("⚠️  DATABASE_URL not found - skipping enum fix")
+            return False
+        
+        if 'postgresql' not in database_url:
+            logger.info("✅ Not PostgreSQL - enum fix not needed")
+            return True
+        
+        logger.info("📋 PostgreSQL detected - proceeding with enum fix...")
+        
+        # Use direct psycopg connection for maximum reliability
+        import psycopg
+        
+        # Required medical specialties
+        required_specialties = [
+            'AEROSPACE_MEDICINE', 'ANESTHESIOLOGY', 'CHILD_NEUROLOGY', 'DERMATOLOGY',
+            'EMERGENCY_MEDICINE', 'FAMILY_MEDICINE', 'INTERNAL_MEDICINE', 'MEDICAL_GENETICS',
+            'INTERVENTIONAL_RADIOLOGY', 'NEUROLOGICAL_SURGERY', 'NEUROLOGY', 'NUCLEAR_MEDICINE',
+            'OBSTETRICS_GYNECOLOGY', 'OCCUPATIONAL_ENVIRONMENTAL_MEDICINE', 'ORTHOPAEDIC_SURGERY',
+            'OTOLARYNGOLOGY', 'PATHOLOGY', 'PEDIATRICS', 'PHYSICAL_MEDICINE_REHABILITATION',
+            'PLASTIC_SURGERY', 'PSYCHIATRY', 'RADIATION_ONCOLOGY', 'RADIOLOGY_DIAGNOSTIC',
+            'GENERAL_SURGERY', 'THORACIC_SURGERY', 'UROLOGY', 'VASCULAR_SURGERY'
+        ]
+        
+        with psycopg.connect(database_url) as conn:
+            with conn.cursor() as cursor:
+                logger.info("✅ Connected to PostgreSQL database")
+                
+                # Get current enum values
+                cursor.execute("""
+                    SELECT unnest(enum_range(NULL::opportunitytype))::text as enum_value
+                """)
+                current_values = set(row[0] for row in cursor.fetchall())
+                logger.info(f"📊 Current enum has {len(current_values)} values")
+                
+                # Find missing specialties
+                missing_specialties = set(required_specialties) - current_values
+                
+                if not missing_specialties:
+                    logger.info("✅ All medical specialties already exist")
+                    return True
+                
+                logger.info(f"🔧 Adding {len(missing_specialties)} missing specialties...")
+                
+                # Add missing specialties with individual error handling
+                success_count = 0
+                for specialty in sorted(missing_specialties):
+                    try:
+                        cursor.execute(f"ALTER TYPE opportunitytype ADD VALUE '{specialty}'")
+                        conn.commit()
+                        logger.info(f"    ✅ Added: {specialty}")
+                        success_count += 1
+                    except Exception as e:
+                        if "already exists" in str(e).lower():
+                            logger.info(f"    ✅ Already exists: {specialty}")
+                            success_count += 1
+                        else:
+                            logger.error(f"    ❌ Failed to add {specialty}: {e}")
+                
+                # Verify final state
+                cursor.execute("""
+                    SELECT unnest(enum_range(NULL::opportunitytype))::text as enum_value
+                """)
+                final_values = set(row[0] for row in cursor.fetchall())
+                final_missing = set(required_specialties) - final_values
+                
+                if final_missing:
+                    logger.error(f"❌ Still missing after fix: {sorted(final_missing)}")
+                    return False
+                else:
+                    logger.info(f"🎉 All {len(required_specialties)} medical specialties now available!")
+                    return True
+        
+    except ImportError:
+        logger.error("❌ psycopg package not available - cannot fix enum")
+        return False
+    except Exception as e:
+        logger.error(f"❌ Startup enum fix failed: {e}")
+        return False
+
+def validate_database_connectivity():
+    """Validate database connectivity and identify potential issues"""
+    
+    try:
+        database_url = os.environ.get('DATABASE_URL')
+        if not database_url:
+            logger.error("❌ DATABASE_URL environment variable not set")
+            return False
+        
+        logger.info(f"🔍 Validating database connectivity...")
+        logger.info(f"Database URL format: {database_url.split('@')[0]}@[REDACTED]")
+        
+        # Check URL format
+        if not database_url.startswith(('postgresql://', 'postgresql+psycopg://')):
+            logger.error("❌ DATABASE_URL should start with postgresql:// or postgresql+psycopg://")
+            return False
+        
+        # Test basic connection
+        import psycopg
+        with psycopg.connect(database_url) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT version()")
+                version = cursor.fetchone()[0]
+                logger.info(f"✅ Connected to PostgreSQL: {version.split()[0]} {version.split()[1]}")
+                
+                # Test enum operations capability
+                cursor.execute("SELECT 1")
+                logger.info("✅ Database operations working")
+                
+                return True
+        
+    except ImportError:
+        logger.error("❌ psycopg package not available")
+        return False
+    except Exception as e:
+        logger.error(f"❌ Database connectivity validation failed: {e}")
+        return False

@@ -278,14 +278,47 @@ def create_app(config_class: type = Config) -> Flask:
             except Exception as migration_error:
                 app.logger.warning(f"Migration failed (non-critical): {migration_error}")
             
-            # Run new specialty features migration
+            # Validate environment variables first
+            try:
+                from .env_validator import validate_environment_variables
+                env_valid = validate_environment_variables()
+                app.config['ENV_VALIDATION_PASSED'] = env_valid
+                if not env_valid:
+                    app.logger.error("❌ Environment variable validation failed - check configuration")
+            except Exception as env_error:
+                app.logger.warning(f"Environment validation failed: {env_error}")
+                app.config['ENV_VALIDATION_PASSED'] = False
+            
+            # Validate database connectivity first
+            try:
+                from .startup_enum_fix import validate_database_connectivity
+                db_connectivity = validate_database_connectivity()
+                app.config['DB_CONNECTIVITY'] = db_connectivity
+            except Exception as connectivity_error:
+                app.logger.warning(f"Database connectivity validation failed: {connectivity_error}")
+                app.config['DB_CONNECTIVITY'] = False
+            
+            # Run startup enum fix with corrected environment
+            try:
+                from .startup_enum_fix import fix_enum_on_startup
+                enum_fixed = fix_enum_on_startup()
+                app.config['ENUM_FIXED_ON_STARTUP'] = enum_fixed
+                if enum_fixed:
+                    app.logger.info("✅ PostgreSQL enum fixed during startup")
+                else:
+                    app.logger.warning("⚠️  PostgreSQL enum fix failed - manual intervention may be needed")
+            except Exception as enum_error:
+                app.logger.warning(f"Startup enum fix failed: {enum_error}")
+                app.config['ENUM_FIXED_ON_STARTUP'] = False
+            
+            # Run legacy migration system (for other columns)
             try:
                 from .auto_migrate import run_auto_migration
                 run_auto_migration()
             except Exception as migration_error:
-                app.logger.warning(f"Specialty migration failed (non-critical): {migration_error}")
+                app.logger.warning(f"Legacy migration failed (non-critical): {migration_error}")
             
-            # Validate database schema after migrations
+            # Final validation
             try:
                 from .database_validator import run_database_validation
                 validation_passed = run_database_validation()
@@ -375,6 +408,11 @@ def create_app(config_class: type = Config) -> Flask:
             try:
                 from .startup_health_check import get_health_status
                 detailed_health = get_health_status()
+                
+                # Add environment validation status
+                from .env_validator import get_environment_status
+                detailed_health['environment'] = get_environment_status()
+                
             except Exception as health_error:
                 detailed_health = {"error": f"Could not get detailed health status: {health_error}"}
                 
