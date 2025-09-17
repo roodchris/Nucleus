@@ -3,7 +3,8 @@ services:
     name: nucleus-app
     env: python
     buildCommand: ./build.sh
-    startCommand: gunicorn main:app
+    startCommand: gunicorn main:app --preload
+    preDeployCommand: python production_migration.py
     envVars:
       - key: DATABASE_URL
         value: postgresql://nucleus_database_user:yWmpdEqkhdvvH0rbLuuXmFC4Gbx6BVJB@dpg-d2urvt7fte5s73bgkei0-a.oregon-postgres.render.com/nucleus_database

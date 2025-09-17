@@ -23,8 +23,10 @@ def forum_index():
     specialty = request.args.get("specialty", "")
     sort_by = request.args.get("sort", "newest")
     
-    # Build query
-    query = ForumPost.query
+    # Build query with dynamic specialty support
+    from .enable_specialty_features import get_forum_query_with_specialty_support, should_enable_forum_specialty
+    
+    query = get_forum_query_with_specialty_support()
     
     # Filter by category if specified
     if category and category != "all":
@@ -34,13 +36,13 @@ def forum_index():
         except ValueError:
             pass
     
-    # Filter by specialty if specified (temporarily disabled until production migration)
-    # if specialty:
-    #     try:
-    #         query = query.filter(ForumPost.specialty == specialty)
-    #     except Exception:
-    #         # Ignore specialty filtering if column doesn't exist yet
-    #         pass
+    # Filter by specialty if specified and feature is enabled
+    if specialty and should_enable_forum_specialty():
+        try:
+            query = query.filter(ForumPost.specialty == specialty)
+        except Exception:
+            # Ignore specialty filtering if there's an error
+            pass
     
     # Sort posts
     if sort_by == "newest":
@@ -90,11 +92,15 @@ def forum_index():
         else:
             post._user_vote = None
     
+    # Check if specialty features are enabled
+    specialty_enabled = should_enable_forum_specialty()
+    
     return render_template("forum/index.html", 
                          posts=posts, 
                          categories=ForumCategory,
                          current_category=category,
-                         # current_specialty=specialty,  # Temporarily disabled
+                         current_specialty=specialty if specialty_enabled else None,
+                         specialty_enabled=specialty_enabled,
                          current_sort=sort_by)
 
 
@@ -106,36 +112,48 @@ def new_post():
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "").strip()
         category = request.form.get("category", "")
-        # specialty = request.form.get("specialty", "")  # Temporarily disabled
+        specialty = request.form.get("specialty", "") if should_enable_forum_specialty() else None
         photos_json = request.form.get("photos", "[]")
         
         if not title or not content or not category:
             flash("Please fill in all fields", "error")
-            return render_template("forum/new_post.html", categories=ForumCategory)
+            return render_template("forum/new_post.html", 
+                               categories=ForumCategory,
+                               specialty_enabled=should_enable_forum_specialty())
         
         try:
             category_enum = ForumCategory(category)
         except ValueError:
             flash("Invalid category selected", "error")
-            return render_template("forum/new_post.html", categories=ForumCategory)
+            return render_template("forum/new_post.html", 
+                               categories=ForumCategory,
+                               specialty_enabled=should_enable_forum_specialty())
         
         # Validate photos
         try:
             photos = json.loads(photos_json) if photos_json else []
             if len(photos) > MAX_PHOTOS_PER_POST:
                 flash(f"Maximum {MAX_PHOTOS_PER_POST} photos allowed per post", "error")
-                return render_template("forum/new_post.html", categories=ForumCategory)
+                return render_template("forum/new_post.html", 
+                                   categories=ForumCategory,
+                                   specialty_enabled=should_enable_forum_specialty())
         except json.JSONDecodeError:
             photos = []
         
-        post = ForumPost(
-            author_id=current_user.id,
-            title=title,
-            content=content,
-            category=category_enum,
-            # specialty=specialty if specialty else None,  # Temporarily disabled
-            photos=photos_json if photos else None
-        )
+        # Create post with dynamic specialty support
+        post_data = {
+            'author_id': current_user.id,
+            'title': title,
+            'content': content,
+            'category': category_enum,
+            'photos': photos_json if photos else None
+        }
+        
+        # Only add specialty if the column exists
+        if should_enable_forum_specialty() and specialty:
+            post_data['specialty'] = specialty
+        
+        post = ForumPost(**post_data)
         
         db.session.add(post)
         db.session.commit()
@@ -143,7 +161,9 @@ def new_post():
         flash("Post created successfully!", "success")
         return redirect(url_for("forum.view_post", post_id=post.id))
     
-    return render_template("forum/new_post.html", categories=ForumCategory)
+    return render_template("forum/new_post.html", 
+                         categories=ForumCategory,
+                         specialty_enabled=should_enable_forum_specialty())
 
 
 @forum_bp.route("/forum/post/<int:post_id>")

@@ -278,6 +278,13 @@ def create_app(config_class: type = Config) -> Flask:
             except Exception as migration_error:
                 app.logger.warning(f"Migration failed (non-critical): {migration_error}")
             
+            # Run new specialty features migration
+            try:
+                from .auto_migrate import run_auto_migration
+                run_auto_migration()
+            except Exception as migration_error:
+                app.logger.warning(f"Specialty migration failed (non-critical): {migration_error}")
+            
             app.logger.info(f"Database initialized successfully with URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
     except Exception as e:
         app.logger.error(f"Database initialization failed: {e}")
