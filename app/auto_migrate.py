@@ -122,12 +122,13 @@ def run_auto_migration():
                         added_count = 0
                         failed_count = 0
                         
+                        # Use autocommit mode for enum additions
+                        autocommit_connection = connection.execution_options(autocommit=True)
+                        
                         for value in all_specialty_values:
                             if value not in existing_values:
                                 try:
-                                    # Each enum addition needs to be in its own transaction
-                                    with db.engine.begin() as trans:
-                                        trans.execute(text(f"ALTER TYPE opportunitytype ADD VALUE '{value}'"))
+                                    autocommit_connection.execute(text(f"ALTER TYPE opportunitytype ADD VALUE '{value}'"))
                                     logger.info(f"    ✅ Added enum value: {value}")
                                     added_count += 1
                                 except Exception as e:
