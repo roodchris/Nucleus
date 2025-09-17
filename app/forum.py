@@ -34,9 +34,13 @@ def forum_index():
         except ValueError:
             pass
     
-    # Filter by specialty if specified
-    if specialty:
-        query = query.filter(ForumPost.specialty == specialty)
+    # Filter by specialty if specified (temporarily disabled until production migration)
+    # if specialty:
+    #     try:
+    #         query = query.filter(ForumPost.specialty == specialty)
+    #     except Exception:
+    #         # Ignore specialty filtering if column doesn't exist yet
+    #         pass
     
     # Sort posts
     if sort_by == "newest":
@@ -90,7 +94,7 @@ def forum_index():
                          posts=posts, 
                          categories=ForumCategory,
                          current_category=category,
-                         current_specialty=specialty,
+                         # current_specialty=specialty,  # Temporarily disabled
                          current_sort=sort_by)
 
 
@@ -102,7 +106,7 @@ def new_post():
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "").strip()
         category = request.form.get("category", "")
-        specialty = request.form.get("specialty", "")
+        # specialty = request.form.get("specialty", "")  # Temporarily disabled
         photos_json = request.form.get("photos", "[]")
         
         if not title or not content or not category:
@@ -129,7 +133,7 @@ def new_post():
             title=title,
             content=content,
             category=category_enum,
-            specialty=specialty if specialty else None,
+            # specialty=specialty if specialty else None,  # Temporarily disabled
             photos=photos_json if photos else None
         )
         

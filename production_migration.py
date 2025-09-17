@@ -75,8 +75,20 @@ def run_production_migration():
             else:
                 print("  ✅ modalities column already removed from employer_profile")
             
-            # Migration 4: Update practice type values
-            print("\n🔄 Migration 4: Update practice type values")
+            # Migration 4: Add specialty column to forum_post table
+            print("\n💬 Migration 4: ForumPost table")
+            forum_post_columns = [col['name'] for col in inspector.get_columns('forum_post')]
+            if 'specialty' not in forum_post_columns:
+                print("  Adding specialty column to forum_post...")
+                with db.engine.connect() as connection:
+                    connection.execute(db.text("ALTER TABLE forum_post ADD COLUMN specialty VARCHAR(100)"))
+                    connection.commit()
+                print("  ✅ Added specialty column to forum_post")
+            else:
+                print("  ✅ specialty column already exists in forum_post")
+            
+            # Migration 5: Update practice type values
+            print("\n🔄 Migration 5: Update practice type values")
             
             # Update JobReview records
             job_reviews_updated = db.session.query(JobReview).filter(
@@ -112,7 +124,7 @@ def run_production_migration():
             print("\n📊 Final table structures:")
             
             # Show final table structures
-            for table_name in ['job_review', 'resident_profile', 'employer_profile']:
+            for table_name in ['job_review', 'resident_profile', 'employer_profile', 'forum_post']:
                 columns = [col['name'] for col in inspector.get_columns(table_name)]
                 print(f"  {table_name}: {columns}")
             
