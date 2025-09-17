@@ -265,7 +265,7 @@ class ForumPost(db.Model):
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     category = db.Column(db.Enum(ForumCategory), nullable=False, index=True)
-    # specialty = db.Column(db.String(100), nullable=True, index=True)  # Medical specialty - TEMPORARILY COMMENTED FOR PRODUCTION COMPATIBILITY
+    specialty = db.Column(db.String(100), nullable=True, index=True)  # Medical specialty
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     is_pinned = db.Column(db.Boolean, default=False, nullable=False)
