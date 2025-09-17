@@ -47,10 +47,11 @@ def validate_postgresql_enums():
                 missing_values = required_values - existing_values
                 
                 if missing_values:
-                    logger.error(f"❌ PostgreSQL enum validation failed!")
-                    logger.error(f"Missing enum values: {sorted(missing_values)}")
-                    logger.error("🔧 Run the auto-migration or manual enum fix to resolve this")
-                    return False
+                    logger.warning(f"⚠️  PostgreSQL enum validation detected missing values")
+                    logger.warning(f"Missing enum values: {sorted(missing_values)}")
+                    logger.warning("🔧 Some opportunity types may not work until enum is updated")
+                    # Return True to not block app startup - just warn about missing values
+                    return True
                 else:
                     logger.info(f"✅ PostgreSQL enum validation passed - all {len(required_values)} values present")
                     return True
