@@ -733,15 +733,27 @@ def employer_applications():
     from .models import Application, Opportunity, User, ResidentProfile
     
     # Get all applications for opportunities posted by this employer
-    applications = db.session.query(Application, Opportunity, User, ResidentProfile).join(
-        Opportunity, Application.opportunity_id == Opportunity.id
-    ).join(
-        User, Application.resident_id == User.id
-    ).outerjoin(
-        ResidentProfile, User.id == ResidentProfile.user_id
-    ).filter(
-        Opportunity.employer_id == current_user.id
-    ).order_by(Application.applied_at.desc()).all()
+    try:
+        applications = db.session.query(Application, Opportunity, User, ResidentProfile).join(
+            Opportunity, Application.opportunity_id == Opportunity.id
+        ).join(
+            User, Application.resident_id == User.id
+        ).outerjoin(
+            ResidentProfile, User.id == ResidentProfile.user_id
+        ).filter(
+            Opportunity.employer_id == current_user.id
+        ).order_by(Application.applied_at.desc()).all()
+    except Exception as e:
+        # Fallback query without ResidentProfile if medical_specialty column doesn't exist yet
+        applications = db.session.query(Application, Opportunity, User).join(
+            Opportunity, Application.opportunity_id == Opportunity.id
+        ).join(
+            User, Application.resident_id == User.id
+        ).filter(
+            Opportunity.employer_id == current_user.id
+        ).order_by(Application.applied_at.desc()).all()
+        # Add None for ResidentProfile to maintain template compatibility
+        applications = [(app, opp, user, None) for app, opp, user in applications]
     
     return render_template("opportunities/employer_applications.html", applications=applications)
 
