@@ -24,3 +24,4 @@ ALTER TYPE opportunitytype_new RENAME TO opportunitytype;
 SELECT unnest(enum_range(NULL::opportunitytype)) as enum_value
 ORDER BY enum_value;
 
+

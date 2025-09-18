@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+  <h1 class="page-title page-title-animated">🏥 Edit Program Review</h1>
+  <p class="page-subtitle page-subtitle-animated">Update your review for {{ review.program_name }}</p>
+</div>
+
+<div class="card max-w-4xl mx-auto">
+  <h3 class="text-2xl font-bold mb-4">Update Program Review</h3>
+  <p class="text-secondary mb-8 text-lg leading-relaxed">
+    Update your review to help future medical residents choose the right program for their career goals.
+  </p>
+  
+  <form method="POST" class="space-y-8">
+    <!-- Program Selection -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🏥</div>
+        <div class="card-title">Program Information</div>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label for="program_name" class="block text-sm font-medium mb-2">Program *</label>
+          <select name="program_name" id="program_name" class="input" required>
+            <option value="">Choose a program...</option>
+            {% for program in programs %}
+            <option value="{{ program }}" {% if program == review.program_name %}selected{% endif %}>{{ program }}</option>
+            {% endfor %}
+          </select>
+          <div class="info-box">
+            <p class="text-sm">Select the medical residency program you're reviewing</p>
+          </div>
+        </div>
+        <div>
+          <label for="specialty" class="block text-sm font-medium mb-2">Medical Specialty (Optional)</label>
+          <select name="specialty" id="specialty" class="input">
+            <option value="">General (All Specialties)</option>
+            <option value="aerospace_medicine" {% if review.specialty == 'aerospace_medicine' %}selected{% endif %}>Aerospace Medicine</option>
+            <option value="anesthesiology" {% if review.specialty == 'anesthesiology' %}selected{% endif %}>Anesthesiology</option>
+            <option value="child_neurology" {% if review.specialty == 'child_neurology' %}selected{% endif %}>Child Neurology</option>
+            <option value="dermatology" {% if review.specialty == 'dermatology' %}selected{% endif %}>Dermatology</option>
+            <option value="emergency_medicine" {% if review.specialty == 'emergency_medicine' %}selected{% endif %}>Emergency Medicine</option>
+            <option value="family_medicine" {% if review.specialty == 'family_medicine' %}selected{% endif %}>Family Medicine</option>
+            <option value="internal_medicine" {% if review.specialty == 'internal_medicine' %}selected{% endif %}>Internal Medicine</option>
+            <option value="medical_genetics" {% if review.specialty == 'medical_genetics' %}selected{% endif %}>Medical Genetics</option>
+            <option value="interventional_radiology" {% if review.specialty == 'interventional_radiology' %}selected{% endif %}>Interventional Radiology</option>
+            <option value="neurological_surgery" {% if review.specialty == 'neurological_surgery' %}selected{% endif %}>Neurological Surgery</option>
+            <option value="neurology" {% if review.specialty == 'neurology' %}selected{% endif %}>Neurology</option>
+            <option value="nuclear_medicine" {% if review.specialty == 'nuclear_medicine' %}selected{% endif %}>Nuclear Medicine</option>
+            <option value="obstetrics_gynecology" {% if review.specialty == 'obstetrics_gynecology' %}selected{% endif %}>Obstetrics and Gynecology</option>
+            <option value="occupational_environmental_medicine" {% if review.specialty == 'occupational_environmental_medicine' %}selected{% endif %}>Occupational and Environmental Medicine</option>
+            <option value="orthopaedic_surgery" {% if review.specialty == 'orthopaedic_surgery' %}selected{% endif %}>Orthopaedic Surgery</option>
+            <option value="otolaryngology" {% if review.specialty == 'otolaryngology' %}selected{% endif %}>Otolaryngology - Head and Neck Surgery</option>
+            <option value="pathology" {% if review.specialty == 'pathology' %}selected{% endif %}>Pathology-Anatomic and Clinical</option>
+            <option value="pediatrics" {% if review.specialty == 'pediatrics' %}selected{% endif %}>Pediatrics</option>
+            <option value="physical_medicine_rehabilitation" {% if review.specialty == 'physical_medicine_rehabilitation' %}selected{% endif %}>Physical Medicine and Rehabilitation</option>
+            <option value="plastic_surgery" {% if review.specialty == 'plastic_surgery' %}selected{% endif %}>Plastic Surgery</option>
+            <option value="psychiatry" {% if review.specialty == 'psychiatry' %}selected{% endif %}>Psychiatry</option>
+            <option value="radiation_oncology" {% if review.specialty == 'radiation_oncology' %}selected{% endif %}>Radiation Oncology</option>
+            <option value="radiology_diagnostic" {% if review.specialty == 'radiology_diagnostic' %}selected{% endif %}>Radiology-Diagnostic</option>
+            <option value="general_surgery" {% if review.specialty == 'general_surgery' %}selected{% endif %}>General Surgery</option>
+            <option value="thoracic_surgery" {% if review.specialty == 'thoracic_surgery' %}selected{% endif %}>Thoracic Surgery</option>
+            <option value="urology" {% if review.specialty == 'urology' %}selected{% endif %}>Urology</option>
+            <option value="vascular_surgery" {% if review.specialty == 'vascular_surgery' %}selected{% endif %}>Vascular Surgery</option>
+          </select>
+          <div class="info-box">
+            <p class="text-sm">Select the medical specialty this review is written for (optional)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rating Categories -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">⭐</div>
+        <div class="card-title">Program Ratings</div>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label for="educational_quality" class="block text-sm font-medium mb-2">Educational Quality *</label>
+          <select name="educational_quality" id="educational_quality" class="input" required>
+            <option value="">Select rating...</option>
+            <option value="1" {% if review.educational_quality == 1 %}selected{% endif %}>1 - Poor</option>
+            <option value="2" {% if review.educational_quality == 2 %}selected{% endif %}>2 - Below Average</option>
+            <option value="3" {% if review.educational_quality == 3 %}selected{% endif %}>3 - Average</option>
+            <option value="4" {% if review.educational_quality == 4 %}selected{% endif %}>4 - Above Average</option>
+            <option value="5" {% if review.educational_quality == 5 %}selected{% endif %}>5 - Excellent</option>
+          </select>
+          <div class="info-box">
+            <p class="text-sm">Teaching quality, learning opportunities, curriculum effectiveness</p>
+          </div>
+        </div>
+
+        <div>
+          <label for="work_life_balance" class="block text-sm font-medium mb-2">Work-Life Balance *</label>
+          <select name="work_life_balance" id="work_life_balance" class="input" required>
+            <option value="">Select rating...</option>
+            <option value="1" {% if review.work_life_balance == 1 %}selected{% endif %}>1 - Poor</option>
+            <option value="2" {% if review.work_life_balance == 2 %}selected{% endif %}>2 - Below Average</option>
+            <option value="3" {% if review.work_life_balance == 3 %}selected{% endif %}>3 - Average</option>
+            <option value="4" {% if review.work_life_balance == 4 %}selected{% endif %}>4 - Above Average</option>
+            <option value="5" {% if review.work_life_balance == 5 %}selected{% endif %}>5 - Excellent</option>
+          </select>
+          <div class="info-box">
+            <p class="text-sm">Hours, call schedule, time for personal life and activities</p>
+          </div>
+        </div>
+
+        <div>
+          <label for="attending_quality" class="block text-sm font-medium mb-2">Attending Quality *</label>
+          <select name="attending_quality" id="attending_quality" class="input" required>
+            <option value="">Select rating...</option>
+            <option value="1" {% if review.attending_quality == 1 %}selected{% endif %}>1 - Poor</option>
+            <option value="2" {% if review.attending_quality == 2 %}selected{% endif %}>2 - Below Average</option>
+            <option value="3" {% if review.attending_quality == 3 %}selected{% endif %}>3 - Average</option>
+            <option value="4" {% if review.attending_quality == 4 %}selected{% endif %}>4 - Above Average</option>
+            <option value="5" {% if review.attending_quality == 5 %}selected{% endif %}>5 - Excellent</option>
+          </select>
+          <div class="info-box">
+            <p class="text-sm">Faculty expertise, teaching ability, mentorship quality</p>
+          </div>
+        </div>
+
+        <div>
+          <label for="facilities_quality" class="block text-sm font-medium mb-2">Facilities Quality *</label>
+          <select name="facilities_quality" id="facilities_quality" class="input" required>
+            <option value="">Select rating...</option>
+            <option value="1" {% if review.facilities_quality == 1 %}selected{% endif %}>1 - Poor</option>
+            <option value="2" {% if review.facilities_quality == 2 %}selected{% endif %}>2 - Below Average</option>
+            <option value="3" {% if review.facilities_quality == 3 %}selected{% endif %}>3 - Average</option>
+            <option value="4" {% if review.facilities_quality == 4 %}selected{% endif %}>4 - Above Average</option>
+            <option value="5" {% if review.facilities_quality == 5 %}selected{% endif %}>5 - Excellent</option>
+          </select>
+          <div class="info-box">
+            <p class="text-sm">Equipment quality, workspace, technology and resources</p>
+          </div>
+        </div>
+
+        <div>
+          <label for="research_opportunities" class="block text-sm font-medium mb-2">Research Opportunities *</label>
+          <select name="research_opportunities" id="research_opportunities" class="input" required>
+            <option value="">Select rating...</option>
+            <option value="1" {% if review.research_opportunities == 1 %}selected{% endif %}>1 - Poor</option>
+            <option value="2" {% if review.research_opportunities == 2 %}selected{% endif %}>2 - Below Average</option>
+            <option value="3" {% if review.research_opportunities == 3 %}selected{% endif %}>3 - Average</option>
+            <option value="4" {% if review.research_opportunities == 4 %}selected{% endif %}>4 - Above Average</option>
+            <option value="5" {% if review.research_opportunities == 5 %}selected{% endif %}>5 - Excellent</option>
+          </select>
+          <div class="info-box">
+            <p class="text-sm">Research support, projects availability, publication opportunities</p>
+          </div>
+        </div>
+
+        <div>
+          <label for="culture" class="block text-sm font-medium mb-2">Program Culture *</label>
+          <select name="culture" id="culture" class="input" required>
+            <option value="">Select rating...</option>
+            <option value="1" {% if review.culture == 1 %}selected{% endif %}>1 - Poor</option>
+            <option value="2" {% if review.culture == 2 %}selected{% endif %}>2 - Below Average</option>
+            <option value="3" {% if review.culture == 3 %}selected{% endif %}>3 - Average</option>
+            <option value="4" {% if review.culture == 4 %}selected{% endif %}>4 - Above Average</option>
+            <option value="5" {% if review.culture == 5 %}selected{% endif %}>5 - Excellent</option>
+          </select>
+          <div class="info-box">
+            <p class="text-sm">Program atmosphere, resident camaraderie, support systems</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comments -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">💬</div>
+        <div class="card-title">Additional Comments</div>
+      </div>
+      <div>
+        <label for="comments" class="block text-sm font-medium mb-2">Your Experience (Optional)</label>
+        <textarea name="comments" id="comments" rows="6" class="input" 
+                  placeholder="Share specific details about your experience, what you liked, what could be improved, and any advice for future residents...">{{ review.comments or '' }}</textarea>
+        <div class="info-box">
+          <p class="text-sm">Your detailed feedback helps future residents make informed decisions</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Privacy Options -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🔒</div>
+        <div class="card-title">Privacy Options</div>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" name="anonymous" id="anonymous" class="checkbox" {% if review.anonymous %}checked{% endif %}>
+        <label for="anonymous" class="checkbox-label">
+          Submit this review anonymously (your name will not be displayed)
+        </label>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <a href="{{ url_for('program_reviews.index') }}" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Cancel
+      </a>
+      <button type="submit" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Update Review
+      </button>
+    </div>
+  </form>
+</div>
+
+<style>
+  /* Form Styling */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .info-box {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .info-box p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+  }
+
+  .checkbox-label {
+    color: var(--text);
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .form-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+// Initialize program list on page load
+document.addEventListener('DOMContentLoaded', function() {
+  // Program selection is already populated from server-side
+  console.log('Program review edit form initialized');
+});
+</script>
+{% endblock %}

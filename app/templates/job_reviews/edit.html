@@ -1,236 +1,399 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-4xl">
-  <div class="text-center mb-8">
-    <h1 class="text-4xl font-bold text-gray-900 mb-4">Edit Job Review</h1>
-    <p class="text-xl text-gray-600">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title page-title-animated">Edit Job Review</h1>
+    <p class="page-subtitle page-subtitle-animated">
       Update your review for {{ review.practice_name }} in {{ review.location }}
     </p>
   </div>
 
-  <form method="POST" class="bg-white rounded-lg shadow-lg p-8">
-    {{ form.hidden_tag() }}
-    
-    <!-- Practice Information -->
-    <div class="space-y-6">
-      <h2 class="text-2xl font-bold text-gray-900 border-b pb-2">Practice Information</h2>
+  <!-- Edit Form -->
+  <div class="data-section">
+    <form method="POST" class="edit-form-card">
+      {{ form.hidden_tag() }}
       
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label for="{{ form.practice_name.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ form.practice_name.label }}
-          </label>
-          <div class="space-y-3">
-            <!-- Practice Name Dropdown -->
-            <div>
-              <label for="practice-dropdown" class="block text-xs font-medium text-gray-600 mb-1">Select from existing practices:</label>
-              <select id="practice-dropdown" class="filter-input w-full" onchange="selectPractice()">
-                <option value="">Choose a practice...</option>
-                {% for practice in practice_names %}
-                <option value="{{ practice }}">{{ practice }}</option>
+      <!-- Practice Information Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">Practice Information</h2>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="{{ form.practice_name.id }}" class="form-label">
+              {{ form.practice_name.label }}
+            </label>
+            <div class="form-input-group">
+              <!-- Practice Name Dropdown -->
+              <div class="input-wrapper">
+                <label for="practice-dropdown" class="input-sublabel">Select from existing practices:</label>
+                <select id="practice-dropdown" class="form-input" onchange="selectPractice()">
+                  <option value="">Choose a practice...</option>
+                  {% for practice in practice_names %}
+                  <option value="{{ practice }}">{{ practice }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              
+              <!-- Or enter new practice name -->
+              <div class="input-wrapper">
+                <label for="{{ form.practice_name.id }}" class="input-sublabel">Or enter a new practice name:</label>
+                {{ form.practice_name(class="form-input", id="practice-name-input") }}
+              </div>
+            </div>
+            {% if form.practice_name.errors %}
+              <div class="form-error">
+                {% for error in form.practice_name.errors %}
+                  {{ error }}
                 {% endfor %}
-              </select>
-            </div>
-            
-            <!-- Or enter new practice name -->
-            <div>
-              <label for="{{ form.practice_name.id }}" class="block text-xs font-medium text-gray-600 mb-1">Or enter a new practice name:</label>
-              {{ form.practice_name(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", id="practice-name-input") }}
-            </div>
+              </div>
+            {% endif %}
           </div>
-          {% if form.practice_name.errors %}
-            <div class="text-red-600 text-sm mt-1">
-              {% for error in form.practice_name.errors %}
-                {{ error }}
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-        
-        <div>
-          <label for="{{ form.location.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ form.location.label }}
-          </label>
-          {{ form.location(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-          {% if form.location.errors %}
-            <div class="text-red-600 text-sm mt-1">
-              {% for error in form.location.errors %}
-                {{ error }}
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-      </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <div>
-          <label for="{{ form.practice_type.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ form.practice_type.label }}
-          </label>
-          {{ form.practice_type(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-          {% if form.practice_type.errors %}
-            <div class="text-red-600 text-sm mt-1">
-              {% for error in form.practice_type.errors %}
-                {{ error }}
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-        
-        <div>
-          <label for="{{ form.specialty.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ form.specialty.label }}
-          </label>
-          {{ form.specialty(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-          {% if form.specialty.errors %}
-            <div class="text-red-600 text-sm mt-1">
-              {% for error in form.specialty.errors %}
-                {{ error }}
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <!-- Ratings -->
-    <div class="space-y-6 mt-8">
-      <h2 class="text-2xl font-bold text-gray-900 border-b pb-2">Ratings</h2>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label for="{{ form.work_life_balance.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ form.work_life_balance.label }}
-          </label>
-          {{ form.work_life_balance(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-          {% if form.work_life_balance.errors %}
-            <div class="text-red-600 text-sm mt-1">
-              {% for error in form.work_life_balance.errors %}
-                {{ error }}
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-        
-        <div>
-          <label for="{{ form.compensation.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ form.compensation.label }}
-          </label>
-          {{ form.compensation(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-          {% if form.compensation.errors %}
-            <div class="text-red-600 text-sm mt-1">
-              {% for error in form.compensation.errors %}
-                {{ error }}
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-        
-        <div>
-          <label for="{{ form.culture.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ form.culture.label }}
-          </label>
-          {{ form.culture(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-          {% if form.culture.errors %}
-            <div class="text-red-600 text-sm mt-1">
-              {% for error in form.culture.errors %}
-                {{ error }}
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-        
-        <div>
-          <label for="{{ form.growth_opportunities.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ form.growth_opportunities.label }}
-          </label>
-          {{ form.growth_opportunities(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-          {% if form.growth_opportunities.errors %}
-            <div class="text-red-600 text-sm mt-1">
-              {% for error in form.growth_opportunities.errors %}
-                {{ error }}
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-      </div>
-      
-      <div>
-        <label for="{{ form.overall_rating.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-          {{ form.overall_rating.label }}
-        </label>
-        {{ form.overall_rating(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
-        {% if form.overall_rating.errors %}
-          <div class="text-red-600 text-sm mt-1">
-            {% for error in form.overall_rating.errors %}
-              {{ error }}
-            {% endfor %}
+          
+          <div class="form-group">
+            <label for="{{ form.location.id }}" class="form-label">
+              {{ form.location.label }}
+            </label>
+            {{ form.location(class="form-input") }}
+            {% if form.location.errors %}
+              <div class="form-error">
+                {% for error in form.location.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
           </div>
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- Detailed Review -->
-    <div class="space-y-6 mt-8">
-      <h2 class="text-2xl font-bold text-gray-900 border-b pb-2">Detailed Review</h2>
-      
-      <div>
-        <label for="{{ form.review_text.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-          {{ form.review_text.label }}
-        </label>
-        {{ form.review_text(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", rows="6", placeholder="Share your detailed experience, pros and cons, and any advice for other radiologists...") }}
-        {% if form.review_text.errors %}
-          <div class="text-red-600 text-sm mt-1">
-            {% for error in form.review_text.errors %}
-              {{ error }}
-            {% endfor %}
-          </div>
-        {% endif %}
-        <p class="text-sm text-gray-500 mt-1">Optional but highly valuable for other users</p>
-      </div>
-    </div>
-
-    <!-- Privacy Options -->
-    <div class="space-y-6 mt-8">
-      <h2 class="text-2xl font-bold text-gray-900 border-b pb-2">Privacy Options</h2>
-      
-      <div class="flex items-center">
-        {{ form.is_anonymous(class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded") }}
-        <label for="{{ form.is_anonymous.id }}" class="ml-2 block text-sm text-gray-900">
-          Submit this review anonymously (your name will not be displayed)
-        </label>
-      </div>
-      {% if form.is_anonymous.errors %}
-        <div class="text-red-600 text-sm mt-1">
-          {% for error in form.is_anonymous.errors %}
-            {{ error }}
-          {% endfor %}
         </div>
-      {% endif %}
-    </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="{{ form.practice_type.id }}" class="form-label">
+              {{ form.practice_type.label }}
+            </label>
+            {{ form.practice_type(class="form-input") }}
+            {% if form.practice_type.errors %}
+              <div class="form-error">
+                {% for error in form.practice_type.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="form-group">
+            <label for="{{ form.specialty.id }}" class="form-label">
+              {{ form.specialty.label }}
+            </label>
+            {{ form.specialty(class="form-input") }}
+            {% if form.specialty.errors %}
+              <div class="form-error">
+                {% for error in form.specialty.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
 
-    <!-- Submit Buttons -->
-    <div class="flex justify-between items-center mt-8 pt-6 border-t">
-      <a href="{{ url_for('job_reviews.index') }}" 
-         class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200">
-        Cancel
-      </a>
-      <button type="submit" 
-              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-200">
-        Update Review
-      </button>
-    </div>
-  </form>
-</div>
+      <!-- Ratings Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">Ratings</h2>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="{{ form.work_life_balance.id }}" class="form-label">
+              {{ form.work_life_balance.label }}
+            </label>
+            {{ form.work_life_balance(class="form-input") }}
+            {% if form.work_life_balance.errors %}
+              <div class="form-error">
+                {% for error in form.work_life_balance.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="form-group">
+            <label for="{{ form.compensation.id }}" class="form-label">
+              {{ form.compensation.label }}
+            </label>
+            {{ form.compensation(class="form-input") }}
+            {% if form.compensation.errors %}
+              <div class="form-error">
+                {% for error in form.compensation.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="form-group">
+            <label for="{{ form.culture.id }}" class="form-label">
+              {{ form.culture.label }}
+            </label>
+            {{ form.culture(class="form-input") }}
+            {% if form.culture.errors %}
+              <div class="form-error">
+                {% for error in form.culture.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="form-group">
+            <label for="{{ form.growth_opportunities.id }}" class="form-label">
+              {{ form.growth_opportunities.label }}
+            </label>
+            {{ form.growth_opportunities(class="form-input") }}
+            {% if form.growth_opportunities.errors %}
+              <div class="form-error">
+                {% for error in form.growth_opportunities.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="form-group full-width">
+          <label for="{{ form.overall_rating.id }}" class="form-label">
+            {{ form.overall_rating.label }}
+          </label>
+          {{ form.overall_rating(class="form-input") }}
+          {% if form.overall_rating.errors %}
+            <div class="form-error">
+              {% for error in form.overall_rating.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Detailed Review Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">Detailed Review</h2>
+        </div>
+        
+        <div class="form-group full-width">
+          <label for="{{ form.review_text.id }}" class="form-label">
+            {{ form.review_text.label }}
+          </label>
+          {{ form.review_text(class="form-textarea", rows="6", placeholder="Share your detailed experience, pros and cons, and any advice for other radiologists...") }}
+          {% if form.review_text.errors %}
+            <div class="form-error">
+              {% for error in form.review_text.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+          <p class="form-help">Optional but highly valuable for other users</p>
+        </div>
+      </div>
+
+      <!-- Privacy Options Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">Privacy Options</h2>
+        </div>
+        
+        <div class="form-group">
+          <div class="checkbox-group">
+            {{ form.is_anonymous(class="form-checkbox") }}
+            <label for="{{ form.is_anonymous.id }}" class="checkbox-label">
+              Submit this review anonymously (your name will not be displayed)
+            </label>
+          </div>
+          {% if form.is_anonymous.errors %}
+            <div class="form-error">
+              {% for error in form.is_anonymous.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Submit Buttons -->
+      <div class="form-actions">
+        <a href="{{ url_for('job_reviews.index') }}" class="btn secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Cancel
+        </a>
+        <button type="submit" class="btn primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Update Review
+        </button>
+      </div>
+    </form>
+  </div>
 
 <style>
-  .container {
-    max-width: 1200px;
+  /* Edit Form Styling */
+  .edit-form-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    max-width: 1000px;
+    margin: 0 auto;
   }
-  
+
+  .form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .form-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .section-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .form-input, .form-textarea {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-input:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+    background: var(--surface-2);
+  }
+
+  .form-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .input-sublabel {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .form-error {
+    color: var(--notification);
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .form-help {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+  }
+
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .form-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+  }
+
+  .checkbox-label {
+    font-size: 0.9rem;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Responsive */
   @media (max-width: 768px) {
-    .grid {
+    .edit-form-card {
+      padding: 1.5rem;
+    }
+
+    .form-grid {
       grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .form-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
     }
   }
 </style>

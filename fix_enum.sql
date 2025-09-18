@@ -18,3 +18,4 @@ ORDER BY enum_value;
 -- WHERE enumlabel = 'interventional_radiology' 
 -- AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'opportunitytype');
 
+
