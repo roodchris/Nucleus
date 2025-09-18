@@ -24,9 +24,7 @@
           <label for="program_name" class="block text-sm font-medium mb-2">Program *</label>
           <select name="program_name" id="program_name" class="input" required>
             <option value="">Choose a program...</option>
-            {% for program in programs %}
-            <option value="{{ program }}" {% if program == review.program_name %}selected{% endif %}>{{ program }}</option>
-            {% endfor %}
+            <!-- Programs will be loaded dynamically via JavaScript -->
           </select>
           <div class="info-box">
             <p class="text-sm">Select the medical residency program you're reviewing</p>
@@ -292,11 +290,33 @@
   }
 </style>
 
+<script src="/static/js/program-data.js"></script>
 <script>
-// Initialize program list on page load
+// Load all programs into the program dropdown and preserve the current selection
 document.addEventListener('DOMContentLoaded', function() {
-  // Program selection is already populated from server-side
-  console.log('Program review edit form initialized');
+  const programSelect = document.getElementById('program_name');
+  const currentProgram = '{{ review.program_name }}'; // Current program name from server
+  
+  if (programSelect && typeof allPrograms !== 'undefined') {
+    // Clear existing options except the first one
+    programSelect.innerHTML = '<option value="">Choose a program...</option>';
+    
+    // Add all programs from the comprehensive list
+    allPrograms.forEach(function(program) {
+      const option = document.createElement('option');
+      option.value = program;
+      option.textContent = program;
+      
+      // Select the current program if it matches
+      if (program === currentProgram) {
+        option.selected = true;
+      }
+      
+      programSelect.appendChild(option);
+    });
+    
+    console.log('Program review edit form initialized with', allPrograms.length, 'programs');
+  }
 });
 </script>
 {% endblock %}
