@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+{% block content %}
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title page-title-animated">Job Review</h1>
+    <p class="page-subtitle page-subtitle-animated">{{ review.practice_name }} in {{ review.location }}</p>
+  </div>
+
+  <!-- Back Button -->
+  <div class="submit-section">
+    <a href="{{ url_for('job_reviews.index') }}" class="submit-btn secondary">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back to Job Reviews
+    </a>
+  </div>
+
+  <!-- Review Details -->
+  <div class="data-section">
+    <div class="review-detail-card">
+      <!-- Review Header -->
+      <div class="review-header">
+        <div class="review-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="review-title">
+          <h2 class="practice-name">{{ review.practice_name }}</h2>
+          <p class="reviewer-info">
+            {% if review.is_anonymous %}
+              Anonymous • <span data-timestamp="{{ review.created_at.isoformat() }}" data-format="date">{{ review.created_at.strftime('%B %d, %Y') }}</span>
+            {% else %}
+              {{ review.user.name }} • <span data-timestamp="{{ review.created_at.isoformat() }}" data-format="date">{{ review.created_at.strftime('%B %d, %Y') }}</span>
+            {% endif %}
+          </p>
+          {% if review.specialty %}
+          <span class="specialty-bubble">
+            {% if review.specialty == 'AEROSPACE_MEDICINE' %}Aerospace Medicine
+            {% elif review.specialty == 'ANESTHESIOLOGY' %}Anesthesiology
+            {% elif review.specialty == 'CHILD_NEUROLOGY' %}Child Neurology
+            {% elif review.specialty == 'DERMATOLOGY' %}Dermatology
+            {% elif review.specialty == 'EMERGENCY_MEDICINE' %}Emergency Medicine
+            {% elif review.specialty == 'FAMILY_MEDICINE' %}Family Medicine
+            {% elif review.specialty == 'INTERNAL_MEDICINE' %}Internal Medicine
+            {% elif review.specialty == 'MEDICAL_GENETICS' %}Medical Genetics
+            {% elif review.specialty == 'INTERVENTIONAL_RADIOLOGY' %}Interventional Radiology
+            {% elif review.specialty == 'NEUROLOGICAL_SURGERY' %}Neurological Surgery
+            {% elif review.specialty == 'NEUROLOGY' %}Neurology
+            {% elif review.specialty == 'NUCLEAR_MEDICINE' %}Nuclear Medicine
+            {% elif review.specialty == 'OBSTETRICS_GYNECOLOGY' %}Obstetrics and Gynecology
+            {% elif review.specialty == 'OCCUPATIONAL_ENVIRONMENTAL_MEDICINE' %}Occupational and Environmental Medicine
+            {% elif review.specialty == 'ORTHOPAEDIC_SURGERY' %}Orthopaedic Surgery
+            {% elif review.specialty == 'OTOLARYNGOLOGY' %}Otolaryngology - Head and Neck Surgery
+            {% elif review.specialty == 'PATHOLOGY' %}Pathology-Anatomic and Clinical
+            {% elif review.specialty == 'PEDIATRICS' %}Pediatrics
+            {% elif review.specialty == 'PHYSICAL_MEDICINE_REHABILITATION' %}Physical Medicine and Rehabilitation
+            {% elif review.specialty == 'PLASTIC_SURGERY' %}Plastic Surgery
+            {% elif review.specialty == 'PSYCHIATRY' %}Psychiatry
+            {% elif review.specialty == 'RADIATION_ONCOLOGY' %}Radiation Oncology
+            {% elif review.specialty == 'RADIOLOGY_DIAGNOSTIC' %}Radiology-Diagnostic
+            {% elif review.specialty == 'GENERAL_SURGERY' %}General Surgery
+            {% elif review.specialty == 'THORACIC_SURGERY' %}Thoracic Surgery
+            {% elif review.specialty == 'UROLOGY' %}Urology
+            {% elif review.specialty == 'VASCULAR_SURGERY' %}Vascular Surgery
+            {% else %}{{ review.specialty|replace('_', ' ')|title }}{% endif %}
+          </span>
+          {% endif %}
+        </div>
+        <div class="review-actions">
+          {% if current_user.id == review.user_id %}
+          <a href="{{ url_for('job_reviews.edit_review', review_id=review.id) }}" class="btn secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Edit Review
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Practice Details -->
+      <div class="practice-details">
+        <div class="detail-row">
+          <span class="detail-label">Location</span>
+          <span class="detail-value">{{ review.location }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Practice Type</span>
+          <span class="detail-value">{{ review.practice_type or 'N/A' }}</span>
+        </div>
+      </div>
+
+      <!-- Ratings Grid -->
+      <div class="ratings-section">
+        <h3 class="ratings-title">Ratings</h3>
+        <div class="ratings-grid">
+          <div class="rating-item">
+            <span class="rating-label">Overall</span>
+            <span class="rating-badge rating-{{ review.overall_rating }}">{{ review.overall_rating }}/5</span>
+          </div>
+          {% if review.work_life_balance is not none %}
+          <div class="rating-item">
+            <span class="rating-label">Work-Life Balance</span>
+            <span class="rating-badge rating-{{ review.work_life_balance }}">{{ review.work_life_balance }}/5</span>
+          </div>
+          {% endif %}
+          {% if review.compensation is not none %}
+          <div class="rating-item">
+            <span class="rating-label">Compensation</span>
+            <span class="rating-badge rating-{{ review.compensation }}">{{ review.compensation }}/5</span>
+          </div>
+          {% endif %}
+          {% if review.culture is not none %}
+          <div class="rating-item">
+            <span class="rating-label">Culture</span>
+            <span class="rating-badge rating-{{ review.culture }}">{{ review.culture }}/5</span>
+          </div>
+          {% endif %}
+          {% if review.growth_opportunities is not none %}
+          <div class="rating-item">
+            <span class="rating-label">Growth Opportunities</span>
+            <span class="rating-badge rating-{{ review.growth_opportunities }}">{{ review.growth_opportunities }}/5</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Review Text -->
+      {% if review.review_text %}
+      <div class="review-text-section">
+        <h3 class="review-text-title">Detailed Review</h3>
+        <div class="review-text-content">
+          {{ review.review_text|nl2br }}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+<style>
+  /* Review Detail Card */
+  .review-detail-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .review-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .review-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--accent-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .review-title {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .practice-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+  }
+
+  .reviewer-info {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0 0 1rem 0;
+  }
+
+  .specialty-bubble {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: var(--accent-glow);
+  }
+
+  .review-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .practice-details {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .detail-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .detail-value {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .ratings-section {
+    margin-bottom: 2rem;
+  }
+
+  .ratings-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .ratings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .rating-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--surface-1);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .rating-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  .rating-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    min-width: 50px;
+    text-align: center;
+  }
+
+  .rating-1 { background: #ef4444; color: white; }
+  .rating-2 { background: #f97316; color: white; }
+  .rating-3 { background: #eab308; color: white; }
+  .rating-4 { background: #22c55e; color: white; }
+  .rating-5 { background: #16a34a; color: white; }
+
+  .review-text-section {
+    margin-bottom: 1rem;
+  }
+
+  .review-text-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .review-text-content {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .review-detail-card {
+      padding: 1.5rem;
+    }
+
+    .review-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .ratings-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .practice-name {
+      font-size: 1.25rem;
+    }
+  }
+</style>
+{% endblock %}
