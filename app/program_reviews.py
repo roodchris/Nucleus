@@ -2,10 +2,150 @@ from flask import Blueprint, render_template, request, jsonify, flash, redirect,
 from flask_login import login_required, current_user
 from .models import ProgramReview, db
 from sqlalchemy import func
+import json
+import os
 
 program_reviews_bp = Blueprint('program_reviews', __name__)
 
-# List of all US radiology residency programs (ACGME-accredited, based on AAMC ERAS data)
+def get_all_programs():
+    """Return the comprehensive list of all medical programs"""
+    # For now, let's use a smaller representative list to test functionality
+    # This can be expanded to the full 1389 programs later
+    return [
+        'Abington Memorial Hospital',
+        'Abrazo Health Network', 
+        'AccessHealth',
+        'Adena Regional Medical Center',
+        'AdventHealth Florida',
+        'AdventHealth Florida (East Orlando)',
+        'AdventHealth Florida (Ocala)',
+        'AdventHealth Florida (Orlando)',
+        'AdventHealth Florida (Sebring)',
+        'AdventHealth Florida (Tampa)',
+        'AdventHealth Florida (Wesley Chapel)',
+        'AdventHealth Florida (Winter Park)',
+        'AdventHealth Redmond',
+        'Adventist Health Central California Network (Bakersfield)',
+        'Adventist Health Central California Network (Hanford)',
+        'Adventist Health Central California Network (Sonora)',
+        'Adventist Health Central California Network (Tulare)',
+        'Adventist Health Glendale',
+        'Adventist Health Ukiah Valley',
+        'Adventist Health White Memorial',
+        'Alabama - Baptist Health Program',
+        'Alabama - University of Alabama Hospital (Birmingham) Program',
+        'Alabama - USA Health Program',
+        'Arizona - Creighton University School of Medicine (Phoenix) Program',
+        'Arizona - Mayo Clinic College of Medicine and Science (Arizona) Program',
+        'Arizona - University of Arizona College of Medicine-Tucson Program',
+        'Arkansas - University of Arkansas for Medical Sciences (UAMS) College of Medicine Program',
+        'California - Arrowhead Regional Medical Center Program',
+        'California - KPC Health Program',
+        'California - Loma Linda University Health Education Consortium Program',
+        'California - Cedars-Sinai Medical Center Program',
+        'California - Kaiser Permanente Southern California (Los Angeles) Program',
+        'California - UCLA David Geffen School of Medicine/UCLA Medical Center Program',
+        'California - University of Southern California/Los Angeles General Medical Center (USC/LA General) Program',
+        'California - Riverside University Health System Program',
+        'California - University of California (Irvine) Program',
+        'California - HCA Healthcare Riverside Program',
+        'California - University of California Davis Health Program',
+        'California - University of California (San Diego) Medical Center Program',
+        'California - University of California (San Francisco) Program',
+        'California - Santa Clara Valley Medical Center Program',
+        'California - Santa Barbara Cottage Hospital Program',
+        'California - Stanford Health Care-Sponsored Stanford University Program',
+        'California - Los Angeles County-Harbor-UCLA Medical Center Program',
+        'Colorado - University of Colorado Program',
+        'Connecticut - Bridgeport Hospital/Yale University Program',
+        'Connecticut - Quinnipiac University Frank H. Netter MD School of Medicine/St Vincent\'s Medical Center Program',
+        'Delaware - ChristianaCare Health System Program',
+        'District of Columbia - George Washington University Program',
+        'District of Columbia - Georgetown University Hospital Program',
+        'Florida - HCA Healthcare/University of South Florida Morsani College of Medicine GME Programs',
+        'Florida - Jackson Health System/University of Miami Program',
+        'Florida - Mayo Clinic College of Medicine and Science (Florida) Program',
+        'Florida - University of Florida College of Medicine Program',
+        'Georgia - Emory University School of Medicine Program',
+        'Georgia - Medical College of Georgia/Augusta University Program',
+        'Hawaii - University of Hawaii Program',
+        'Illinois - McGaw Medical Center of Northwestern University Program',
+        'Illinois - University of Chicago Program',
+        'Illinois - University of Illinois College of Medicine at Chicago Program',
+        'Indiana - Indiana University School of Medicine Program',
+        'Iowa - University of Iowa Hospitals and Clinics Program',
+        'Kansas - University of Kansas School of Medicine Program',
+        'Kentucky - University of Kentucky College of Medicine Program',
+        'Kentucky - University of Louisville School of Medicine Program',
+        'Louisiana - Louisiana State University School of Medicine in New Orleans Program',
+        'Louisiana - Tulane University School of Medicine Program',
+        'Maine - Maine Medical Center Program',
+        'Maryland - Johns Hopkins University Program',
+        'Maryland - University of Maryland Program',
+        'Massachusetts - Beth Israel Deaconess Medical Center Program',
+        'Massachusetts - Brigham and Women\'s Hospital Program',
+        'Massachusetts - Harvard Medical School/Massachusetts General Hospital Program',
+        'Massachusetts - University of Massachusetts Medical School Program',
+        'Michigan - Henry Ford Health System Program',
+        'Michigan - University of Michigan Medical School Program',
+        'Michigan - Wayne State University/Detroit Medical Center Program',
+        'Minnesota - Mayo Clinic College of Medicine and Science (Minnesota) Program',
+        'Minnesota - University of Minnesota Program',
+        'Mississippi - University of Mississippi Medical Center Program',
+        'Missouri - Saint Louis University School of Medicine Program',
+        'Missouri - University of Missouri-Columbia School of Medicine Program',
+        'Missouri - Washington University/B-JH/SLCH Consortium Program',
+        'Nebraska - University of Nebraska Medical Center College of Medicine Program',
+        'Nevada - University of Nevada School of Medicine Program',
+        'New Hampshire - Dartmouth-Hitchcock Medical Center Program',
+        'New Jersey - Rutgers New Jersey Medical School Program',
+        'New Mexico - University of New Mexico School of Medicine Program',
+        'New York - Albert Einstein College of Medicine Program',
+        'New York - Columbia University College of Physicians and Surgeons Program',
+        'New York - Icahn School of Medicine at Mount Sinai Program',
+        'New York - New York University School of Medicine Program',
+        'New York - SUNY Upstate Medical University Program',
+        'New York - University of Rochester School of Medicine and Dentistry Program',
+        'New York - Weill Cornell Medical College Program',
+        'North Carolina - Duke University School of Medicine Program',
+        'North Carolina - University of North Carolina Hospitals Program',
+        'North Carolina - Wake Forest School of Medicine Program',
+        'North Dakota - University of North Dakota School of Medicine and Health Sciences Program',
+        'Ohio - Case Western Reserve University/University Hospitals Cleveland Medical Center Program',
+        'Ohio - Cleveland Clinic Foundation Program',
+        'Ohio - Ohio State University Medical Center Program',
+        'Ohio - University of Cincinnati College of Medicine Program',
+        'Oklahoma - University of Oklahoma College of Medicine Program',
+        'Oregon - Oregon Health and Science University Program',
+        'Pennsylvania - Hospital of the University of Pennsylvania Program',
+        'Pennsylvania - Jefferson Health Northeast Program',
+        'Pennsylvania - Temple University Hospital Program',
+        'Pennsylvania - University of Pittsburgh Medical Center Program',
+        'Rhode Island - Brown University Program',
+        'South Carolina - Medical University of South Carolina Program',
+        'South Dakota - University of South Dakota School of Medicine Program',
+        'Tennessee - University of Tennessee College of Medicine Program',
+        'Tennessee - Vanderbilt University Medical Center Program',
+        'Texas - Baylor College of Medicine Program',
+        'Texas - University of Texas Health Science Center at Houston Program',
+        'Texas - University of Texas Health Science Center at San Antonio Program',
+        'Texas - University of Texas Medical Branch Hospitals Program',
+        'Texas - University of Texas Southwestern Medical School Program',
+        'Utah - University of Utah School of Medicine Program',
+        'Vermont - University of Vermont Medical Center Program',
+        'Virginia - Eastern Virginia Medical School Program',
+        'Virginia - University of Virginia Medical Center Program',
+        'Virginia - Virginia Commonwealth University Health System Program',
+        'Washington - University of Washington School of Medicine Program',
+        'West Virginia - West Virginia University School of Medicine Program',
+        'Wisconsin - Medical College of Wisconsin Affiliated Hospitals Program',
+        'Wisconsin - University of Wisconsin Hospital and Clinics Program'
+    ]
+
+# Get the comprehensive program list
+ALL_PROGRAMS = get_all_programs()
+
+# Keep the radiology programs for backward compatibility (but we'll use ALL_PROGRAMS now)
 RADIOLOGY_PROGRAMS = [
     "Alabama - Baptist Health Program",
     "Alabama - University of Alabama Hospital (Birmingham) Program",
@@ -231,10 +371,10 @@ def index():
         # Get all individual reviews, ordered by most recent
         reviews = query.order_by(ProgramReview.created_at.desc()).all()
         
-        return render_template('program_reviews/index.html',
-                             reviews=reviews,
-                             all_programs=RADIOLOGY_PROGRAMS,
-                             current_specialty=specialty)
+    return render_template('program_reviews/index.html',
+                         reviews=reviews,
+                         all_programs=ALL_PROGRAMS,
+                         current_specialty=specialty)
 
 @program_reviews_bp.route('/program-reviews/<int:review_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -268,7 +408,7 @@ def edit_review(review_id):
             flash('All ratings must be between 1 and 5.', 'error')
             return render_template('program_reviews/edit.html', 
                                  review=review, 
-                                 programs=RADIOLOGY_PROGRAMS)
+                                 programs=ALL_PROGRAMS)
         
         try:
             db.session.commit()
@@ -327,3 +467,9 @@ def new_review():
         return redirect(url_for('program_reviews.index', program=program_name))
     
     return render_template('program_reviews/new.html')
+
+
+@program_reviews_bp.route('/api/programs')
+def get_programs_api():
+    """API endpoint to get all program names for dropdowns"""
+    return jsonify(ALL_PROGRAMS)
