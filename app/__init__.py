@@ -5,6 +5,8 @@ from flask_cors import CORS
 from .models import db, User
 from config import Config
 from sqlalchemy import text
+from markupsafe import Markup
+import re
 
 # Global mail instance
 mail = Mail()
@@ -442,6 +444,15 @@ def create_app(config_class: type = Config) -> Flask:
             return json.loads(json_string) if json_string else []
         except (json.JSONDecodeError, TypeError):
             return []
+    
+    @app.template_filter('nl2br')
+    def nl2br_filter(text):
+        """Convert newlines to HTML <br> tags"""
+        if not text:
+            return ''
+        # Convert \n to <br> and preserve existing HTML
+        result = re.sub(r'\r\n|\r|\n', '<br>', str(text))
+        return Markup(result)
     
     # Make helper functions available in templates
     @app.context_processor
