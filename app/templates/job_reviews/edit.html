@@ -186,7 +186,7 @@
           <label for="{{ form.review_text.id }}" class="form-label">
             {{ form.review_text.label }}
           </label>
-          {{ form.review_text(class="form-textarea", rows="6", placeholder="Share your detailed experience, pros and cons, and any advice for other radiologists...") }}
+          {{ form.review_text(class="form-textarea", rows="6", placeholder="Share your detailed experience, pros and cons, and any advice for other physicians...") }}
           {% if form.review_text.errors %}
             <div class="form-error">
               {% for error in form.review_text.errors %}

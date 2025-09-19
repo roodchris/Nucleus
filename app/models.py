@@ -390,7 +390,7 @@ class CompensationData(db.Model):
 
 
 class JobReview(db.Model):
-    """Model for job practice reviews by attending radiologists"""
+    """Model for job practice reviews by attending physicians"""
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     practice_name = db.Column(db.String(200), nullable=False)
