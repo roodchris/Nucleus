@@ -372,6 +372,7 @@ def create_app(config_class: type = Config) -> Flask:
     from .wrvu_calculator import wrvu_bp
     from .api import api_bp
     from .admin import admin_bp
+    from .sitemap import sitemap_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(opp_bp)
@@ -384,6 +385,7 @@ def create_app(config_class: type = Config) -> Flask:
     app.register_blueprint(wrvu_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(sitemap_bp)
     
     # Register additional message routes
     register_message_routes(app)

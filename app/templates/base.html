@@ -1,9 +1,44 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <title>Nucleus - Medical Opportunities & Knowledge</title>
+  
+  <!-- Primary Meta Tags -->
+  <title>{% block title %}Nucleus - Physician Opportunities & Medical Community{% endblock %}</title>
+  <meta name="title" content="{% block meta_title %}Nucleus - Physician Opportunities & Medical Community{% endblock %}">
+  <meta name="description" content="{% block meta_description %}Connect with fellow physicians, find medical opportunities across all specialties, access compensation data, and join the largest physician networking platform. Built by physicians, for physicians.{% endblock %}">
+  <meta name="keywords" content="{% block meta_keywords %}physician opportunities, medical jobs, physician forum, medical networking, physician compensation, medical moonlighting, residency programs, medical community, physician careers{% endblock %}">
+  <meta name="author" content="Nucleus Medical Platform">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="{% block canonical_url %}{{ request.url }}{% endblock %}">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:url" content="{% block og_url %}{{ request.url }}{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}Nucleus - Physician Opportunities & Medical Community{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Connect with fellow physicians, find medical opportunities across all specialties, access compensation data, and join the largest physician networking platform.{% endblock %}">
+  <meta property="og:image" content="{% block og_image %}{{ request.url_root }}static/images/nucleus-og-image.png{% endblock %}">
+  <meta property="og:site_name" content="Nucleus">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="{% block twitter_url %}{{ request.url }}{% endblock %}">
+  <meta property="twitter:title" content="{% block twitter_title %}Nucleus - Physician Opportunities & Medical Community{% endblock %}">
+  <meta property="twitter:description" content="{% block twitter_description %}Connect with fellow physicians, find medical opportunities across all specialties, access compensation data, and join the largest physician networking platform.{% endblock %}">
+  <meta property="twitter:image" content="{% block twitter_image %}{{ request.url_root }}static/images/nucleus-og-image.png{% endblock %}">
+  
+  <!-- Additional SEO Meta Tags -->
+  <meta name="theme-color" content="#00d4ff">
+  <meta name="msapplication-TileColor" content="#00d4ff">
+  <meta name="application-name" content="Nucleus">
+  <meta name="apple-mobile-web-app-title" content="Nucleus">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <!-- Structured Data -->
+  {% block structured_data %}{% endblock %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1259,6 +1294,132 @@
       color: var(--accent);
     }
 
+    /* Breadcrumb Navigation */
+    .breadcrumb-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 0;
+      margin-bottom: 0;
+    }
+
+    .breadcrumb-list {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-size: 0.875rem;
+    }
+
+    .breadcrumb-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .breadcrumb-item:not(:last-child)::after {
+      content: '›';
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+
+    .breadcrumb-link {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      font-weight: 500;
+    }
+
+    .breadcrumb-link:hover {
+      color: var(--accent);
+    }
+
+    .breadcrumb-link svg {
+      width: 14px;
+      height: 14px;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb-current {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Pagination */
+    .pagination-nav {
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    .pagination-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .pagination-pages {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .pagination-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      min-width: 40px;
+      justify-content: center;
+    }
+
+    .pagination-btn:hover:not(.disabled) {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .pagination-btn.current {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .pagination-btn.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination-ellipsis {
+      padding: 0.5rem 0.25rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .pagination-info {
+      margin-top: 0.5rem;
+    }
+
+    .pagination-text {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
     /* Utilities */
     .muted { color: var(--text-muted); }
     .text-secondary { color: var(--text-secondary); }
@@ -1975,6 +2136,25 @@
       </nav>
     </div>
   </header>
+
+  <!-- Breadcrumb Navigation -->
+  {% block breadcrumbs %}
+  <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+    <div class="container">
+      <ol class="breadcrumb-list">
+        <li class="breadcrumb-item">
+          <a href="/" class="breadcrumb-link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Home
+          </a>
+        </li>
+        {% block breadcrumb_items %}{% endblock %}
+      </ol>
+    </div>
+  </nav>
+  {% endblock %}
 
   <!-- Mobile Navigation Menu -->
   <div class="mobile-nav" id="mobileNav">

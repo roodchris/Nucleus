@@ -1,9 +1,68 @@
 {% extends "base.html" %}
+
+{% block title %}Physician Job Opportunities | Find Medical Jobs Across All Specialties{% endblock %}
+{% block meta_description %}Browse physician job opportunities across all medical specialties. Find moonlighting shifts, full-time positions, and medical career opportunities for residents and attendings.{% endblock %}
+{% block meta_keywords %}physician job opportunities, medical jobs, physician moonlighting, medical career opportunities, physician employment, medical job board, physician positions{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Physician Job Opportunities",
+  "description": "Medical job opportunities across all specialties for physicians",
+  "url": "{{ request.url }}",
+  "numberOfItems": "{{ opportunities|length }}",
+  "itemListElement": [
+    {% for opp in opportunities[:10] %}
+    {
+      "@type": "JobPosting",
+      "title": "{{ opp.title or 'Medical Position' }}",
+      "description": "{{ opp.description[:200] if opp.description else 'Medical job opportunity' }}...",
+      "hiringOrganization": {
+        "@type": "Organization",
+        "name": "{{ opp.employer.name }}"
+      },
+      "jobLocation": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "postalCode": "{{ opp.zip_code }}"
+        }
+      },
+      "employmentType": "{{ 'FULL_TIME' if opp.work_duration and opp.work_duration.value == 'permanent' else 'PART_TIME' }}",
+      "baseSalary": {
+        "@type": "MonetaryAmount",
+        "currency": "USD",
+        "value": {
+          "@type": "QuantitativeValue",
+          "value": "{{ opp.pay_amount }}",
+          "unitText": "{{ 'HOUR' if opp.pay_type and opp.pay_type.value == 'per_hour' else 'YEAR' }}"
+        }
+      },
+      "datePosted": "{{ opp.created_at.strftime('%Y-%m-%d') }}",
+      "validThrough": "{{ (opp.created_at + timedelta(days=30)).strftime('%Y-%m-%d') }}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+  <a href="/opportunities" class="breadcrumb-link">Physician Opportunities</a>
+</li>
+<li class="breadcrumb-item">
+  <span class="breadcrumb-current">Browse Jobs</span>
+</li>
+{% endblock %}
+
 {% block content %}
   <!-- Page Header -->
   <div class="page-header">
-    <h1 class="page-title page-title-animated">Browse Opportunities</h1>
-    <p class="page-subtitle page-subtitle-animated">Find medical opportunities that match your preferences</p>
+    <h1 class="page-title page-title-animated">Physician Job Opportunities</h1>
+    <p class="page-subtitle page-subtitle-animated">Find medical career opportunities across all specialties that match your preferences and training level</p>
   </div>
 
   <!-- Filters Section -->

@@ -1,0 +1,79 @@
+{% macro render_pagination(pagination, endpoint, **kwargs) %}
+  {% if pagination.pages > 1 %}
+    <nav class="pagination-nav" aria-label="Pagination">
+      <div class="pagination-container">
+        <!-- Previous Page -->
+        {% if pagination.has_prev %}
+          <a href="{{ url_for(endpoint, page=pagination.prev_num, **kwargs) }}" 
+             class="pagination-btn pagination-prev" 
+             rel="prev" 
+             aria-label="Previous page">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Previous
+          </a>
+        {% else %}
+          <span class="pagination-btn pagination-prev disabled" aria-disabled="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Previous
+          </span>
+        {% endif %}
+
+        <!-- Page Numbers -->
+        <div class="pagination-pages">
+          {% for page_num in pagination.iter_pages() %}
+            {% if page_num %}
+              {% if page_num != pagination.page %}
+                <a href="{{ url_for(endpoint, page=page_num, **kwargs) }}" 
+                   class="pagination-btn pagination-page" 
+                   aria-label="Go to page {{ page_num }}">
+                  {{ page_num }}
+                </a>
+              {% else %}
+                <span class="pagination-btn pagination-page current" 
+                      aria-current="page" 
+                      aria-label="Current page {{ page_num }}">
+                  {{ page_num }}
+                </span>
+              {% endif %}
+            {% else %}
+              <span class="pagination-ellipsis">…</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <!-- Next Page -->
+        {% if pagination.has_next %}
+          <a href="{{ url_for(endpoint, page=pagination.next_num, **kwargs) }}" 
+             class="pagination-btn pagination-next" 
+             rel="next" 
+             aria-label="Next page">
+            Next
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        {% else %}
+          <span class="pagination-btn pagination-next disabled" aria-disabled="true">
+            Next
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        {% endif %}
+      </div>
+      
+      <!-- Page Info -->
+      <div class="pagination-info">
+        <span class="pagination-text">
+          Showing {{ pagination.per_page * (pagination.page - 1) + 1 }} to 
+          {{ pagination.per_page * (pagination.page - 1) + pagination.items|length }} of 
+          {{ pagination.total }} results
+        </span>
+      </div>
+    </nav>
+  {% endif %}
+{% endmacro %}

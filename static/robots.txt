@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://nucleus-medical.com/sitemap.xml
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /messages/
+Disallow: /profile/
+Disallow: /employer/profile/
+
+# Allow important pages
+Allow: /opportunities/
+Allow: /forum/
+Allow: /compensation/
+Allow: /program-reviews/
+Allow: /job-reviews/
+Allow: /knowledge-base/
+Allow: /wrvu-calculator/
+
+# Crawl delay (optional)
+Crawl-delay: 1

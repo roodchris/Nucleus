@@ -1,4 +1,72 @@
 {% extends "base.html" %}
+
+{% block title %}Nucleus - Physician Opportunities & Medical Community | Find Medical Jobs & Connect{% endblock %}
+{% block meta_description %}Join Nucleus, the premier physician networking platform. Find medical opportunities across all specialties, access compensation data, read program reviews, and connect with fellow physicians. Built by physicians, for physicians.{% endblock %}
+{% block meta_keywords %}physician opportunities, medical jobs, physician forum, medical networking, physician compensation, medical moonlighting, residency programs, medical community, physician careers, medical job board{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Nucleus",
+  "description": "The central nucleus for physician opportunities and knowledge - connecting physicians across all medical specialties",
+  "url": "{{ request.url_root }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ request.url_root }}opportunities?search={search_term_string}",
+    "query-input": "required name=search_term_string"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Nucleus Medical Platform",
+    "url": "{{ request.url_root }}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ request.url_root }}static/images/nucleus-logo.png"
+    }
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "name": "Medical Specialties",
+    "description": "Job opportunities across all medical specialties",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Radiology",
+        "url": "{{ request.url_root }}opportunities?specialty=radiology"
+      },
+      {
+        "@type": "ListItem", 
+        "position": 2,
+        "name": "Internal Medicine",
+        "url": "{{ request.url_root }}opportunities?specialty=internal-medicine"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Emergency Medicine", 
+        "url": "{{ request.url_root }}opportunities?specialty=emergency-medicine"
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": "Surgery",
+        "url": "{{ request.url_root }}opportunities?specialty=surgery"
+      }
+    ]
+  }
+}
+</script>
+{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+  <span class="breadcrumb-current">Home</span>
+</li>
+{% endblock %}
+
 {% block content %}
   <!-- Hero Section - Inspired by Orano Group -->
   <section class="hero-section">
@@ -17,8 +85,8 @@
       </div>
       
       <h1 class="hero-title">Nucleus</h1>
-      <p class="hero-subtitle">The central nucleus for physician opportunities and knowledge</p>
-      <p class="hero-subtitle-secondary">Built by radiologists, but for everybody (yes, even you OBGYN 🫡)</p>
+      <p class="hero-subtitle">The central nucleus for physician opportunities and medical networking</p>
+      <p class="hero-subtitle-secondary">Connect with fellow physicians, find opportunities across all medical specialties, and access transparent compensation data</p>
       
       <div class="hero-actions">
         <a href="/opportunities" class="hero-btn primary">Browse Opportunities</a>
@@ -48,10 +116,10 @@
             At Nucleus, we believe the most powerful asset a physician can have is information. By freely and openly hosting information for all to access, our goal is to ensure physicians make informed career decisions. The end goal of doing this? More competitive career opportunities for all.
           </p>
           <p class="mission-text">
-            Nucleus provides you with job opportunities across all medical specialties, from moonlighting shifts to full-time employment, opportunities for residents through attendings. But that's not enough – you should be able to assess if the offers you're considering are competitive. With compensation data sourced from members like you, you're able to assess how your offer stacks up and if it's worth pursuing.
+            Nucleus provides you with physician job opportunities across all medical specialties, from moonlighting shifts to full-time employment, opportunities for residents through attendings. Whether you're in radiology, internal medicine, surgery, emergency medicine, or any other specialty, you'll find relevant opportunities. But that's not enough – you should be able to assess if the offers you're considering are competitive. With compensation data sourced from physicians like you, you're able to assess how your offer stacks up and if it's worth pursuing.
           </p>
           <p class="mission-text">
-            For those earlier in their career, potentially deciding their residency rank list or where to accept their first job, there are residency program and job review sections that allow users to share their experiences at their residency and prior practices. Historically, this information has been siloed and gatekept, but we hope that through transparency users can use this data to make informed decisions.
+            For those earlier in their career, potentially deciding their residency rank list or where to accept their first job, there are residency program and job review sections that allow users to share their experiences at their residency and prior practices. Historically, this information has been siloed and gatekept, but we hope that through transparency users can use this data to make informed decisions about their medical career path.
           </p>
           <p class="mission-text">
             This platform will only be as useful as its userbase, and I hope you will feel compelled to contribute to it by submitting job reviews, residency reviews, compensation data, or just by having a good time in the forum with fellow physicians.
@@ -76,33 +144,33 @@
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon">🔍</div>
-          <h3>Find Opportunities</h3>
-          <p>Discover medical opportunities across all specialties with advanced filtering and search capabilities.</p>
+          <h3>Find Physician Opportunities</h3>
+          <p>Discover medical job opportunities across all specialties with advanced filtering and search capabilities. From moonlighting to full-time positions.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">💬</div>
-          <h3>Community Forum</h3>
-          <p>Connect with fellow physicians, share experiences, and get advice from the community.</p>
+          <h3>Physician Forum</h3>
+          <p>Connect with fellow physicians, share experiences, and get career advice from the medical community across all specialties.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">📊</div>
-          <h3>Compensation Data</h3>
-          <p>Access real-time compensation data and salary insights from the medical community.</p>
+          <h3>Physician Compensation Data</h3>
+          <p>Access real-time physician salary data and compensation insights from the medical community to negotiate better offers.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🎓</div>
-          <h3>Program Reviews</h3>
-          <p>Read and write reviews of medical residency programs to help others make informed decisions.</p>
+          <h3>Residency Program Reviews</h3>
+          <p>Read and write reviews of medical residency programs to help others make informed decisions about their training.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">📚</div>
-          <h3>Knowledge Base</h3>
-          <p>Access curated resources and educational materials organized by radiology subspecialty.</p>
+          <h3>Medical Knowledge Base</h3>
+          <p>Access curated resources and educational materials organized by medical specialty and subspecialty.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">⭐</div>
-          <h3>Job Reviews</h3>
-          <p>Share and read reviews of medical practices to make informed career decisions.</p>
+          <h3>Medical Practice Reviews</h3>
+          <p>Share and read reviews of medical practices and hospitals to make informed career decisions.</p>
         </div>
       </div>
     </div>

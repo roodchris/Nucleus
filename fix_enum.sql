@@ -19,3 +19,4 @@ ORDER BY enum_value;
 -- AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'opportunitytype');
 
 
+

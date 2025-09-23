@@ -1,9 +1,47 @@
 {% extends "base.html" %}
+
+{% block title %}Physician Forum | Medical Community Discussions & Networking{% endblock %}
+{% block meta_description %}Join the physician forum for medical community discussions, career advice, and networking. Connect with fellow physicians across all medical specialties.{% endblock %}
+{% block meta_keywords %}physician forum, medical community, physician networking, medical discussions, physician career advice, medical professionals, doctor forum{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "DiscussionForumPosting",
+  "name": "Physician Community Forum",
+  "description": "A forum for physicians to discuss medical topics, share career advice, and network with fellow medical professionals",
+  "url": "{{ request.url }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Nucleus Medical Platform"
+  },
+  "about": {
+    "@type": "Thing",
+    "name": "Medical Community Discussions"
+  },
+  "audience": {
+    "@type": "Audience",
+    "audienceType": "Physicians and Medical Professionals"
+  }
+}
+</script>
+{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+  <a href="/forum" class="breadcrumb-link">Physician Forum</a>
+</li>
+<li class="breadcrumb-item">
+  <span class="breadcrumb-current">Community Discussions</span>
+</li>
+{% endblock %}
+
 {% block content %}
   <!-- Page Header -->
   <div class="page-header">
-    <h1 class="page-title page-title-animated">💬 Community Forum</h1>
-    <p class="page-subtitle page-subtitle-animated">Connect with fellow physicians and employers. Or just shitpost and meme.</p>
+    <h1 class="page-title page-title-animated">💬 Physician Community Forum</h1>
+    <p class="page-subtitle page-subtitle-animated">Connect with fellow physicians, share experiences, and get career advice from the medical community across all specialties.</p>
   </div>
 
   <!-- New Post Button -->
