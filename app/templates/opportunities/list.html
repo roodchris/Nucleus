@@ -30,18 +30,18 @@
           "postalCode": "{{ opp.zip_code }}"
         }
       },
-      "employmentType": "{{ 'FULL_TIME' if opp.work_duration and opp.work_duration.value == 'permanent' else 'PART_TIME' }}",
+      "employmentType": "{{ 'FULL_TIME' if opp.work_duration and opp.work_duration.value == 'permanent' else 'PART_TIME' if opp.work_duration else 'PART_TIME' }}",
       "baseSalary": {
         "@type": "MonetaryAmount",
         "currency": "USD",
         "value": {
           "@type": "QuantitativeValue",
           "value": "{{ opp.pay_amount }}",
-          "unitText": "{{ 'HOUR' if opp.pay_type and opp.pay_type.value == 'per_hour' else 'YEAR' }}"
+          "unitText": "{{ 'HOUR' if opp.pay_type and opp.pay_type.value == 'per_hour' else 'YEAR' if opp.pay_type and opp.pay_type.value == 'per_year' else 'HOUR' }}"
         }
       },
       "datePosted": "{{ opp.created_at.strftime('%Y-%m-%d') }}",
-      "validThrough": "{{ (opp.created_at + timedelta(days=30)).strftime('%Y-%m-%d') }}"
+      "validThrough": "{{ opp.created_at.strftime('%Y-%m-%d') }}"
     }{% if not loop.last %},{% endif %}
     {% endfor %}
   ]

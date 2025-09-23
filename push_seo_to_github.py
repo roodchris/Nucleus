@@ -36,6 +36,7 @@ def main():
     
     print("\n🎉 SEO changes pushed to GitHub!")
     print("🔗 Repository: https://github.com/roodchris/Nucleus")
+    print("🐛 Fixed: Template error with timedelta in opportunities page")
 
 if __name__ == "__main__":
     main()
