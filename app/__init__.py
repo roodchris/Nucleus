@@ -373,6 +373,7 @@ def create_app(config_class: type = Config) -> Flask:
     from .api import api_bp
     from .admin import admin_bp
     from .sitemap import sitemap_bp
+    from .professional_services import professional_services_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(opp_bp)
@@ -386,6 +387,7 @@ def create_app(config_class: type = Config) -> Flask:
     app.register_blueprint(api_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(sitemap_bp)
+    app.register_blueprint(professional_services_bp)
     
     # Register additional message routes
     register_message_routes(app)

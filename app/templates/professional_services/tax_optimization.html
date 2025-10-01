@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Tax Optimization Services - Nucleus Professional Services{% endblock %}
+{% block meta_description %}Work with our experienced tax professionals who specialize in physician tax returns to maximize your savings and optimize for every possible tax advantage.{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+  <a href="/">Home</a>
+</li>
+<li class="breadcrumb-item">
+  <span class="breadcrumb-current">Professional Services</span>
+</li>
+<li class="breadcrumb-item">
+  <span class="breadcrumb-current">Tax Optimization</span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="coming-soon-hero">
+    <div class="coming-soon-icon">📊</div>
+    <h1 class="coming-soon-title">Tax Optimization Services</h1>
+    <div class="coming-soon-badge-large">Coming Soon</div>
+  </div>
+
+  <div class="service-description">
+    <div class="service-card">
+      <h2>Maximize Your Financial Potential</h2>
+      <p>Work with our experienced tax professionals who specialize in physicians' tax returns to ensure you're keeping as much of your hard-earned money as possible and optimizing for every possible tax advantage.</p>
+      
+      <div class="benefits-grid">
+        <div class="benefit-item">
+          <div class="benefit-icon">💰</div>
+          <h3>Specialized Physician Expertise</h3>
+          <p>Our tax professionals understand the unique financial landscape of medical practice, including complex income structures, practice ownership deductions, and medical equipment depreciation.</p>
+        </div>
+        
+        <div class="benefit-item">
+          <div class="benefit-icon">📈</div>
+          <h3>Comprehensive Tax Planning</h3>
+          <p>Beyond just filing returns, we provide year-round strategic tax planning to minimize your tax burden through retirement planning, practice structure optimization, and investment strategies.</p>
+        </div>
+        
+        <div class="benefit-item">
+          <div class="benefit-icon">🛡️</div>
+          <h3>Audit Protection & Compliance</h3>
+          <p>Rest easy knowing your returns are prepared with meticulous attention to detail and backed by our audit support services, ensuring full compliance with ever-changing tax regulations.</p>
+        </div>
+        
+        <div class="benefit-item">
+          <div class="benefit-icon">⚡</div>
+          <h3>Time-Saving Solutions</h3>
+          <p>Focus on patient care while we handle the complexities of tax preparation, estimated payments, and ongoing tax strategy - saving you valuable time and reducing stress.</p>
+        </div>
+      </div>
+      
+      <div class="service-cta">
+        <h3>Ready to Optimize Your Tax Strategy?</h3>
+        <p>Join our waitlist to be notified when our tax optimization services launch. Our team of physician-focused tax professionals is ready to help you maximize your financial potential.</p>
+        <div class="cta-button">Join Waitlist</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.coming-soon-hero {
+  text-align: center;
+  padding: 4rem 0;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  margin-bottom: 3rem;
+}
+
+.coming-soon-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.coming-soon-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.coming-soon-badge-large {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.service-description {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.service-card {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.service-card h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.service-card > p {
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.benefit-item {
+  text-align: center;
+  padding: 2rem;
+  background: var(--surface);
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  transition: all 0.3s ease;
+}
+
+.benefit-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent);
+}
+
+.benefit-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.benefit-item h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.benefit-item p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.service-cta {
+  text-align: center;
+  padding: 2rem;
+  background: var(--surface);
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+}
+
+.service-cta h3 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.service-cta p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.cta-button {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+  color: var(--text);
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (max-width: 768px) {
+  .coming-soon-hero {
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .coming-soon-title {
+    font-size: 2rem;
+  }
+  
+  .service-card {
+    padding: 2rem 1.5rem;
+  }
+  
+  .service-card h2 {
+    font-size: 2rem;
+  }
+  
+  .benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .benefit-item {
+    padding: 1.5rem;
+  }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Personalized Recruiting Services - Nucleus Professional Services{% endblock %}
+{% block meta_description %}Premium physician recruiting services that connect you with the perfect career opportunities. Our personalized approach matches you with positions that align with your goals and lifestyle.{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+  <a href="/">Home</a>
+</li>
+<li class="breadcrumb-item">
+  <span class="breadcrumb-current">Professional Services</span>
+</li>
+<li class="breadcrumb-item">
+  <span class="breadcrumb-current">Personalized Recruiting</span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="coming-soon-hero">
+    <div class="coming-soon-icon">🎯</div>
+    <h1 class="coming-soon-title">Personalized Recruiting Services</h1>
+    <div class="coming-soon-badge-large">Coming Soon</div>
+  </div>
+
+  <div class="service-description">
+    <div class="service-card">
+      <h2>Your Career, Your Perfect Match</h2>
+      <p>Premium physician recruiting services that go beyond traditional job boards. Our personalized approach connects you with career opportunities that truly align with your professional goals, lifestyle preferences, and long-term aspirations.</p>
+      
+      <div class="benefits-grid">
+        <div class="benefit-item">
+          <div class="benefit-icon">🔍</div>
+          <h3>Curated Opportunity Matching</h3>
+          <p>Our team personally vets each opportunity to ensure it meets your specific criteria, from practice type and location to compensation packages and work-life balance considerations.</p>
+        </div>
+        
+        <div class="benefit-item">
+          <div class="benefit-icon">🤝</div>
+          <h3>Direct Employer Relationships</h3>
+          <p>Leverage our established network of healthcare organizations and private practices to access exclusive opportunities that aren't advertised through traditional channels.</p>
+        </div>
+        
+        <div class="benefit-item">
+          <div class="benefit-icon">💼</div>
+          <h3>Comprehensive Career Guidance</h3>
+          <p>Receive personalized advice on contract negotiation, interview preparation, and career strategy from recruiters who understand the unique challenges physicians face in today's market.</p>
+        </div>
+        
+        <div class="benefit-item">
+          <div class="benefit-icon">⚡</div>
+          <h3>Streamlined Process</h3>
+          <p>Save time and effort with our end-to-end recruitment service that handles initial introductions, interview coordination, and follow-up communications on your behalf.</p>
+        </div>
+      </div>
+      
+      <div class="service-cta">
+        <h3>Ready to Find Your Ideal Position?</h3>
+        <p>Stop searching through countless job postings. Let our personalized recruiting team do the work for you and connect you with opportunities that match your exact specifications and career aspirations.</p>
+        <div class="cta-button">Join Waitlist</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.coming-soon-hero {
+  text-align: center;
+  padding: 4rem 0;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  margin-bottom: 3rem;
+}
+
+.coming-soon-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.coming-soon-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.coming-soon-badge-large {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.service-description {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.service-card {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.service-card h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.service-card > p {
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.benefit-item {
+  text-align: center;
+  padding: 2rem;
+  background: var(--surface);
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  transition: all 0.3s ease;
+}
+
+.benefit-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent);
+}
+
+.benefit-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.benefit-item h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.benefit-item p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.service-cta {
+  text-align: center;
+  padding: 2rem;
+  background: var(--surface);
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+}
+
+.service-cta h3 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.service-cta p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.cta-button {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+  color: var(--text);
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (max-width: 768px) {
+  .coming-soon-hero {
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .coming-soon-title {
+    font-size: 2rem;
+  }
+  
+  .service-card {
+    padding: 2rem 1.5rem;
+  }
+  
+  .service-card h2 {
+    font-size: 2rem;
+  }
+  
+  .benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .benefit-item {
+    padding: 1.5rem;
+  }
+}
+</style>
+{% endblock %}
