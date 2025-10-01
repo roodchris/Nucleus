@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}Professional Services - Nucleus{% endblock %}
+{% block meta_description %}Comprehensive professional services for physicians including tax optimization, contract negotiation, personalized recruiting, and practice startup guidance.{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+  <a href="/">Home</a>
+</li>
+<li class="breadcrumb-item">
+  <span class="breadcrumb-current">Professional Services</span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="services-hero">
+    <div class="services-icon">⭐</div>
+    <h1 class="services-title">Professional Services</h1>
+    <div class="coming-soon-badge-large">Coming Soon</div>
+    <p class="services-subtitle">Comprehensive professional services designed specifically for physicians to support your career growth and financial success.</p>
+  </div>
+
+  <div class="services-grid">
+    <div class="service-tile">
+      <div class="service-tile-icon">📊</div>
+      <h2 class="service-tile-title">Tax Optimization</h2>
+      <p class="service-tile-description">Work with our experienced tax professionals who specialize in physicians' tax returns to ensure you're keeping as much of your hard-earned money as possible and optimizing for every possible tax advantage.</p>
+      <a href="/professional-services/tax-optimization" class="service-tile-link">Learn More →</a>
+    </div>
+
+    <div class="service-tile">
+      <div class="service-tile-icon">📋</div>
+      <h2 class="service-tile-title">Contract Negotiation</h2>
+      <p class="service-tile-description">Expert contract negotiation services tailored specifically for physicians. Our experienced legal team understands the nuances of medical employment contracts and will fight to secure the best terms for your career and financial future.</p>
+      <a href="/professional-services/contract-negotiation" class="service-tile-link">Learn More →</a>
+    </div>
+
+    <div class="service-tile">
+      <div class="service-tile-icon">🎯</div>
+      <h2 class="service-tile-title">Personalized Recruiting</h2>
+      <p class="service-tile-description">Premium physician recruiting services that go beyond traditional job boards. Our personalized approach connects you with career opportunities that truly align with your professional goals, lifestyle preferences, and long-term aspirations.</p>
+      <a href="/professional-services/personalized-recruiting" class="service-tile-link">Learn More →</a>
+    </div>
+
+    <div class="service-tile">
+      <div class="service-tile-icon">🏥</div>
+      <h2 class="service-tile-title">Starting Your Own Practice</h2>
+      <p class="service-tile-description">Comprehensive practice startup services designed specifically for physicians. From initial business planning and securing financing to legal setup and operational guidance, our experienced team will guide you through every step of launching your successful medical practice.</p>
+      <a href="/professional-services/starting-practice" class="service-tile-link">Learn More →</a>
+    </div>
+  </div>
+
+  <div class="services-cta">
+    <div class="cta-card">
+      <h2>Ready to Get Started?</h2>
+      <p>Join our waitlist to be notified when these professional services launch. Our team of experts is ready to help you achieve your career and financial goals.</p>
+      <div class="cta-button">Join Waitlist</div>
+    </div>
+  </div>
+</div>
+
+<style>
+.services-hero {
+  text-align: center;
+  padding: 4rem 0;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  margin-bottom: 4rem;
+}
+
+.services-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.services-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.coming-soon-badge-large {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2rem;
+}
+
+.services-subtitle {
+  font-size: 1.3rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2.5rem;
+  margin-bottom: 4rem;
+}
+
+.service-tile {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 2.5rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.service-tile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.service-tile:hover::before {
+  transform: scaleX(1);
+}
+
+.service-tile:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent);
+}
+
+.service-tile-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.service-tile-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+}
+
+.service-tile-description {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.service-tile-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.service-tile-link:hover {
+  color: var(--accent-hover);
+  transform: translateX(4px);
+}
+
+.services-cta {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cta-card {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 3rem;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.cta-card h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+}
+
+.cta-card p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+}
+
+.cta-button {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+  color: var(--text);
+  padding: 1.25rem 2.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1.2rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (max-width: 768px) {
+  .services-hero {
+    padding: 3rem 1rem;
+    margin-bottom: 3rem;
+  }
+  
+  .services-title {
+    font-size: 2.5rem;
+  }
+  
+  .services-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+  
+  .service-tile {
+    padding: 2rem 1.5rem;
+  }
+  
+  .service-tile-title {
+    font-size: 1.6rem;
+  }
+  
+  .service-tile-description {
+    font-size: 1rem;
+  }
+  
+  .cta-card {
+    padding: 2rem 1.5rem;
+  }
+  
+  .cta-card h2 {
+    font-size: 2rem;
+  }
+  
+  .cta-card p {
+    font-size: 1.1rem;
+  }
+}
+</style>
+{% endblock %}

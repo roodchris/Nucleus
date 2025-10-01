@@ -2,6 +2,11 @@ from flask import Blueprint, render_template
 
 professional_services_bp = Blueprint('professional_services', __name__, url_prefix='/professional-services')
 
+@professional_services_bp.route('/')
+def professional_services():
+    """Professional Services overview page"""
+    return render_template('professional_services/index.html')
+
 @professional_services_bp.route('/tax-optimization')
 def tax_optimization():
     """Tax Optimization service page"""
