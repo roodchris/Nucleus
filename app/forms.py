@@ -126,7 +126,7 @@ class OpportunityForm(FlaskForm):
     zip_code = StringField("Zip Code", validators=[Optional(), Length(min=5, max=10)])
     pgy_min = SelectField("Training Level Minimum", choices=[("", "Select Minimum")] + TRAINING_LEVEL_CHOICES[1:], validators=[Optional()])
     pgy_max = SelectField("Training Level Maximum", choices=[("", "Select Maximum")] + TRAINING_LEVEL_CHOICES[1:], validators=[Optional()])
-    pay_amount = DecimalField("Pay Amount", validators=[Optional(), NumberRange(min=0)], places=2)
+    pay_amount = StringField("Pay Amount", validators=[Optional(), comma_separated_number(min_val=0)])
     pay_type = SelectField("Pay Type", choices=PAY_TYPE_CHOICES, validators=[Optional()])
     shift_length_hours = DecimalField("Shift length (hours)", validators=[Optional(), NumberRange(min=0)], places=1)
     hours_per_week = DecimalField("Hours per week", validators=[Optional(), NumberRange(min=0)], places=1)
@@ -155,7 +155,7 @@ class FilterForm(FlaskForm):
     zip_code = StringField("Zip Code", validators=[Optional(), Length(min=5, max=10)])
     radius_miles = IntegerField("Radius (miles)", validators=[Optional(), NumberRange(min=1)])
     pgy_year = SelectField("Your Current Training Level", choices=TRAINING_LEVEL_CHOICES, validators=[Optional()])
-    minimum_pay = DecimalField("Minimum Pay", validators=[Optional(), NumberRange(min=0)], places=2)
+    minimum_pay = StringField("Minimum Pay", validators=[Optional(), comma_separated_number(min_val=0)])
     pay_type = SelectField("Pay Type", choices=PAY_TYPE_CHOICES, validators=[Optional()])
     work_duration = SelectField("Work Duration", choices=[("", "Any Duration")] + WORK_DURATION_CHOICES[1:], validators=[Optional()])
 
@@ -217,6 +217,8 @@ class CompensationSubmissionForm(FlaskForm):
     total_yearly_rvu = StringField("Total Yearly RVU", validators=[Optional(), comma_separated_number(min_val=1000, max_val=20000)])
     compensation_per_rvu = StringField("Compensation per RVU ($)", validators=[Optional(), comma_separated_number(min_val=0)])
     weeks_vacation = IntegerField("Weeks of Vacation", validators=[Optional(), NumberRange(min=0, max=50)])
+    additional_notes = TextAreaField("Additional Details (Optional)", validators=[Optional(), Length(max=1000)], 
+                                    render_kw={"rows": 4, "placeholder": "Share any additional details about your compensation package, benefits, or practice that might be helpful to others..."})
 
 
 class JobReviewForm(FlaskForm):
@@ -234,6 +236,7 @@ class JobReviewForm(FlaskForm):
     ], validators=[Optional()])
     specialty = SelectField("Medical Specialty (optional)", choices=[
         ('', 'Select Specialty'),
+        ('NON_CLINICAL_OTHER', 'Non-clinical/Other'),
         ('AEROSPACE_MEDICINE', 'Aerospace Medicine'),
         ('ANESTHESIOLOGY', 'Anesthesiology'),
         ('CHILD_NEUROLOGY', 'Child Neurology'),

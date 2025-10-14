@@ -384,6 +384,7 @@ class CompensationData(db.Model):
     is_anonymous_submission = db.Column(db.Boolean, default=False)  # True for user submissions
     practice_type = db.Column(db.String(100), nullable=True)   # Private practice, academic, etc.
     experience_years = db.Column(db.Integer, nullable=True)    # Years of experience
+    additional_notes = db.Column(db.Text, nullable=True)       # Additional details from user
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def __repr__(self):

@@ -103,11 +103,7 @@ def list_opportunities():
     # Clean up form data early - convert string values to proper types for numeric fields
     if form.minimum_pay.data == '':
         form.minimum_pay.data = None
-    elif form.minimum_pay.data is not None:
-        try:
-            form.minimum_pay.data = float(form.minimum_pay.data)
-        except (ValueError, TypeError):
-            form.minimum_pay.data = None
+    # Note: minimum_pay is now handled by comma_separated_number validator, so it's already converted to int
     if form.radius_miles.data == '':
         form.radius_miles.data = None
     elif form.radius_miles.data is not None:
@@ -132,11 +128,11 @@ def list_opportunities():
     elif form.zip_code.data:
         query = query.filter(Opportunity.zip_code.ilike(f"%{form.zip_code.data}%"))
     
-    if form.minimum_pay.data is not None and form.minimum_pay.data != '':
+    if form.minimum_pay.data is not None:
         if form.pay_type.data:
             # Filter by specific pay type
             query = query.filter(Opportunity.pay_type == PayType(form.pay_type.data))
-        query = query.filter(Opportunity.pay_amount >= float(form.minimum_pay.data))
+        query = query.filter(Opportunity.pay_amount >= form.minimum_pay.data)
     if form.work_duration.data:
         try:
             query = query.filter(Opportunity.work_duration == WorkDuration(form.work_duration.data))

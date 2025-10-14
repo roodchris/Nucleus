@@ -185,6 +185,7 @@ def submit_compensation():
             weeks_per_year=weeks_per_year,
             practice_type=form.practice_type.data,
             experience_years=None,  # No longer collected
+            additional_notes=form.additional_notes.data,
             source='Community Submission',
             is_anonymous_submission=True
         )
