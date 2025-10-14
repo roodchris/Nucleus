@@ -38,7 +38,8 @@
           </p>
           {% if review.specialty %}
           <span class="specialty-bubble">
-            {% if review.specialty == 'AEROSPACE_MEDICINE' %}Aerospace Medicine
+            {% if review.specialty == 'NON_CLINICAL_OTHER' %}Non-clinical/Other
+            {% elif review.specialty == 'AEROSPACE_MEDICINE' %}Aerospace Medicine
             {% elif review.specialty == 'ANESTHESIOLOGY' %}Anesthesiology
             {% elif review.specialty == 'CHILD_NEUROLOGY' %}Child Neurology
             {% elif review.specialty == 'DERMATOLOGY' %}Dermatology

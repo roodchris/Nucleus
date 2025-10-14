@@ -25,7 +25,8 @@
         <span class="category-badge">{{ post.category.value.replace('_', ' ').title() }}</span>
         {% if post.specialty %}
           <span class="specialty-badge">
-            {% if post.specialty == 'AEROSPACE_MEDICINE' %}Aerospace Medicine
+            {% if post.specialty == 'NON_CLINICAL_OTHER' %}Non-clinical/Other
+            {% elif post.specialty == 'AEROSPACE_MEDICINE' %}Aerospace Medicine
             {% elif post.specialty == 'ANESTHESIOLOGY' %}Anesthesiology
             {% elif post.specialty == 'CHILD_NEUROLOGY' %}Child Neurology
             {% elif post.specialty == 'DERMATOLOGY' %}Dermatology

@@ -8,6 +8,7 @@ compensation_bp = Blueprint('compensation', __name__)
 
 # Specialty code to readable name mapping
 SPECIALTY_DISPLAY_NAMES = {
+    'non_clinical_other': 'Non-clinical/Other',
     'aerospace_medicine': 'Aerospace Medicine',
     'anesthesiology': 'Anesthesiology',
     'child_neurology': 'Child Neurology',

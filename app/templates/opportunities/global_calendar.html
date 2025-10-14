@@ -57,6 +57,7 @@
         <label for="specialty-filter" class="filter-label">Filter by Medical Specialty:</label>
         <select id="specialty-filter" name="specialty" class="specialty-select" onchange="filterBySpecialty(this.value)">
           <option value="">All Specialties</option>
+          <option value="NON_CLINICAL_OTHER" {{ 'selected' if current_specialty == 'NON_CLINICAL_OTHER' else '' }}>Non-clinical/Other</option>
           <option value="AEROSPACE_MEDICINE" {{ 'selected' if current_specialty == 'AEROSPACE_MEDICINE' else '' }}>Aerospace Medicine</option>
           <option value="ANESTHESIOLOGY" {{ 'selected' if current_specialty == 'ANESTHESIOLOGY' else '' }}>Anesthesiology</option>
           <option value="CHILD_NEUROLOGY" {{ 'selected' if current_specialty == 'CHILD_NEUROLOGY' else '' }}>Child Neurology</option>

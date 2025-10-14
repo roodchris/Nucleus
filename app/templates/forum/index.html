@@ -92,6 +92,7 @@
         </label>
         <select onchange="window.location.href='?category={{ current_category }}&sort={{ current_sort }}&specialty=' + this.value" class="filter-input">
           <option value="" {% if current_specialty == "" %}selected{% endif %}>All Specialties</option>
+          <option value="non_clinical_other" {% if current_specialty == "non_clinical_other" %}selected{% endif %}>Non-clinical/Other</option>
           <option value="aerospace_medicine" {% if current_specialty == "aerospace_medicine" %}selected{% endif %}>Aerospace Medicine</option>
           <option value="anesthesiology" {% if current_specialty == "anesthesiology" %}selected{% endif %}>Anesthesiology</option>
           <option value="child_neurology" {% if current_specialty == "child_neurology" %}selected{% endif %}>Child Neurology</option>
@@ -167,7 +168,8 @@
               <span class="category-badge">{{ post.category.value.replace('_', ' ').title() }}</span>
               {% if post.specialty %}
                 <span class="specialty-badge">
-                  {% if post.specialty == 'AEROSPACE_MEDICINE' %}Aerospace Medicine
+                  {% if post.specialty == 'NON_CLINICAL_OTHER' %}Non-clinical/Other
+                  {% elif post.specialty == 'AEROSPACE_MEDICINE' %}Aerospace Medicine
                   {% elif post.specialty == 'ANESTHESIOLOGY' %}Anesthesiology
                   {% elif post.specialty == 'CHILD_NEUROLOGY' %}Child Neurology
                   {% elif post.specialty == 'DERMATOLOGY' %}Dermatology

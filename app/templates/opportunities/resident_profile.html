@@ -53,6 +53,7 @@
           <label class="form-label">Medical Specialty</label>
           <select name="medical_specialty" class="form-input">
             <option value="">Select medical specialty</option>
+            <option value="NON_CLINICAL_OTHER" {% if profile and profile.medical_specialty == 'NON_CLINICAL_OTHER' %}selected{% endif %}>Non-clinical/Other</option>
             <option value="AEROSPACE_MEDICINE" {% if profile and profile.medical_specialty == 'AEROSPACE_MEDICINE' %}selected{% endif %}>Aerospace Medicine</option>
             <option value="ANESTHESIOLOGY" {% if profile and profile.medical_specialty == 'ANESTHESIOLOGY' %}selected{% endif %}>Anesthesiology</option>
             <option value="CHILD_NEUROLOGY" {% if profile and profile.medical_specialty == 'CHILD_NEUROLOGY' %}selected{% endif %}>Child Neurology</option>

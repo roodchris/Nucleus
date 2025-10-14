@@ -34,6 +34,7 @@
           <label for="specialty" class="block text-sm font-medium mb-2">Medical Specialty (Optional)</label>
           <select name="specialty" id="specialty" class="input">
             <option value="">General (All Specialties)</option>
+            <option value="non_clinical_other" {% if review.specialty == 'non_clinical_other' %}selected{% endif %}>Non-clinical/Other</option>
             <option value="aerospace_medicine" {% if review.specialty == 'aerospace_medicine' %}selected{% endif %}>Aerospace Medicine</option>
             <option value="anesthesiology" {% if review.specialty == 'anesthesiology' %}selected{% endif %}>Anesthesiology</option>
             <option value="child_neurology" {% if review.specialty == 'child_neurology' %}selected{% endif %}>Child Neurology</option>

@@ -41,6 +41,7 @@ TIMEZONE_CHOICES: List[Tuple[str, str]] = [
 
 OPP_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("", "Any Type"),
+    ("NON_CLINICAL_OTHER", "Non-clinical/Other"),
     ("AEROSPACE_MEDICINE", "Aerospace Medicine"),
     ("ANESTHESIOLOGY", "Anesthesiology"),
     ("CHILD_NEUROLOGY", "Child Neurology"),
@@ -170,6 +171,7 @@ class CompensationSubmissionForm(FlaskForm):
     ], validators=[DataRequired()])
     specialty = SelectField("Specialty", choices=[
         ('', 'Select Specialty'),
+        ('non_clinical_other', 'Non-clinical/Other'),
         ('aerospace_medicine', 'Aerospace Medicine'),
         ('anesthesiology', 'Anesthesiology'),
         ('child_neurology', 'Child Neurology'),
