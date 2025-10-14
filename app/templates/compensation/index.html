@@ -221,6 +221,13 @@
           </div>
         </div>
         
+        {% if item.additional_notes %}
+        <div class="additional-notes">
+          <div class="notes-label">Additional Details:</div>
+          <div class="notes-content">{{ item.additional_notes }}</div>
+        </div>
+        {% endif %}
+        
         {% if item.is_anonymous_submission %}
         <div class="anonymous-badge">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -691,6 +698,28 @@
     font-weight: 600;
     color: var(--text);
     font-size: 0.8rem;
+  }
+
+  .additional-notes {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: var(--glass-light);
+    border-radius: 8px;
+    border: 1px solid var(--glass-border-light);
+  }
+
+  .notes-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .notes-content {
+    color: var(--text);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
   }
 
   .anonymous-badge {
