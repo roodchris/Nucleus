@@ -47,7 +47,7 @@ def signup():
             verification_code = create_verification_record(form.email.data.lower())
             if verification_code:
                 if send_verification_email(form.email.data.lower(), verification_code):
-                    flash("Verification code sent to your email. Please check your inbox.", "info")
+                    flash("Verification code sent! Check your inbox (and spam folder) for the email.", "info")
                     return redirect(url_for("auth.verify_email"))
                 else:
                     flash("Failed to send verification email. Please try again.", "error")
@@ -161,7 +161,7 @@ def resend_verification():
     verification_code = create_verification_record(email)
     if verification_code:
         if send_verification_email(email, verification_code):
-            flash("New verification code sent to your email.", "info")
+            flash("New verification code sent! Check your inbox (and spam folder) for the email.", "info")
         else:
             flash("Failed to send verification email. Please try again.", "error")
     else:

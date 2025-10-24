@@ -5,6 +5,20 @@
   <p>We've sent a 5-digit verification code to <strong>{{ email }}</strong></p>
   <p>Please check your email and enter the code below to complete your account creation.</p>
   
+  <!-- Spam/Junk Mail Reminder -->
+  <div style="background-color: #dbeafe; border: 1px solid #3b82f6; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center;">
+    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+      <svg style="width: 20px; height: 20px; margin-right: 8px; color: #3b82f6;" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+      </svg>
+      <strong style="color: #1e40af;">📧 Don't see the email?</strong>
+    </div>
+    <p style="margin: 0; color: #1e40af; font-size: 14px;">
+      <strong>Check your spam/junk folder!</strong> Email providers sometimes filter verification emails. 
+      If you find it there, mark it as "Not Spam" to receive future emails in your inbox.
+    </p>
+  </div>
+  
   {% if config.DEBUG %}
   <div style="background-color: #fef3c7; border: 1px solid #f59e0b; padding: 10px; border-radius: 4px; margin: 10px 0;">
     <strong>Development Mode:</strong> Check the server console for the verification code.
@@ -30,12 +44,22 @@
     <button type="submit" class="btn">Verify Email</button>
   </form>
   
-  <div style="margin-top: 20px; text-align: center;">
-    <p>Didn't receive the email? Check your spam folder or</p>
+  <div style="margin-top: 25px; text-align: center; padding: 20px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+    <p style="margin-bottom: 15px; color: #64748b;">
+      <strong>Still having trouble?</strong>
+    </p>
+    <div style="margin-bottom: 15px;">
+      <p style="margin: 5px 0; font-size: 14px; color: #64748b;">
+        ✅ Checked spam/junk folder?<br>
+        ✅ Waited a few minutes?<br>
+        ✅ Email address is correct?
+      </p>
+    </div>
     <form method="POST" action="{{ url_for('auth.resend_verification') }}" style="display: inline;">
       <input type="hidden" name="email" value="{{ email }}">
-      <button type="submit" class="btn" style="background-color: #6b7280;">Resend Code</button>
+      <button type="submit" class="btn" style="background-color: #6b7280; margin-right: 10px;">Resend Verification Code</button>
     </form>
+    <a href="{{ url_for('auth.signup') }}" style="color: #6b7280; text-decoration: none; font-size: 14px;">Try different email</a>
   </div>
   
   <p style="margin-top: 20px; text-align: center;">
