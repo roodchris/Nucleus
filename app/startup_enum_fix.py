@@ -154,17 +154,58 @@ def validate_database_connectivity():
         
         # Test basic connection
         import psycopg
-        with psycopg.connect(database_url) as conn:
-            with conn.cursor() as cursor:
-                cursor.execute("SELECT version()")
-                version = cursor.fetchone()[0]
-                logger.info(f"✅ Connected to PostgreSQL: {version.split()[0]} {version.split()[1]}")
+        try:
+            # Try with the full URL first
+            with psycopg.connect(database_url) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SELECT version()")
+                    version = cursor.fetchone()[0]
+                    logger.info(f"✅ Connected to PostgreSQL: {version.split()[0]} {version.split()[1]}")
+                    
+                    # Test enum operations capability
+                    cursor.execute("SELECT 1")
+                    logger.info("✅ Database operations working")
+                    
+                    return True
+        except Exception as e:
+            logger.warning(f"⚠️  Direct connection failed: {e}")
+            # Try with SSL mode as a separate parameter
+            try:
+                # Parse URL and extract components
+                from urllib.parse import urlparse
+                parsed = urlparse(database_url)
                 
-                # Test enum operations capability
-                cursor.execute("SELECT 1")
-                logger.info("✅ Database operations working")
+                # Extract SSL mode from query parameters
+                sslmode = 'require'
+                if parsed.query:
+                    query_params = dict(param.split('=') for param in parsed.query.split('&'))
+                    sslmode = query_params.get('sslmode', 'require')
                 
-                return True
+                # Connect with SSL mode as parameter
+                conn_params = {
+                    'host': parsed.hostname,
+                    'port': parsed.port or 5432,
+                    'dbname': parsed.path.lstrip('/'),
+                    'user': parsed.username,
+                    'password': parsed.password,
+                    'sslmode': sslmode
+                }
+                
+                with psycopg.connect(**conn_params) as conn:
+                    with conn.cursor() as cursor:
+                        cursor.execute("SELECT version()")
+                        version = cursor.fetchone()[0]
+                        logger.info(f"✅ Connected to PostgreSQL (with SSL): {version.split()[0]} {version.split()[1]}")
+                        
+                        # Test enum operations capability
+                        cursor.execute("SELECT 1")
+                        logger.info("✅ Database operations working")
+                        
+                        return True
+                        
+            except Exception as e2:
+                logger.error(f"❌ Both connection methods failed: {e2}")
+                return False
         
     except ImportError:
         logger.error("❌ psycopg package not available")

@@ -37,9 +37,9 @@ def validate_environment_variables():
         else:
             # Validate DATABASE_URL format for PostgreSQL
             if var_name == 'DATABASE_URL' and value:
-                if not value.startswith('postgresql://'):
-                    issues.append(f"DATABASE_URL should start with 'postgresql://' for PostgreSQL")
-                    logger.error(f"❌ Invalid DATABASE_URL format: should start with postgresql://")
+                if not (value.startswith('postgresql://') or value.startswith('postgresql+psycopg://')):
+                    issues.append(f"DATABASE_URL should start with 'postgresql://' or 'postgresql+psycopg://' for PostgreSQL")
+                    logger.error(f"❌ Invalid DATABASE_URL format: should start with postgresql:// or postgresql+psycopg://")
                 elif 'localhost' in value:
                     warnings.append(f"DATABASE_URL points to localhost - ensure this is correct for production")
                     logger.warning(f"⚠️  DATABASE_URL uses localhost")
