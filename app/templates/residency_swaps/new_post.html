@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Post New Swap or Opening{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+  <a href="/residency-swaps" class="breadcrumb-link">Residency & Fellowship Swap / Openings</a>
+</li>
+<li class="breadcrumb-item">
+  <span class="breadcrumb-current">New Post</span>
+</li>
+{% endblock %}
+
+{% block content %}
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title page-title-animated">📝 Post New Swap or Opening</h1>
+    <p class="page-subtitle page-subtitle-animated">Choose whether you want to post a residency/fellowship swap or an open position.</p>
+  </div>
+
+  <!-- Selection Form -->
+  <div class="card" style="max-width: 600px; margin: 0 auto;">
+    <form method="POST" action="/residency-swaps/new">
+      <div style="display: grid; gap: 1.5rem;">
+        <div style="display: grid; gap: 1rem;">
+          <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1.5rem; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.3s ease; background: var(--surface);">
+            <input type="radio" name="post_type" value="swap" required style="width: 20px; height: 20px; cursor: pointer;">
+            <div style="flex: 1;">
+              <h3 style="margin: 0 0 0.5rem 0; color: var(--text); font-size: 1.125rem; font-weight: 600;">
+                Residency/Fellowship Swap
+              </h3>
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">
+                Looking to swap your current residency or fellowship position with someone else
+              </p>
+            </div>
+          </label>
+          
+          <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1.5rem; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.3s ease; background: var(--surface);">
+            <input type="radio" name="post_type" value="opening" required style="width: 20px; height: 20px; cursor: pointer;">
+            <div style="flex: 1;">
+              <h3 style="margin: 0 0 0.5rem 0; color: var(--text); font-size: 1.125rem; font-weight: 600;">
+                Open Residency/Fellowship Position
+              </h3>
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">
+                Posting an available residency or fellowship position
+              </p>
+            </div>
+          </label>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+          <a href="/residency-swaps" class="btn btn-secondary" style="flex: 1; text-align: center;">
+            Cancel
+          </a>
+          <button type="submit" class="btn" style="flex: 1;">
+            Continue
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <style>
+    label:hover {
+      border-color: var(--accent) !important;
+      background: var(--accent-light) !important;
+    }
+    
+    input[type="radio"]:checked + div h3 {
+      color: var(--accent);
+    }
+  </style>
+{% endblock %}
+

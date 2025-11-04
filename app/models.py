@@ -479,3 +479,42 @@ class EmailVerification(db.Model):
     def is_expired(self):
         """Check if the verification code has expired"""
         return datetime.utcnow() > self.expires_at
+
+
+class ResidencySwap(db.Model):
+    """Model for residency/fellowship swap requests"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    current_specialty = db.Column(db.String(100), nullable=False, index=True)  # Required
+    current_state = db.Column(db.String(50), nullable=True, index=True)  # Optional
+    current_city = db.Column(db.String(100), nullable=True)  # Optional
+    desired_specialty = db.Column(db.String(100), nullable=False, index=True)  # Required
+    desired_state = db.Column(db.String(50), nullable=True, index=True)  # Optional
+    desired_city = db.Column(db.String(100), nullable=True)  # Optional
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    is_active = db.Column(db.Boolean, default=True, nullable=False, index=True)
+    
+    # Relationships
+    user = db.relationship('User', backref='residency_swaps')
+    
+    def __repr__(self):
+        return f'<ResidencySwap {self.current_specialty} -> {self.desired_specialty}>'
+
+
+class ResidencyOpening(db.Model):
+    """Model for open residency/fellowship positions"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    specialty = db.Column(db.String(100), nullable=False, index=True)  # Required
+    state = db.Column(db.String(50), nullable=True, index=True)  # Optional
+    city = db.Column(db.String(100), nullable=True)  # Optional
+    institution = db.Column(db.String(200), nullable=True)  # Optional
+    contact_email = db.Column(db.String(255), nullable=True)  # Optional
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    is_active = db.Column(db.Boolean, default=True, nullable=False, index=True)
+    
+    # Relationships
+    user = db.relationship('User', backref='residency_openings')
+    
+    def __repr__(self):
+        return f'<ResidencyOpening {self.specialty} at {self.institution or "Unknown"}>'

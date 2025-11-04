@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Residency & Fellowship Swap / Openings{% endblock %}
+{% block meta_description %}Browse residency and fellowship swap opportunities and open positions. Connect with other residents and fellows to find swap opportunities or open positions.{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+  <a href="/residency-swaps" class="breadcrumb-link">Residency & Fellowship Swap / Openings</a>
+</li>
+{% endblock %}
+
+{% block content %}
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title page-title-animated">🔄 Residency & Fellowship Swap / Openings</h1>
+    <p class="page-subtitle page-subtitle-animated">Find residency and fellowship swap opportunities or browse open positions posted by other users.</p>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="card" style="margin-bottom: 2rem; background: rgba(0, 212, 255, 0.1); border: 1px solid var(--accent);">
+    <div style="display: flex; align-items: start; gap: 1rem;">
+      <div style="font-size: 1.5rem;">⚠️</div>
+      <div>
+        <h3 style="margin: 0 0 0.5rem 0; color: var(--text);">Important Information</h3>
+        <p style="margin: 0; color: var(--text-secondary); line-height: 1.6;">
+          The only information required to post in Residency & Fellowship Swap / Openings is your medical specialty; however, providing additional details may increase your chances of finding a swap. All posts are completely anonymous.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Post Button -->
+  {% if current_user.is_authenticated %}
+  <div style="margin-bottom: 2rem; text-align: center;">
+    <a href="/residency-swaps/new" class="btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Post a New Swap or Opening
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- Swaps Section -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <h2 style="margin: 0 0 1.5rem 0; color: var(--text); display: flex; align-items: center; gap: 0.5rem;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 7h8m-8 5h8m-8 5h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Residency/Fellowship Swaps
+    </h2>
+    
+    {% if swaps %}
+    <div style="display: grid; gap: 1.5rem;">
+      {% for swap in swaps %}
+      <div class="job-card" style="padding: 1.5rem; border: 1px solid var(--border); border-radius: 12px; background: var(--surface);">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+          <div style="flex: 1;">
+            <h3 style="margin: 0 0 0.5rem 0; color: var(--text); font-size: 1.125rem; font-weight: 600;">
+              {{ swap.current_specialty.replace('_', ' ').title() }} → {{ swap.desired_specialty.replace('_', ' ').title() }}
+            </h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.875rem;">
+              {% if swap.current_state or swap.current_city %}
+              <div style="display: flex; align-items: center; gap: 0.25rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Current: {% if swap.current_city %}{{ swap.current_city }}{% endif %}{% if swap.current_city and swap.current_state %}, {% endif %}{% if swap.current_state %}{{ swap.current_state }}{% endif %}</span>
+              </div>
+              {% endif %}
+              {% if swap.desired_state or swap.desired_city %}
+              <div style="display: flex; align-items: center; gap: 0.25rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Desired: {% if swap.desired_city %}{{ swap.desired_city }}{% endif %}{% if swap.desired_city and swap.desired_state %}, {% endif %}{% if swap.desired_state %}{{ swap.desired_state }}{% endif %}</span>
+              </div>
+              {% endif %}
+              <div style="display: flex; align-items: center; gap: 0.25rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ swap.created_at.strftime('%B %d, %Y') }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {% if current_user.is_authenticated and swap.user_id != current_user.id %}
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+          <form method="POST" action="/residency-swaps/swap/{{ swap.id }}/contact" style="display: inline;">
+            <button type="submit" class="btn" style="width: 100%;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Contact Poster
+            </button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+      <p>No residency/fellowship swaps posted yet.</p>
+      {% if current_user.is_authenticated %}
+      <a href="/residency-swaps/new" class="btn" style="margin-top: 1rem;">
+        Post the First Swap
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Openings Section -->
+  <div class="card">
+    <h2 style="margin: 0 0 1.5rem 0; color: var(--text); display: flex; align-items: center; gap: 0.5rem;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Open Residency/Fellowship Positions
+    </h2>
+    
+    {% if openings %}
+    <div style="display: grid; gap: 1.5rem;">
+      {% for opening in openings %}
+      <div class="job-card" style="padding: 1.5rem; border: 1px solid var(--border); border-radius: 12px; background: var(--surface);">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+          <div style="flex: 1;">
+            <h3 style="margin: 0 0 0.5rem 0; color: var(--text); font-size: 1.125rem; font-weight: 600;">
+              {{ opening.specialty.replace('_', ' ').title() }}
+            </h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.875rem;">
+              {% if opening.institution %}
+              <div style="display: flex; align-items: center; gap: 0.25rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ opening.institution }}</span>
+              </div>
+              {% endif %}
+              {% if opening.state or opening.city %}
+              <div style="display: flex; align-items: center; gap: 0.25rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{% if opening.city %}{{ opening.city }}{% endif %}{% if opening.city and opening.state %}, {% endif %}{% if opening.state %}{{ opening.state }}{% endif %}</span>
+              </div>
+              {% endif %}
+              {% if opening.contact_email %}
+              <div style="display: flex; align-items: center; gap: 0.25rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ opening.contact_email }}</span>
+              </div>
+              {% endif %}
+              <div style="display: flex; align-items: center; gap: 0.25rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ opening.created_at.strftime('%B %d, %Y') }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {% if current_user.is_authenticated and opening.user_id != current_user.id %}
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+          <form method="POST" action="/residency-swaps/opening/{{ opening.id }}/contact" style="display: inline;">
+            <button type="submit" class="btn" style="width: 100%;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Contact Poster
+            </button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+      <p>No open positions posted yet.</p>
+      {% if current_user.is_authenticated %}
+      <a href="/residency-swaps/new" class="btn" style="margin-top: 1rem;">
+        Post the First Opening
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+{% endblock %}
+

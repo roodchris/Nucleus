@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Post Open Residency/Fellowship Position{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+  <a href="/residency-swaps" class="breadcrumb-link">Residency & Fellowship Swap / Openings</a>
+</li>
+<li class="breadcrumb-item">
+  <a href="/residency-swaps/new" class="breadcrumb-link">New Post</a>
+</li>
+<li class="breadcrumb-item">
+  <span class="breadcrumb-current">Open Position</span>
+</li>
+{% endblock %}
+
+{% block content %}
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title page-title-animated">📋 Post Open Residency/Fellowship Position</h1>
+    <p class="page-subtitle page-subtitle-animated">Share details about the available position.</p>
+  </div>
+
+  <!-- Form -->
+  <div class="card" style="max-width: 800px; margin: 0 auto;">
+    <form method="POST" action="/residency-swaps/new/opening">
+      <div style="display: grid; gap: 1.5rem;">
+        <div class="form-group">
+          <label class="form-label">Medical Specialty <span style="color: var(--notification);">*</span></label>
+          <select name="specialty" class="form-input" required>
+            <option value="">Select Specialty</option>
+            <option value="NON_CLINICAL_OTHER">Non-clinical/Other</option>
+            <option value="AEROSPACE_MEDICINE">Aerospace Medicine</option>
+            <option value="ANESTHESIOLOGY">Anesthesiology</option>
+            <option value="CHILD_NEUROLOGY">Child Neurology</option>
+            <option value="DERMATOLOGY">Dermatology</option>
+            <option value="EMERGENCY_MEDICINE">Emergency Medicine</option>
+            <option value="FAMILY_MEDICINE">Family Medicine</option>
+            <option value="INTERNAL_MEDICINE">Internal Medicine</option>
+            <option value="MEDICAL_GENETICS">Medical Genetics</option>
+            <option value="INTERVENTIONAL_RADIOLOGY">Interventional Radiology</option>
+            <option value="NEUROLOGICAL_SURGERY">Neurological Surgery</option>
+            <option value="NEUROLOGY">Neurology</option>
+            <option value="NUCLEAR_MEDICINE">Nuclear Medicine</option>
+            <option value="OBSTETRICS_GYNECOLOGY">Obstetrics and Gynecology</option>
+            <option value="OCCUPATIONAL_ENVIRONMENTAL_MEDICINE">Occupational and Environmental Medicine</option>
+            <option value="ORTHOPAEDIC_SURGERY">Orthopaedic Surgery</option>
+            <option value="OTOLARYNGOLOGY">Otolaryngology - Head and Neck Surgery</option>
+            <option value="PATHOLOGY">Pathology-Anatomic and Clinical</option>
+            <option value="PEDIATRICS">Pediatrics</option>
+            <option value="PHYSICAL_MEDICINE_REHABILITATION">Physical Medicine and Rehabilitation</option>
+            <option value="PLASTIC_SURGERY">Plastic Surgery</option>
+            <option value="PSYCHIATRY">Psychiatry</option>
+            <option value="RADIATION_ONCOLOGY">Radiation Oncology</option>
+            <option value="RADIOLOGY_DIAGNOSTIC">Radiology-Diagnostic</option>
+            <option value="GENERAL_SURGERY">General Surgery</option>
+            <option value="THORACIC_SURGERY">Thoracic Surgery</option>
+            <option value="UROLOGY">Urology</option>
+            <option value="VASCULAR_SURGERY">Vascular Surgery</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">State (Optional but encouraged)</label>
+          <input type="text" name="state" class="form-input" placeholder="e.g., California" maxlength="50">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">City (Optional but encouraged)</label>
+          <input type="text" name="city" class="form-input" placeholder="e.g., Los Angeles" maxlength="100">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Institution (Optional but encouraged)</label>
+          <input type="text" name="institution" class="form-input" placeholder="e.g., Johns Hopkins Hospital" maxlength="200">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Contact Email (Optional)</label>
+          <input type="email" name="contact_email" class="form-input" placeholder="e.g., contact@example.com" maxlength="255">
+          <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: var(--text-secondary);">
+            If provided, users will be able to contact you via email in addition to the messaging feature.
+          </p>
+        </div>
+
+        <!-- Form Actions -->
+        <div style="display: flex; gap: 1rem; margin-top: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+          <a href="/residency-swaps" class="btn btn-secondary" style="flex: 1; text-align: center;">
+            Cancel
+          </a>
+          <button type="submit" class="btn" style="flex: 1;">
+            Post Opening
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+
