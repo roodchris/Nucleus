@@ -53,6 +53,9 @@ def new_swap():
             flash("Current specialty and desired specialty are required", "error")
             return render_template("residency_swaps/new_swap.html")
         
+        # Get additional info
+        additional_info = request.form.get("additional_info", "").strip() or None
+        
         # Create swap
         swap = ResidencySwap(
             user_id=current_user.id,
@@ -61,7 +64,8 @@ def new_swap():
             current_state=current_state,
             current_city=current_city,
             desired_state=desired_state,
-            desired_city=desired_city
+            desired_city=desired_city,
+            additional_info=additional_info
         )
         
         db.session.add(swap)
@@ -89,6 +93,9 @@ def new_opening():
             flash("Medical specialty is required", "error")
             return render_template("residency_swaps/new_opening.html")
         
+        # Get additional info
+        additional_info = request.form.get("additional_info", "").strip() or None
+        
         # Create opening
         opening = ResidencyOpening(
             user_id=current_user.id,
@@ -96,7 +103,8 @@ def new_opening():
             state=state,
             city=city,
             institution=institution,
-            contact_email=contact_email
+            contact_email=contact_email,
+            additional_info=additional_info
         )
         
         db.session.add(opening)

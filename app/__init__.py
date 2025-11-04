@@ -317,6 +317,107 @@ def migrate_database_columns():
         except Exception as e:
             current_app.logger.warning(f"Error checking/updating residency swaps text fields: {e}")
             # Don't fail the entire migration for this step
+        
+        # Migrate residency swaps additional_info field
+        try:
+            result = db.session.execute(text("""
+                SELECT migration_name FROM migrations 
+                WHERE migration_name = 'residency_swaps_additional_info'
+            """))
+            residency_swaps_additional_info_migration_exists = result.fetchone() is not None
+            
+            if not residency_swaps_additional_info_migration_exists:
+                if 'postgresql' in db_url.lower():
+                    # Check if columns exist
+                    try:
+                        result = db.session.execute(text("""
+                            SELECT column_name 
+                            FROM information_schema.columns 
+                            WHERE table_name = 'residency_swap' AND column_name = 'additional_info'
+                        """))
+                        swap_column_exists = result.fetchone() is not None
+                        
+                        result = db.session.execute(text("""
+                            SELECT column_name 
+                            FROM information_schema.columns 
+                            WHERE table_name = 'residency_opening' AND column_name = 'additional_info'
+                        """))
+                        opening_column_exists = result.fetchone() is not None
+                        
+                        if not swap_column_exists:
+                            current_app.logger.info("📝 Adding additional_info column to residency_swap table (PostgreSQL)...")
+                            db.session.execute(text("""
+                                ALTER TABLE residency_swap 
+                                ADD COLUMN additional_info TEXT
+                            """))
+                        
+                        if not opening_column_exists:
+                            current_app.logger.info("📝 Adding additional_info column to residency_opening table (PostgreSQL)...")
+                            db.session.execute(text("""
+                                ALTER TABLE residency_opening 
+                                ADD COLUMN additional_info TEXT
+                            """))
+                        
+                        db.session.commit()
+                        current_app.logger.info("✅ Residency swaps additional_info columns added successfully!")
+                    except Exception as e:
+                        current_app.logger.warning(f"Could not add additional_info columns (may not exist yet): {e}")
+                        db.session.rollback()
+                        
+                elif 'mysql' in db_url.lower() or 'mariadb' in db_url.lower():
+                    # Check if columns exist
+                    try:
+                        result = db.session.execute(text("""
+                            SELECT column_name 
+                            FROM information_schema.columns 
+                            WHERE table_name = 'residency_swap' AND column_name = 'additional_info'
+                        """))
+                        swap_column_exists = result.fetchone() is not None
+                        
+                        result = db.session.execute(text("""
+                            SELECT column_name 
+                            FROM information_schema.columns 
+                            WHERE table_name = 'residency_opening' AND column_name = 'additional_info'
+                        """))
+                        opening_column_exists = result.fetchone() is not None
+                        
+                        if not swap_column_exists:
+                            current_app.logger.info("📝 Adding additional_info column to residency_swap table (MySQL)...")
+                            db.session.execute(text("""
+                                ALTER TABLE residency_swap 
+                                ADD COLUMN additional_info TEXT
+                            """))
+                        
+                        if not opening_column_exists:
+                            current_app.logger.info("📝 Adding additional_info column to residency_opening table (MySQL)...")
+                            db.session.execute(text("""
+                                ALTER TABLE residency_opening 
+                                ADD COLUMN additional_info TEXT
+                            """))
+                        
+                        db.session.commit()
+                        current_app.logger.info("✅ Residency swaps additional_info columns added successfully!")
+                    except Exception as e:
+                        current_app.logger.warning(f"Could not add additional_info columns (may not exist yet): {e}")
+                        db.session.rollback()
+                elif 'sqlite' in db_url.lower():
+                    # SQLite - columns will be added via db.create_all()
+                    current_app.logger.info("ℹ️ SQLite detected - additional_info columns will be added via db.create_all()")
+                else:
+                    current_app.logger.info("ℹ️ Database type detected - additional_info columns will be added via db.create_all()")
+                
+                # Record migration as completed
+                db.session.execute(text("""
+                    INSERT INTO migrations (migration_name) 
+                    VALUES ('residency_swaps_additional_info')
+                    ON CONFLICT (migration_name) DO NOTHING
+                """))
+                db.session.commit()
+            else:
+                current_app.logger.info("✅ Residency swaps additional_info migration already completed")
+        except Exception as e:
+            current_app.logger.warning(f"Error checking/adding residency swaps additional_info: {e}")
+            # Don't fail the entire migration for this step
             
     except Exception as e:
         current_app.logger.error(f"Migration failed: {e}")
