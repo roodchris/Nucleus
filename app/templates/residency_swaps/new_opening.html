@@ -27,37 +27,7 @@
       <div style="display: grid; gap: 1.5rem;">
         <div class="form-group">
           <label class="form-label">Medical Specialty <span style="color: var(--notification);">*</span></label>
-          <select name="specialty" class="form-input" required>
-            <option value="">Select Specialty</option>
-            <option value="NON_CLINICAL_OTHER">Non-clinical/Other</option>
-            <option value="AEROSPACE_MEDICINE">Aerospace Medicine</option>
-            <option value="ANESTHESIOLOGY">Anesthesiology</option>
-            <option value="CHILD_NEUROLOGY">Child Neurology</option>
-            <option value="DERMATOLOGY">Dermatology</option>
-            <option value="EMERGENCY_MEDICINE">Emergency Medicine</option>
-            <option value="FAMILY_MEDICINE">Family Medicine</option>
-            <option value="INTERNAL_MEDICINE">Internal Medicine</option>
-            <option value="MEDICAL_GENETICS">Medical Genetics</option>
-            <option value="INTERVENTIONAL_RADIOLOGY">Interventional Radiology</option>
-            <option value="NEUROLOGICAL_SURGERY">Neurological Surgery</option>
-            <option value="NEUROLOGY">Neurology</option>
-            <option value="NUCLEAR_MEDICINE">Nuclear Medicine</option>
-            <option value="OBSTETRICS_GYNECOLOGY">Obstetrics and Gynecology</option>
-            <option value="OCCUPATIONAL_ENVIRONMENTAL_MEDICINE">Occupational and Environmental Medicine</option>
-            <option value="ORTHOPAEDIC_SURGERY">Orthopaedic Surgery</option>
-            <option value="OTOLARYNGOLOGY">Otolaryngology - Head and Neck Surgery</option>
-            <option value="PATHOLOGY">Pathology-Anatomic and Clinical</option>
-            <option value="PEDIATRICS">Pediatrics</option>
-            <option value="PHYSICAL_MEDICINE_REHABILITATION">Physical Medicine and Rehabilitation</option>
-            <option value="PLASTIC_SURGERY">Plastic Surgery</option>
-            <option value="PSYCHIATRY">Psychiatry</option>
-            <option value="RADIATION_ONCOLOGY">Radiation Oncology</option>
-            <option value="RADIOLOGY_DIAGNOSTIC">Radiology-Diagnostic</option>
-            <option value="GENERAL_SURGERY">General Surgery</option>
-            <option value="THORACIC_SURGERY">Thoracic Surgery</option>
-            <option value="UROLOGY">Urology</option>
-            <option value="VASCULAR_SURGERY">Vascular Surgery</option>
-          </select>
+          <input type="text" name="specialty" class="form-input" placeholder="e.g., Internal Medicine, Radiology, Surgery" required maxlength="100">
         </div>
         
         <div class="form-group">

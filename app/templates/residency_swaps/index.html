@@ -57,7 +57,7 @@
         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
           <div style="flex: 1;">
             <h3 style="margin: 0 0 0.5rem 0; color: var(--text); font-size: 1.125rem; font-weight: 600;">
-              {{ swap.current_specialty.replace('_', ' ').title() }} → {{ swap.desired_specialty.replace('_', ' ').title() }}
+              {{ swap.current_specialty }} → {{ swap.desired_specialty }}
             </h3>
             <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.875rem;">
               {% if swap.current_state or swap.current_city %}
@@ -131,7 +131,7 @@
         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
           <div style="flex: 1;">
             <h3 style="margin: 0 0 0.5rem 0; color: var(--text); font-size: 1.125rem; font-weight: 600;">
-              {{ opening.specialty.replace('_', ' ').title() }}
+              {{ opening.specialty }}
             </h3>
             <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.875rem;">
               {% if opening.institution %}
