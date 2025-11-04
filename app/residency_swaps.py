@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
-from sqlalchemy import or_
+from sqlalchemy import or_, text
+from sqlalchemy.exc import ProgrammingError
 from .models import db, ResidencySwap, ResidencyOpening, User, Conversation
 from datetime import datetime
 
@@ -14,8 +15,64 @@ def index():
         return render_template("auth/login_required.html")
     
     # Get all active swaps and openings
-    swaps = ResidencySwap.query.filter_by(is_active=True).order_by(ResidencySwap.created_at.desc()).all()
-    openings = ResidencyOpening.query.filter_by(is_active=True).order_by(ResidencyOpening.created_at.desc()).all()
+    # Handle case where additional_info column doesn't exist yet
+    try:
+        swaps = ResidencySwap.query.filter_by(is_active=True).order_by(ResidencySwap.created_at.desc()).all()
+        openings = ResidencyOpening.query.filter_by(is_active=True).order_by(ResidencyOpening.created_at.desc()).all()
+    except ProgrammingError as e:
+        # If additional_info column doesn't exist, query without it and set it to None
+        if "additional_info" in str(e):
+            current_app.logger.warning("additional_info column doesn't exist yet, querying without it")
+            # Query swaps using raw SQL without additional_info
+            swap_results = db.session.execute(text("""
+                SELECT id, user_id, current_specialty, current_state, current_city,
+                       desired_specialty, desired_state, desired_city, created_at, is_active
+                FROM residency_swap
+                WHERE is_active = true
+                ORDER BY created_at DESC
+            """))
+            swaps = []
+            for row in swap_results:
+                swap = ResidencySwap(
+                    id=row.id,
+                    user_id=row.user_id,
+                    current_specialty=row.current_specialty,
+                    current_state=row.current_state,
+                    current_city=row.current_city,
+                    desired_specialty=row.desired_specialty,
+                    desired_state=row.desired_state,
+                    desired_city=row.desired_city,
+                    created_at=row.created_at,
+                    is_active=row.is_active
+                )
+                swap.additional_info = None  # Set to None since column doesn't exist
+                swaps.append(swap)
+            
+            # Query openings using raw SQL without additional_info
+            opening_results = db.session.execute(text("""
+                SELECT id, user_id, specialty, state, city, institution, contact_email, created_at, is_active
+                FROM residency_opening
+                WHERE is_active = true
+                ORDER BY created_at DESC
+            """))
+            openings = []
+            for row in opening_results:
+                opening = ResidencyOpening(
+                    id=row.id,
+                    user_id=row.user_id,
+                    specialty=row.specialty,
+                    state=row.state,
+                    city=row.city,
+                    institution=row.institution,
+                    contact_email=row.contact_email,
+                    created_at=row.created_at,
+                    is_active=row.is_active
+                )
+                opening.additional_info = None  # Set to None since column doesn't exist
+                openings.append(opening)
+        else:
+            # Re-raise if it's a different error
+            raise
     
     return render_template("residency_swaps/index.html", swaps=swaps, openings=openings)
 
@@ -56,20 +113,46 @@ def new_swap():
         # Get additional info
         additional_info = request.form.get("additional_info", "").strip() or None
         
-        # Create swap
-        swap = ResidencySwap(
-            user_id=current_user.id,
-            current_specialty=current_specialty,
-            desired_specialty=desired_specialty,
-            current_state=current_state,
-            current_city=current_city,
-            desired_state=desired_state,
-            desired_city=desired_city,
-            additional_info=additional_info
-        )
+        # Check if additional_info column exists
+        try:
+            db.session.execute(text("SELECT additional_info FROM residency_swap LIMIT 1"))
+            column_exists = True
+        except:
+            column_exists = False
         
-        db.session.add(swap)
-        db.session.commit()
+        # Create swap
+        if column_exists:
+            swap = ResidencySwap(
+                user_id=current_user.id,
+                current_specialty=current_specialty,
+                desired_specialty=desired_specialty,
+                current_state=current_state,
+                current_city=current_city,
+                desired_state=desired_state,
+                desired_city=desired_city,
+                additional_info=additional_info
+            )
+            db.session.add(swap)
+            db.session.commit()
+        else:
+            # Use raw SQL if column doesn't exist yet
+            db.session.execute(text("""
+                INSERT INTO residency_swap (user_id, current_specialty, current_state, current_city,
+                                           desired_specialty, desired_state, desired_city, created_at, is_active)
+                VALUES (:user_id, :current_specialty, :current_state, :current_city,
+                        :desired_specialty, :desired_state, :desired_city, :created_at, :is_active)
+            """), {
+                "user_id": current_user.id,
+                "current_specialty": current_specialty,
+                "current_state": current_state,
+                "current_city": current_city,
+                "desired_specialty": desired_specialty,
+                "desired_state": desired_state,
+                "desired_city": desired_city,
+                "created_at": datetime.utcnow(),
+                "is_active": True
+            })
+            db.session.commit()
         
         flash("Residency swap posted successfully!", "success")
         return redirect(url_for("residency_swaps.index"))
@@ -96,19 +179,42 @@ def new_opening():
         # Get additional info
         additional_info = request.form.get("additional_info", "").strip() or None
         
-        # Create opening
-        opening = ResidencyOpening(
-            user_id=current_user.id,
-            specialty=specialty,
-            state=state,
-            city=city,
-            institution=institution,
-            contact_email=contact_email,
-            additional_info=additional_info
-        )
+        # Check if additional_info column exists
+        try:
+            db.session.execute(text("SELECT additional_info FROM residency_opening LIMIT 1"))
+            column_exists = True
+        except:
+            column_exists = False
         
-        db.session.add(opening)
-        db.session.commit()
+        # Create opening
+        if column_exists:
+            opening = ResidencyOpening(
+                user_id=current_user.id,
+                specialty=specialty,
+                state=state,
+                city=city,
+                institution=institution,
+                contact_email=contact_email,
+                additional_info=additional_info
+            )
+            db.session.add(opening)
+            db.session.commit()
+        else:
+            # Use raw SQL if column doesn't exist yet
+            db.session.execute(text("""
+                INSERT INTO residency_opening (user_id, specialty, state, city, institution, contact_email, created_at, is_active)
+                VALUES (:user_id, :specialty, :state, :city, :institution, :contact_email, :created_at, :is_active)
+            """), {
+                "user_id": current_user.id,
+                "specialty": specialty,
+                "state": state,
+                "city": city,
+                "institution": institution,
+                "contact_email": contact_email,
+                "created_at": datetime.utcnow(),
+                "is_active": True
+            })
+            db.session.commit()
         
         flash("Open position posted successfully!", "success")
         return redirect(url_for("residency_swaps.index"))
