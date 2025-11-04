@@ -317,8 +317,8 @@ def migrate_database_columns():
             # Don't fail the entire migration for this step
         
         # Migrate residency swaps additional_info field - ALWAYS check and add if missing
-        try:
-            if 'postgresql' in db_url.lower():
+        if 'postgresql' in db_url.lower():
+            try:
                 # Check if swap table exists first
                 table_exists_result = db.session.execute(text("""
                     SELECT EXISTS (
@@ -408,9 +408,9 @@ def migrate_database_columns():
                     current_app.logger.info("✅ Residency swaps additional_info migration completed")
                 elif swap_table_exists or opening_table_exists:
                     current_app.logger.warning("⚠️ Tables exist but columns not verified - migration will retry on next startup")
-        except Exception as e:
-            current_app.logger.error(f"Error in additional_info migration: {e}")
-            db.session.rollback()
+            except Exception as e:
+                current_app.logger.error(f"Error in additional_info migration (PostgreSQL): {e}")
+                db.session.rollback()
                 
         elif 'sqlite' in db_url.lower():
             # SQLite
