@@ -319,30 +319,111 @@ def migrate_database_columns():
             # Don't fail the entire migration for this step
         
         # Migrate residency swaps additional_info field
-        try:
-            # First check if tables exist
-            try:
-                db.session.execute(text("SELECT 1 FROM residency_swap LIMIT 1"))
-                swap_table_exists = True
-            except:
-                swap_table_exists = False
-            
-            try:
-                db.session.execute(text("SELECT 1 FROM residency_opening LIMIT 1"))
-                opening_table_exists = True
-            except:
-                opening_table_exists = False
-            
-            if not swap_table_exists or not opening_table_exists:
-                current_app.logger.info("ℹ️ Residency swap tables don't exist yet - columns will be added via db.create_all()")
-            else:
+        result = db.session.execute(text("""
+            SELECT migration_name FROM migrations 
+            WHERE migration_name = 'residency_swaps_additional_info'
+        """))
+        residency_swaps_additional_info_migration_exists = result.fetchone() is not None
+        
+        if not residency_swaps_additional_info_migration_exists:
+            if 'postgresql' in db_url.lower():
+                # Check if swap table column exists
                 result = db.session.execute(text("""
-                    SELECT migration_name FROM migrations 
-                    WHERE migration_name = 'residency_swaps_additional_info'
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'residency_swap' AND column_name = 'additional_info'
                 """))
-                residency_swaps_additional_info_migration_exists = result.fetchone() is not None
+                swap_column_exists = result.fetchone() is not None
                 
-                # Check if columns actually exist (even if migration was marked as complete)
+                if not swap_column_exists:
+                    current_app.logger.info("Adding additional_info column to residency_swap table...")
+                    db.session.execute(text("""
+                        ALTER TABLE residency_swap 
+                        ADD COLUMN additional_info TEXT
+                    """))
+                    db.session.commit()
+                    current_app.logger.info("✅ additional_info column added to residency_swap successfully")
+                else:
+                    current_app.logger.info("✅ additional_info column already exists in residency_swap")
+                
+                # Check if opening table column exists
+                result = db.session.execute(text("""
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'residency_opening' AND column_name = 'additional_info'
+                """))
+                opening_column_exists = result.fetchone() is not None
+                
+                if not opening_column_exists:
+                    current_app.logger.info("Adding additional_info column to residency_opening table...")
+                    db.session.execute(text("""
+                        ALTER TABLE residency_opening 
+                        ADD COLUMN additional_info TEXT
+                    """))
+                    db.session.commit()
+                    current_app.logger.info("✅ additional_info column added to residency_opening successfully")
+                else:
+                    current_app.logger.info("✅ additional_info column already exists in residency_opening")
+                
+                # Record migration as completed
+                db.session.execute(text("""
+                    INSERT INTO migrations (migration_name) 
+                    VALUES ('residency_swaps_additional_info')
+                    ON CONFLICT (migration_name) DO NOTHING
+                """))
+                db.session.commit()
+                
+            elif 'sqlite' in db_url.lower():
+                # SQLite
+                try:
+                    result = db.session.execute(text("""
+                        PRAGMA table_info(residency_swap)
+                    """))
+                    columns = [row[1] for row in result.fetchall()]
+                    swap_column_exists = 'additional_info' in columns
+                    
+                    if not swap_column_exists:
+                        current_app.logger.info("Adding additional_info column to residency_swap table...")
+                        db.session.execute(text("""
+                            ALTER TABLE residency_swap 
+                            ADD COLUMN additional_info TEXT
+                        """))
+                        db.session.commit()
+                        current_app.logger.info("✅ additional_info column added to residency_swap successfully")
+                    else:
+                        current_app.logger.info("✅ additional_info column already exists in residency_swap")
+                    
+                    result = db.session.execute(text("""
+                        PRAGMA table_info(residency_opening)
+                    """))
+                    columns = [row[1] for row in result.fetchall()]
+                    opening_column_exists = 'additional_info' in columns
+                    
+                    if not opening_column_exists:
+                        current_app.logger.info("Adding additional_info column to residency_opening table...")
+                        db.session.execute(text("""
+                            ALTER TABLE residency_opening 
+                            ADD COLUMN additional_info TEXT
+                        """))
+                        db.session.commit()
+                        current_app.logger.info("✅ additional_info column added to residency_opening successfully")
+                    else:
+                        current_app.logger.info("✅ additional_info column already exists in residency_opening")
+                    
+                    # Record migration as completed
+                    db.session.execute(text("""
+                        INSERT INTO migrations (migration_name) 
+                        VALUES ('residency_swaps_additional_info')
+                        ON CONFLICT (migration_name) DO NOTHING
+                    """))
+                    db.session.commit()
+                except Exception as e:
+                    current_app.logger.warning(f"Could not add additional_info columns (tables may not exist yet): {e}")
+            else:
+                current_app.logger.warning("Unsupported database type for additional_info migration")
+        else:
+            # Migration was marked complete, but verify columns actually exist
+            if 'postgresql' in db_url.lower():
                 result = db.session.execute(text("""
                     SELECT column_name 
                     FROM information_schema.columns 
@@ -357,141 +438,25 @@ def migrate_database_columns():
                 """))
                 opening_column_exists = result.fetchone() is not None
                 
-                # If migration was marked complete but columns don't exist, we need to add them
-                if not residency_swaps_additional_info_migration_exists or not swap_column_exists or not opening_column_exists:
-                    if 'postgresql' in db_url.lower():
-                        # Check if columns exist and add them if needed
-                        try:
-                            columns_added = False
-                            if not swap_column_exists:
-                                current_app.logger.info("📝 Adding additional_info column to residency_swap table (PostgreSQL)...")
-                                db.session.execute(text("""
-                                    ALTER TABLE residency_swap 
-                                    ADD COLUMN additional_info TEXT
-                                """))
-                                columns_added = True
-                            
-                            if not opening_column_exists:
-                                current_app.logger.info("📝 Adding additional_info column to residency_opening table (PostgreSQL)...")
-                                db.session.execute(text("""
-                                    ALTER TABLE residency_opening 
-                                    ADD COLUMN additional_info TEXT
-                                """))
-                                columns_added = True
-                            
-                            if columns_added:
-                                db.session.commit()
-                                current_app.logger.info("✅ Residency swaps additional_info columns added successfully!")
-                            
-                            # Verify columns were actually added before marking migration complete
-                            result = db.session.execute(text("""
-                                SELECT column_name 
-                                FROM information_schema.columns 
-                                WHERE table_name = 'residency_swap' AND column_name = 'additional_info'
-                            """))
-                            swap_verified = result.fetchone() is not None
-                            
-                            result = db.session.execute(text("""
-                                SELECT column_name 
-                                FROM information_schema.columns 
-                                WHERE table_name = 'residency_opening' AND column_name = 'additional_info'
-                            """))
-                            opening_verified = result.fetchone() is not None
-                            
-                            if swap_verified and opening_verified:
-                                # Record migration as completed only if columns actually exist
-                                db.session.execute(text("""
-                                    INSERT INTO migrations (migration_name) 
-                                    VALUES ('residency_swaps_additional_info')
-                                    ON CONFLICT (migration_name) DO NOTHING
-                                """))
-                                db.session.commit()
-                                current_app.logger.info("✅ Migration marked as completed")
-                            else:
-                                current_app.logger.warning("⚠️ Columns not verified - migration not marked as complete")
-                        except Exception as e:
-                            current_app.logger.error(f"Error adding additional_info columns (PostgreSQL): {e}")
-                            db.session.rollback()
-                            # Don't mark migration as completed if it failed
-                            
-                    elif 'mysql' in db_url.lower() or 'mariadb' in db_url.lower():
-                        # Check if columns exist and add them if needed
-                        try:
-                            columns_added = False
-                            if not swap_column_exists:
-                                current_app.logger.info("📝 Adding additional_info column to residency_swap table (MySQL)...")
-                                db.session.execute(text("""
-                                    ALTER TABLE residency_swap 
-                                    ADD COLUMN additional_info TEXT
-                                """))
-                                columns_added = True
-                            
-                            if not opening_column_exists:
-                                current_app.logger.info("📝 Adding additional_info column to residency_opening table (MySQL)...")
-                                db.session.execute(text("""
-                                    ALTER TABLE residency_opening 
-                                    ADD COLUMN additional_info TEXT
-                                """))
-                                columns_added = True
-                            
-                            if columns_added:
-                                db.session.commit()
-                                current_app.logger.info("✅ Residency swaps additional_info columns added successfully!")
-                            
-                            # Verify columns were actually added before marking migration complete
-                            result = db.session.execute(text("""
-                                SELECT column_name 
-                                FROM information_schema.columns 
-                                WHERE table_name = 'residency_swap' AND column_name = 'additional_info'
-                            """))
-                            swap_verified = result.fetchone() is not None
-                            
-                            result = db.session.execute(text("""
-                                SELECT column_name 
-                                FROM information_schema.columns 
-                                WHERE table_name = 'residency_opening' AND column_name = 'additional_info'
-                            """))
-                            opening_verified = result.fetchone() is not None
-                            
-                            if swap_verified and opening_verified:
-                                # Record migration as completed only if columns actually exist
-                                db.session.execute(text("""
-                                    INSERT INTO migrations (migration_name) 
-                                    VALUES ('residency_swaps_additional_info')
-                                    ON CONFLICT (migration_name) DO NOTHING
-                                """))
-                                db.session.commit()
-                                current_app.logger.info("✅ Migration marked as completed")
-                            else:
-                                current_app.logger.warning("⚠️ Columns not verified - migration not marked as complete")
-                        except Exception as e:
-                            current_app.logger.error(f"Error adding additional_info columns (MySQL): {e}")
-                            db.session.rollback()
-                            # Don't mark migration as completed if it failed
-                    elif 'sqlite' in db_url.lower():
-                        # SQLite - columns will be added via db.create_all()
-                        current_app.logger.info("ℹ️ SQLite detected - additional_info columns will be added via db.create_all()")
-                        # Record migration as completed for SQLite since db.create_all() will handle it
+                if not swap_column_exists or not opening_column_exists:
+                    # Migration was marked complete but columns don't exist - add them
+                    current_app.logger.warning("Migration marked complete but columns missing - adding them now...")
+                    if not swap_column_exists:
                         db.session.execute(text("""
-                            INSERT INTO migrations (migration_name) 
-                            VALUES ('residency_swaps_additional_info')
-                            ON CONFLICT (migration_name) DO NOTHING
+                            ALTER TABLE residency_swap 
+                            ADD COLUMN additional_info TEXT
                         """))
                         db.session.commit()
-                    else:
-                        current_app.logger.info("ℹ️ Database type detected - additional_info columns will be added via db.create_all()")
-                        # Record migration as completed since db.create_all() will handle it
+                        current_app.logger.info("✅ additional_info column added to residency_swap")
+                    if not opening_column_exists:
                         db.session.execute(text("""
-                            INSERT INTO migrations (migration_name) 
-                            VALUES ('residency_swaps_additional_info')
-                            ON CONFLICT (migration_name) DO NOTHING
+                            ALTER TABLE residency_opening 
+                            ADD COLUMN additional_info TEXT
                         """))
                         db.session.commit()
+                        current_app.logger.info("✅ additional_info column added to residency_opening")
                 else:
                     current_app.logger.info("✅ Residency swaps additional_info migration already completed")
-        except Exception as e:
-            current_app.logger.error(f"Error checking/adding residency swaps additional_info: {e}")
-            # Don't fail the entire migration for this step, but log the error
             
     except Exception as e:
         current_app.logger.error(f"Migration failed: {e}")
