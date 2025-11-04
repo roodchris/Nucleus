@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Residency Swaps & Openings - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-exchange-alt"></i> Manage Residency Swaps & Openings</h1>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Residency Swaps Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3"><i class="fas fa-exchange-alt"></i> Residency Swaps</h2>
+            
+            {% if swaps.items %}
+                <div class="row">
+                    {% for swap in swaps.items %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Swap Request</h5>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                            onclick="adminDelete('/admin/api/delete/residency-swap/{{ swap.id }}', 'residency swap')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <strong>Current Specialty:</strong><br>
+                                        <span class="text-muted">{{ swap.current_specialty }}</span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Desired Specialty:</strong><br>
+                                        <span class="text-muted">{{ swap.desired_specialty }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mt-2">
+                                    {% if swap.current_state or swap.current_city %}
+                                    <div class="col-sm-6">
+                                        <strong>Current Location:</strong><br>
+                                        <span class="text-muted">
+                                            {% if swap.current_city %}{{ swap.current_city }}{% endif %}
+                                            {% if swap.current_city and swap.current_state %}, {% endif %}
+                                            {% if swap.current_state %}{{ swap.current_state }}{% endif %}
+                                            {% if not swap.current_city and not swap.current_state %}N/A{% endif %}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                    {% if swap.desired_state or swap.desired_city %}
+                                    <div class="col-sm-6">
+                                        <strong>Desired Location:</strong><br>
+                                        <span class="text-muted">
+                                            {% if swap.desired_city %}{{ swap.desired_city }}{% endif %}
+                                            {% if swap.desired_city and swap.desired_state %}, {% endif %}
+                                            {% if swap.desired_state %}{{ swap.desired_state }}{% endif %}
+                                            {% if not swap.desired_city and not swap.desired_state %}N/A{% endif %}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if swap.additional_info %}
+                                <div class="mt-2">
+                                    <strong>Additional Info:</strong><br>
+                                    <p class="text-muted">{{ swap.additional_info[:200] }}{% if swap.additional_info|length > 200 %}...{% endif %}</p>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="row mt-2">
+                                    <div class="col-sm-6">
+                                        <strong>Created:</strong><br>
+                                        <span class="text-muted">{{ swap.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="badge badge-{{ 'success' if swap.is_active else 'secondary' }}">
+                                            {{ 'Active' if swap.is_active else 'Inactive' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination for Swaps -->
+                {% if swaps.pages > 1 %}
+                <nav aria-label="Swaps pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if swaps.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.residency_swaps', swap_page=swaps.prev_num, opening_page=openings.page) }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for page_num in swaps.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != swaps.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('admin.residency_swaps', swap_page=page_num, opening_page=openings.page) }}">{{ page_num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">…</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if swaps.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.residency_swaps', swap_page=swaps.next_num, opening_page=openings.page) }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4>No Residency Swaps Found</h4>
+                    <p>There are currently no residency swap requests in the system.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Residency Openings Section -->
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-3"><i class="fas fa-briefcase"></i> Residency Openings</h2>
+            
+            {% if openings.items %}
+                <div class="row">
+                    {% for opening in openings.items %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Open Position</h5>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                            onclick="adminDelete('/admin/api/delete/residency-opening/{{ opening.id }}', 'residency opening')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <strong>Specialty:</strong><br>
+                                        <span class="text-muted">{{ opening.specialty }}</span>
+                                    </div>
+                                    {% if opening.institution %}
+                                    <div class="col-sm-6">
+                                        <strong>Institution:</strong><br>
+                                        <span class="text-muted">{{ opening.institution }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if opening.state or opening.city %}
+                                <div class="row mt-2">
+                                    <div class="col-sm-6">
+                                        <strong>Location:</strong><br>
+                                        <span class="text-muted">
+                                            {% if opening.city %}{{ opening.city }}{% endif %}
+                                            {% if opening.city and opening.state %}, {% endif %}
+                                            {% if opening.state %}{{ opening.state }}{% endif %}
+                                        </span>
+                                    </div>
+                                    {% if opening.contact_email %}
+                                    <div class="col-sm-6">
+                                        <strong>Contact Email:</strong><br>
+                                        <span class="text-muted">{{ opening.contact_email }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                                
+                                {% if opening.additional_info %}
+                                <div class="mt-2">
+                                    <strong>Additional Info:</strong><br>
+                                    <p class="text-muted">{{ opening.additional_info[:200] }}{% if opening.additional_info|length > 200 %}...{% endif %}</p>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="row mt-2">
+                                    <div class="col-sm-6">
+                                        <strong>Created:</strong><br>
+                                        <span class="text-muted">{{ opening.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="badge badge-{{ 'success' if opening.is_active else 'secondary' }}">
+                                            {{ 'Active' if opening.is_active else 'Inactive' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination for Openings -->
+                {% if openings.pages > 1 %}
+                <nav aria-label="Openings pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if openings.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.residency_swaps', swap_page=swaps.page, opening_page=openings.prev_num) }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for page_num in openings.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != openings.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('admin.residency_swaps', swap_page=swaps.page, opening_page=page_num) }}">{{ page_num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">…</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if openings.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.residency_swaps', swap_page=swaps.page, opening_page=openings.next_num) }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4>No Residency Openings Found</h4>
+                    <p>There are currently no residency openings in the system.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Admin delete function
+function adminDelete(url, itemName) {
+    if (confirm(`Are you sure you want to delete this ${itemName}? This action cannot be undone.`)) {
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+        });
+    }
+}
+</script>
+{% endblock %}
+

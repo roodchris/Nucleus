@@ -3,7 +3,8 @@ from flask_login import login_required, current_user
 from functools import wraps
 from app.models import (
     db, User, Opportunity, ProgramReview, JobReview, CompensationData, 
-    ForumPost, ForumComment, ForumVote, Application, CalendarSlot, Message, Conversation
+    ForumPost, ForumComment, ForumVote, Application, CalendarSlot, Message, Conversation,
+    ResidencySwap, ResidencyOpening
 )
 from sqlalchemy import desc
 import os
@@ -40,7 +41,9 @@ def dashboard():
             'compensation_data': CompensationData.query.filter_by(is_anonymous_submission=True).count(),
             'forum_posts': ForumPost.query.count(),
             'forum_comments': ForumComment.query.count(),
-            'total_users': User.query.count()
+            'total_users': User.query.count(),
+            'residency_swaps': ResidencySwap.query.count(),
+            'residency_openings': ResidencyOpening.query.count()
         }
         
         # Get recent submissions
@@ -291,6 +294,73 @@ def delete_forum_comment(comment_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': f'Failed to delete forum comment: {str(e)}'}), 500
+
+@admin_bp.route('/residency-swaps')
+@login_required
+@admin_required
+def residency_swaps():
+    """List all residency swaps and openings with admin controls"""
+    try:
+        swap_page = request.args.get('swap_page', 1, type=int)
+        opening_page = request.args.get('opening_page', 1, type=int)
+        per_page = 20
+        
+        swaps = ResidencySwap.query.order_by(desc(ResidencySwap.created_at)).paginate(
+            page=swap_page, per_page=per_page, error_out=False
+        )
+        
+        openings = ResidencyOpening.query.order_by(desc(ResidencyOpening.created_at)).paginate(
+            page=opening_page, per_page=per_page, error_out=False
+        )
+        
+        return render_template('admin/residency_swaps.html', swaps=swaps, openings=openings)
+    except Exception as e:
+        flash(f'Error loading residency swaps: {str(e)}', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+@admin_bp.route('/api/delete/residency-swap/<int:swap_id>', methods=['DELETE'])
+@login_required
+@admin_required
+def delete_residency_swap(swap_id):
+    """Delete a residency swap"""
+    try:
+        swap = ResidencySwap.query.get_or_404(swap_id)
+        
+        # Delete related conversations if any
+        conversations = Conversation.query.filter_by(opportunity_id=None).all()
+        # Filter conversations that might be related to this swap
+        # (Note: swaps don't have direct conversation relationships, so we'll just delete the swap)
+        
+        db.session.delete(swap)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Residency swap deleted successfully'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Failed to delete residency swap: {str(e)}'}), 500
+
+@admin_bp.route('/api/delete/residency-opening/<int:opening_id>', methods=['DELETE'])
+@login_required
+@admin_required
+def delete_residency_opening(opening_id):
+    """Delete a residency opening"""
+    try:
+        opening = ResidencyOpening.query.get_or_404(opening_id)
+        
+        # Delete related conversations if any
+        conversations = Conversation.query.filter_by(opportunity_id=None).all()
+        # Filter conversations that might be related to this opening
+        # (Note: openings don't have direct conversation relationships, so we'll just delete the opening)
+        
+        db.session.delete(opening)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Residency opening deleted successfully'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Failed to delete residency opening: {str(e)}'}), 500
 
 @admin_bp.route('/api/delete/user/<int:user_id>', methods=['DELETE'])
 @login_required
