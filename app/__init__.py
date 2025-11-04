@@ -252,6 +252,71 @@ def migrate_database_columns():
         except Exception as e:
             current_app.logger.error(f"Error removing preferred_start_date column: {e}")
             # Don't fail the entire migration for this cleanup step
+        
+        # Migrate residency swaps text fields to support free text (VARCHAR(100) -> VARCHAR(200))
+        try:
+            result = db.session.execute(text("""
+                SELECT migration_name FROM migrations 
+                WHERE migration_name = 'residency_swaps_text_fields'
+            """))
+            residency_swaps_text_migration_exists = result.fetchone() is not None
+            
+            if not residency_swaps_text_migration_exists:
+                if 'postgresql' in db_url.lower():
+                    # PostgreSQL - use ALTER TABLE
+                    current_app.logger.info("📝 Updating ResidencySwap specialty fields (PostgreSQL)...")
+                    try:
+                        db.session.execute(text("""
+                            ALTER TABLE residency_swap 
+                            ALTER COLUMN current_specialty TYPE VARCHAR(200),
+                            ALTER COLUMN desired_specialty TYPE VARCHAR(200)
+                        """))
+                        db.session.execute(text("""
+                            ALTER TABLE residency_opening 
+                            ALTER COLUMN specialty TYPE VARCHAR(200)
+                        """))
+                        db.session.commit()
+                        current_app.logger.info("✅ Residency swaps text fields updated successfully!")
+                    except Exception as e:
+                        current_app.logger.warning(f"Could not update columns (may not exist yet): {e}")
+                        db.session.rollback()
+                        
+                elif 'mysql' in db_url.lower() or 'mariadb' in db_url.lower():
+                    # MySQL/MariaDB - use ALTER TABLE with MODIFY
+                    current_app.logger.info("📝 Updating ResidencySwap specialty fields (MySQL)...")
+                    try:
+                        db.session.execute(text("""
+                            ALTER TABLE residency_swap 
+                            MODIFY COLUMN current_specialty VARCHAR(200),
+                            MODIFY COLUMN desired_specialty VARCHAR(200)
+                        """))
+                        db.session.execute(text("""
+                            ALTER TABLE residency_opening 
+                            MODIFY COLUMN specialty VARCHAR(200)
+                        """))
+                        db.session.commit()
+                        current_app.logger.info("✅ Residency swaps text fields updated successfully!")
+                    except Exception as e:
+                        current_app.logger.warning(f"Could not update columns (may not exist yet): {e}")
+                        db.session.rollback()
+                elif 'sqlite' in db_url.lower():
+                    # SQLite - columns will be updated via db.create_all()
+                    current_app.logger.info("ℹ️ SQLite detected - specialty fields will be updated via db.create_all()")
+                else:
+                    current_app.logger.info("ℹ️ Database type detected - specialty fields will be updated via db.create_all()")
+                
+                # Record migration as completed
+                db.session.execute(text("""
+                    INSERT INTO migrations (migration_name) 
+                    VALUES ('residency_swaps_text_fields')
+                    ON CONFLICT (migration_name) DO NOTHING
+                """))
+                db.session.commit()
+            else:
+                current_app.logger.info("✅ Residency swaps text fields migration already completed")
+        except Exception as e:
+            current_app.logger.warning(f"Error checking/updating residency swaps text fields: {e}")
+            # Don't fail the entire migration for this step
             
     except Exception as e:
         current_app.logger.error(f"Migration failed: {e}")

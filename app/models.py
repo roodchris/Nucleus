@@ -485,10 +485,10 @@ class ResidencySwap(db.Model):
     """Model for residency/fellowship swap requests"""
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
-    current_specialty = db.Column(db.String(100), nullable=False, index=True)  # Required
+    current_specialty = db.Column(db.String(200), nullable=False, index=True)  # Required - free text
     current_state = db.Column(db.String(50), nullable=True, index=True)  # Optional
     current_city = db.Column(db.String(100), nullable=True)  # Optional
-    desired_specialty = db.Column(db.String(100), nullable=False, index=True)  # Required
+    desired_specialty = db.Column(db.String(200), nullable=False, index=True)  # Required - free text
     desired_state = db.Column(db.String(50), nullable=True, index=True)  # Optional
     desired_city = db.Column(db.String(100), nullable=True)  # Optional
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
@@ -505,7 +505,7 @@ class ResidencyOpening(db.Model):
     """Model for open residency/fellowship positions"""
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
-    specialty = db.Column(db.String(100), nullable=False, index=True)  # Required
+    specialty = db.Column(db.String(200), nullable=False, index=True)  # Required - free text
     state = db.Column(db.String(50), nullable=True, index=True)  # Optional
     city = db.Column(db.String(100), nullable=True)  # Optional
     institution = db.Column(db.String(200), nullable=True)  # Optional
