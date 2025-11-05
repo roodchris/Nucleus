@@ -55,6 +55,8 @@ def new_swap():
         
         # Get additional info
         additional_info = request.form.get("additional_info", "").strip() or None
+        training_level = request.form.get("training_level", "").strip() or None
+        desired_start_date = request.form.get("desired_start_date", "").strip() or None
         
         # Create swap
         swap = ResidencySwap(
@@ -65,6 +67,8 @@ def new_swap():
             current_city=current_city,
             desired_state=desired_state,
             desired_city=desired_city,
+            training_level=training_level,
+            desired_start_date=desired_start_date,
             additional_info=additional_info
         )
         
@@ -95,6 +99,8 @@ def new_opening():
         
         # Get additional info
         additional_info = request.form.get("additional_info", "").strip() or None
+        training_level = request.form.get("training_level", "").strip() or None
+        desired_start_date = request.form.get("desired_start_date", "").strip() or None
         
         # Create opening
         opening = ResidencyOpening(
@@ -104,6 +110,8 @@ def new_opening():
             city=city,
             institution=institution,
             contact_email=contact_email,
+            training_level=training_level,
+            desired_start_date=desired_start_date,
             additional_info=additional_info
         )
         
@@ -189,3 +197,40 @@ def contact_opening_poster(opening_id):
     flash("Conversation started!", "success")
     return redirect(url_for("chat.thread", conversation_id=convo.id))
 
+
+@residency_swaps_bp.route("/residency-swaps/swap/<int:swap_id>/delete", methods=["POST"])
+@login_required
+def delete_swap(swap_id):
+    """Delete a residency swap (only by the user who posted it)"""
+    swap = ResidencySwap.query.get_or_404(swap_id)
+    
+    # Only allow the user who posted it to delete
+    if swap.user_id != current_user.id:
+        flash("You can only delete your own listings", "error")
+        return redirect(url_for("residency_swaps.index"))
+    
+    # Soft delete by setting is_active to False
+    swap.is_active = False
+    db.session.commit()
+    
+    flash("Swap listing deleted successfully", "success")
+    return redirect(url_for("residency_swaps.index"))
+
+
+@residency_swaps_bp.route("/residency-swaps/opening/<int:opening_id>/delete", methods=["POST"])
+@login_required
+def delete_opening(opening_id):
+    """Delete a residency opening (only by the user who posted it)"""
+    opening = ResidencyOpening.query.get_or_404(opening_id)
+    
+    # Only allow the user who posted it to delete
+    if opening.user_id != current_user.id:
+        flash("You can only delete your own listings", "error")
+        return redirect(url_for("residency_swaps.index"))
+    
+    # Soft delete by setting is_active to False
+    opening.is_active = False
+    db.session.commit()
+    
+    flash("Opening listing deleted successfully", "success")
+    return redirect(url_for("residency_swaps.index"))

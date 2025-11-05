@@ -491,6 +491,8 @@ class ResidencySwap(db.Model):
     desired_specialty = db.Column(db.String(200), nullable=False, index=True)  # Required - free text
     desired_state = db.Column(db.String(50), nullable=True, index=True)  # Optional
     desired_city = db.Column(db.String(100), nullable=True)  # Optional
+    training_level = db.Column(db.String(10), nullable=True)  # Optional - PGY-1 through PGY-9
+    desired_start_date = db.Column(db.String(100), nullable=True)  # Optional - free text for desired start date
     additional_info = db.Column(db.Text, nullable=True)  # Optional - free text for additional information
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     is_active = db.Column(db.Boolean, default=True, nullable=False, index=True)
@@ -511,6 +513,8 @@ class ResidencyOpening(db.Model):
     city = db.Column(db.String(100), nullable=True)  # Optional
     institution = db.Column(db.String(200), nullable=True)  # Optional
     contact_email = db.Column(db.String(255), nullable=True)  # Optional
+    training_level = db.Column(db.String(10), nullable=True)  # Optional - PGY-1 through PGY-9
+    desired_start_date = db.Column(db.String(100), nullable=True)  # Optional - free text for desired start date
     additional_info = db.Column(db.Text, nullable=True)  # Optional - free text for additional information
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     is_active = db.Column(db.Boolean, default=True, nullable=False, index=True)
