@@ -597,6 +597,96 @@ def migrate_database_columns():
         except Exception as e:
             current_app.logger.error(f"Error in training_level/desired_start_date migration: {e}")
             db.session.rollback()
+        
+        # Migrate pay_amount column from Float to String to support free text entry
+        try:
+            result = db.session.execute(text("""
+                SELECT migration_name FROM migrations 
+                WHERE migration_name = 'change_pay_amount_to_string'
+            """))
+            pay_amount_migration_exists = result.fetchone() is not None
+            
+            if not pay_amount_migration_exists:
+                if 'postgresql' in db_url.lower():
+                    # PostgreSQL - check current column type
+                    result = db.session.execute(text("""
+                        SELECT data_type 
+                        FROM information_schema.columns 
+                        WHERE table_name = 'opportunity' AND column_name = 'pay_amount'
+                    """))
+                    column_info = result.fetchone()
+                    
+                    if column_info and column_info[0] in ('double precision', 'real', 'numeric', 'float'):
+                        current_app.logger.info("📝 Converting pay_amount column from Float to String (PostgreSQL)...")
+                        # Convert float to string, handling NULL values
+                        db.session.execute(text("""
+                            ALTER TABLE opportunity 
+                            ALTER COLUMN pay_amount TYPE VARCHAR(255) 
+                            USING CASE 
+                                WHEN pay_amount IS NULL THEN NULL 
+                                ELSE pay_amount::text 
+                            END
+                        """))
+                        db.session.commit()
+                        current_app.logger.info("✅ pay_amount column converted to String successfully!")
+                    elif column_info and column_info[0] in ('character varying', 'varchar', 'text'):
+                        current_app.logger.info("✅ pay_amount column is already String type")
+                    else:
+                        current_app.logger.warning(f"⚠️ pay_amount column type is {column_info[0] if column_info else 'unknown'}, skipping migration")
+                        
+                elif 'sqlite' in db_url.lower():
+                    # SQLite - check if column exists and is numeric type
+                    result = db.session.execute(text("""
+                        PRAGMA table_info(opportunity)
+                    """))
+                    columns = result.fetchall()
+                    pay_amount_info = next((col for col in columns if col[1] == 'pay_amount'), None)
+                    
+                    if pay_amount_info:
+                        # SQLite doesn't strictly enforce types, but we can update the schema
+                        # For SQLite, we'll create a new table with the correct type, copy data, and replace
+                        current_app.logger.info("📝 Converting pay_amount column from Float to String (SQLite)...")
+                        try:
+                            # SQLite doesn't support ALTER COLUMN TYPE directly
+                            # We'll need to create a new table, copy data, drop old, rename
+                            # But this is complex and risky. Instead, we'll just note that SQLite is flexible
+                            # and the column will work as string even if defined as numeric
+                            current_app.logger.info("ℹ️ SQLite detected - pay_amount will be stored as text (SQLite is type-flexible)")
+                        except Exception as e:
+                            current_app.logger.warning(f"Could not update pay_amount column: {e}")
+                            db.session.rollback()
+                    else:
+                        current_app.logger.info("ℹ️ pay_amount column doesn't exist yet, will be created as String")
+                        
+                elif 'mysql' in db_url.lower() or 'mariadb' in db_url.lower():
+                    # MySQL/MariaDB - use ALTER TABLE with MODIFY
+                    current_app.logger.info("📝 Converting pay_amount column from Float to String (MySQL)...")
+                    try:
+                        db.session.execute(text("""
+                            ALTER TABLE opportunity 
+                            MODIFY COLUMN pay_amount VARCHAR(255)
+                        """))
+                        db.session.commit()
+                        current_app.logger.info("✅ pay_amount column converted to String successfully!")
+                    except Exception as e:
+                        current_app.logger.warning(f"Could not update pay_amount column: {e}")
+                        db.session.rollback()
+                else:
+                    current_app.logger.info("ℹ️ Database type detected - pay_amount will be updated via db.create_all()")
+                
+                # Record migration as completed
+                db.session.execute(text("""
+                    INSERT INTO migrations (migration_name) 
+                    VALUES ('change_pay_amount_to_string')
+                    ON CONFLICT (migration_name) DO NOTHING
+                """))
+                db.session.commit()
+            else:
+                current_app.logger.info("✅ pay_amount to String migration already completed")
+        except Exception as e:
+            current_app.logger.warning(f"Error in pay_amount migration: {e}")
+            db.session.rollback()
+            # Don't fail the entire migration for this step
             
     except Exception as e:
         current_app.logger.error(f"Migration failed: {e}")

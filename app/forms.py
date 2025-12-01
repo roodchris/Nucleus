@@ -126,7 +126,7 @@ class OpportunityForm(FlaskForm):
     zip_code = StringField("Zip Code", validators=[Optional(), Length(min=5, max=10)])
     pgy_min = SelectField("Training Level Minimum", choices=[("", "Select Minimum")] + TRAINING_LEVEL_CHOICES[1:], validators=[Optional()])
     pgy_max = SelectField("Training Level Maximum", choices=[("", "Select Maximum")] + TRAINING_LEVEL_CHOICES[1:], validators=[Optional()])
-    pay_amount = StringField("Pay Amount", validators=[Optional(), comma_separated_number(min_val=0)])
+    pay_amount = StringField("Pay Amount", validators=[Optional()])
     pay_type = SelectField("Pay Type", choices=PAY_TYPE_CHOICES, validators=[Optional()])
     shift_length_hours = DecimalField("Shift length (hours)", validators=[Optional(), NumberRange(min=0)], places=1)
     hours_per_week = DecimalField("Hours per week", validators=[Optional(), NumberRange(min=0)], places=1)

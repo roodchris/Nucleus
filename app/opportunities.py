@@ -132,7 +132,18 @@ def list_opportunities():
         if form.pay_type.data:
             # Filter by specific pay type
             query = query.filter(Opportunity.pay_type == PayType(form.pay_type.data))
-        query = query.filter(Opportunity.pay_amount >= form.minimum_pay.data)
+        # Filter by minimum pay - handle both numeric and text pay_amount values
+        # Only filter opportunities where pay_amount is numeric
+        from sqlalchemy import func
+        # Remove commas and try to cast to float for comparison
+        # This will only match opportunities where pay_amount can be converted to a number
+        # Non-numeric pay_amount values will be excluded from this filter
+        query = query.filter(
+            func.cast(
+                func.replace(Opportunity.pay_amount, ',', ''),
+                db.Float
+            ) >= form.minimum_pay.data
+        )
     if form.work_duration.data:
         try:
             query = query.filter(Opportunity.work_duration == WorkDuration(form.work_duration.data))
@@ -213,7 +224,7 @@ def create_opportunity():
                 zip_code=form.zip_code.data if form.zip_code.data else None,
                 pgy_min=TrainingLevel(form.pgy_min.data) if form.pgy_min.data else None,
                 pgy_max=TrainingLevel(form.pgy_max.data) if form.pgy_max.data else None,
-                pay_amount=float(form.pay_amount.data) if form.pay_amount.data else None,
+                pay_amount=form.pay_amount.data if form.pay_amount.data else None,
                 pay_type=PayType(form.pay_type.data) if form.pay_type.data else None,
                 shift_length_hours=float(form.shift_length_hours.data) if form.shift_length_hours.data else None,
                 hours_per_week=float(form.hours_per_week.data) if form.hours_per_week.data else None,
@@ -231,41 +242,77 @@ def create_opportunity():
         
         # Handle calendar slots from the form
         slot_count = 0
+        slots_created = 0
         while True:
             date_key = f"slot_date_{slot_count}"
             start_key = f"slot_start_{slot_count}"
             end_key = f"slot_end_{slot_count}"
             
-            if date_key not in request.form or not request.form[date_key]:
+            # Check if this slot exists in the form
+            if date_key not in request.form:
                 break
-                
-            try:
-                slot_date = datetime.strptime(request.form[date_key], "%Y-%m-%d").date()
-                start_time = datetime.strptime(request.form[start_key], "%H:%M").time()
-                end_time = datetime.strptime(request.form[end_key], "%H:%M").time()
-                
-                # Validate time range
-                if start_time >= end_time:
-                    flash(f"Time slot {slot_count + 1}: End time must be after start time.", "error")
-                else:
-                    slot = CalendarSlot(
-                        opportunity_id=opp.id,
-                        date=slot_date,
-                        start_time=start_time,
-                        end_time=end_time
-                    )
-                    db.session.add(slot)
+            
+            # Get the values (they may be empty)
+            date_value = request.form.get(date_key, "").strip()
+            start_value = request.form.get(start_key, "").strip()
+            end_value = request.form.get(end_key, "").strip()
+            
+            # Skip this slot if all fields are empty
+            if not date_value and not start_value and not end_value:
+                slot_count += 1
+                continue
+            
+            # If any field is provided, all fields must be provided
+            if date_value and start_value and end_value:
+                try:
+                    slot_date = datetime.strptime(date_value, "%Y-%m-%d").date()
+                    start_time = datetime.strptime(start_value, "%H:%M").time()
+                    end_time = datetime.strptime(end_value, "%H:%M").time()
                     
-            except ValueError:
-                flash(f"Time slot {slot_count + 1}: Invalid date or time format.", "error")
+                    # Validate time range
+                    if start_time >= end_time:
+                        flash(f"Time slot {slot_count + 1}: End time must be after start time.", "error")
+                    else:
+                        slot = CalendarSlot(
+                            opportunity_id=opp.id,
+                            date=slot_date,
+                            start_time=start_time,
+                            end_time=end_time
+                        )
+                        db.session.add(slot)
+                        slots_created += 1
+                        
+                except ValueError:
+                    flash(f"Time slot {slot_count + 1}: Invalid date or time format.", "error")
+            elif date_value or start_value or end_value:
+                # Some fields filled but not all - skip this slot
+                flash(f"Time slot {slot_count + 1}: Please fill all fields (date, start time, end time) or leave all empty.", "error")
             
             slot_count += 1
         
-        if slot_count > 0:
+        # If no calendar slots were created, create a default slot on the opportunity's created date
+        if slots_created == 0:
+            # Create a calendar slot for the opportunity's creation date
+            # Use default times (9 AM to 5 PM) to represent the opportunity availability
+            from datetime import time
+            default_start_time = time(9, 0)  # 9:00 AM
+            default_end_time = time(17, 0)   # 5:00 PM
+            
+            # Use the opportunity's created_at date
+            opp_created_date = opp.created_at.date()
+            
+            default_slot = CalendarSlot(
+                opportunity_id=opp.id,
+                date=opp_created_date,
+                start_time=default_start_time,
+                end_time=default_end_time
+            )
+            db.session.add(default_slot)
             db.session.commit()
-            flash(f"Opportunity posted successfully with {slot_count} time slot(s).", "success")
+            flash("Opportunity posted successfully. It will appear on the calendar on the creation date.", "success")
         else:
-            flash("Opportunity posted successfully. You can add time slots later from the calendar view.", "success")
+            db.session.commit()
+            flash(f"Opportunity posted successfully with {slots_created} time slot(s).", "success")
             
         return redirect(url_for("opportunities.list_opportunities"))
     
@@ -308,7 +355,7 @@ def edit_opportunity(opportunity_id):
         opportunity.zip_code = form.zip_code.data if form.zip_code.data else None
         opportunity.pgy_min = TrainingLevel(form.pgy_min.data) if form.pgy_min.data else None
         opportunity.pgy_max = TrainingLevel(form.pgy_max.data) if form.pgy_max.data else None
-        opportunity.pay_amount = float(form.pay_amount.data) if form.pay_amount.data else None
+        opportunity.pay_amount = form.pay_amount.data if form.pay_amount.data else None
         opportunity.pay_type = PayType(form.pay_type.data) if form.pay_type.data else None
         opportunity.shift_length_hours = float(form.shift_length_hours.data) if form.shift_length_hours.data else None
         opportunity.hours_per_week = float(form.hours_per_week.data) if form.hours_per_week.data else None

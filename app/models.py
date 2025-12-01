@@ -134,7 +134,7 @@ class Opportunity(db.Model):
     pgy_min = db.Column(db.Enum(TrainingLevel), nullable=True)  # Training level min
     pgy_max = db.Column(db.Enum(TrainingLevel), nullable=True)  # Training level max
 
-    pay_amount = db.Column(db.Float, nullable=True, index=True)
+    pay_amount = db.Column(db.String(255), nullable=True, index=True)
     pay_type = db.Column(db.Enum(PayType), nullable=True, index=True)
     shift_length_hours = db.Column(db.Float, nullable=True, index=True)
     hours_per_week = db.Column(db.Float, nullable=True, index=True)
