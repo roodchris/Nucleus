@@ -2778,7 +2778,12 @@
       }
       
       // Update container margins on load
+      // Update container margins immediately and after a short delay to ensure layout is complete
       updateContainerMargins();
+      setTimeout(updateContainerMargins, 100);
+      requestAnimationFrame(() => {
+        updateContainerMargins();
+      });
       
       // Initialize notification toggle
       initializeNotificationToggle();
