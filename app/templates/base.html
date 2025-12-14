@@ -1062,12 +1062,9 @@
     .container {
       max-width: 1200px;
       padding: 2rem;
-      /* When nav is visible: center content in remaining space (viewport - 280px) */
-      /* Formula: sidebar width + (available space - content width) / 2 */
-      /* = 280px + (100vw - 280px - 1200px) / 2 */
-      margin-left: calc(280px + max(0px, (100vw - 280px - 1200px) / 2));
+      margin-left: auto;
       margin-right: auto;
-      transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* Ensure header container doesn't inherit general container styles */
@@ -1075,20 +1072,6 @@
       max-width: 100% !important;
       margin-left: 0 !important;
       margin-right: 0 !important;
-    }
-
-    /* Adjust container when header is retracted - center in full viewport */
-    header.retracted ~ .container {
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    /* For very small screens, ensure minimum margin */
-    @media (max-width: 1480px) {
-      .container {
-        margin-left: 280px;
-        margin-right: 0;
-      }
     }
 
     /* Cards - Glass Morphism */
@@ -2641,7 +2624,20 @@
 
     // Function to update all container margins for centering
     function updateContainerMargins() {
-      if (window.innerWidth <= 768) return; // Skip on mobile
+      if (window.innerWidth <= 768) {
+        // On mobile, reset to default
+        const containers = document.querySelectorAll('.container:not(header .container)');
+        const feedbackContent = document.querySelector('.feedback-footer-content');
+        containers.forEach(container => {
+          container.style.marginLeft = '0';
+          container.style.marginRight = 'auto';
+        });
+        if (feedbackContent) {
+          feedbackContent.style.marginLeft = 'auto';
+          feedbackContent.style.marginRight = 'auto';
+        }
+        return;
+      }
       
       const header = document.querySelector('header');
       const isRetracted = header && header.classList.contains('retracted');
@@ -2654,24 +2650,31 @@
       
       if (isRetracted) {
         // Center in full viewport
+        const centerMargin = Math.max(0, (viewportWidth - contentMaxWidth) / 2);
         containers.forEach(container => {
-          container.style.marginLeft = 'auto';
+          container.style.marginLeft = centerMargin + 'px';
           container.style.marginRight = 'auto';
         });
         if (feedbackContent) {
-          feedbackContent.style.marginLeft = 'auto';
+          feedbackContent.style.marginLeft = centerMargin + 'px';
           feedbackContent.style.marginRight = 'auto';
         }
       } else {
         // Center in remaining space (viewport - sidebar)
+        // Available space = viewportWidth - sidebarWidth
+        // We want to center the container (max 1200px) in this available space
         const availableSpace = viewportWidth - sidebarWidth;
-        const marginLeft = sidebarWidth + Math.max(0, (availableSpace - contentMaxWidth) / 2);
+        // Calculate how much space is left after the container (assuming max-width)
+        const remainingSpace = Math.max(0, availableSpace - contentMaxWidth);
+        // Distribute remaining space equally on both sides
+        const leftMargin = sidebarWidth + (remainingSpace / 2);
+        
         containers.forEach(container => {
-          container.style.marginLeft = marginLeft + 'px';
+          container.style.marginLeft = leftMargin + 'px';
           container.style.marginRight = 'auto';
         });
         if (feedbackContent) {
-          feedbackContent.style.marginLeft = marginLeft + 'px';
+          feedbackContent.style.marginLeft = leftMargin + 'px';
           feedbackContent.style.marginRight = 'auto';
         }
       }
@@ -2773,11 +2776,14 @@
         toggleButton.classList.add('retracted');
       }
       
-      // Update all container margins
+      // Update all container margins immediately and after delays to ensure proper centering
       updateContainerMargins();
-      
-      // Also update on a slight delay to ensure all elements are loaded
-      setTimeout(updateContainerMargins, 100);
+      // Use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(() => {
+        updateContainerMargins();
+        setTimeout(updateContainerMargins, 100);
+        setTimeout(updateContainerMargins, 300);
+      });
       
       // Initialize notification toggle
       initializeNotificationToggle();
