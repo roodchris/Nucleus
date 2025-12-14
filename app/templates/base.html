@@ -1066,18 +1066,11 @@
       max-width: 1200px;
       padding: 2rem;
       box-sizing: border-box;
-    }
-
-    /* When nav is visible, center container in available space (viewport - sidebar) */
-    .container:not(header .container) {
-      margin-left: calc(280px + max(0px, (100vw - 280px - 1200px) / 2));
-      margin-right: auto;
       transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* When header is retracted, center in full viewport */
-    header.retracted ~ .container:not(header .container) {
-      margin-left: auto;
+    /* JavaScript will set margins dynamically, but provide fallback */
+    .container:not(header .container) {
       margin-right: auto;
     }
 
@@ -2653,19 +2646,38 @@
         return;
       }
       
-      // CSS handles centering via calc(), we just need to ensure
-      // containers reset their inline styles when toggling
+      const header = document.querySelector('header');
+      const isRetracted = header && header.classList.contains('retracted');
       const containers = document.querySelectorAll('.container:not(header .container)');
       const feedbackContent = document.querySelector('.feedback-footer-content');
+      const sidebarWidth = 280;
+      const containerMaxWidth = 1200;
       
-      // Remove any inline styles so CSS can take over
-      containers.forEach(container => {
-        container.style.marginLeft = '';
-        container.style.marginRight = '';
-      });
-      if (feedbackContent) {
-        feedbackContent.style.marginLeft = '';
-        feedbackContent.style.marginRight = '';
+      if (isRetracted) {
+        // Center in full viewport
+        containers.forEach(container => {
+          container.style.marginLeft = 'auto';
+          container.style.marginRight = 'auto';
+        });
+        if (feedbackContent) {
+          feedbackContent.style.marginLeft = 'auto';
+          feedbackContent.style.marginRight = 'auto';
+        }
+      } else {
+        // Center in available space (viewport - sidebar)
+        const viewportWidth = window.innerWidth;
+        const availableSpace = viewportWidth - sidebarWidth;
+        const remainingSpace = Math.max(0, availableSpace - containerMaxWidth);
+        const leftMargin = sidebarWidth + (remainingSpace / 2);
+        
+        containers.forEach(container => {
+          container.style.marginLeft = leftMargin + 'px';
+          container.style.marginRight = 'auto';
+        });
+        if (feedbackContent) {
+          feedbackContent.style.marginLeft = leftMargin + 'px';
+          feedbackContent.style.marginRight = 'auto';
+        }
       }
     }
 
