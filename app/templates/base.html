@@ -2679,24 +2679,28 @@
         const availableSpace = viewportWidth - sidebarWidth;
         const centerOfAvailableSpace = sidebarWidth + (availableSpace / 2);
         const containerHalfWidth = containerMaxWidth / 2;
-        const leftMargin = centerOfAvailableSpace - containerHalfWidth;
+        let leftMargin = centerOfAvailableSpace - containerHalfWidth;
         
-        // Ensure margin doesn't go before sidebar
-        const finalMargin = Math.max(sidebarWidth, leftMargin);
+        // Ensure margin doesn't go before sidebar, but allow proper centering
+        // If the calculated margin would be less than sidebar width, center differently
+        if (leftMargin < sidebarWidth) {
+          // Container is wider than available space, align to sidebar
+          leftMargin = sidebarWidth;
+        }
         
         containers.forEach(container => {
-          container.style.marginLeft = finalMargin + 'px';
+          container.style.marginLeft = leftMargin + 'px';
           container.style.marginRight = 'auto';
         });
         if (feedbackContent) {
-          feedbackContent.style.marginLeft = finalMargin + 'px';
+          feedbackContent.style.marginLeft = leftMargin + 'px';
           feedbackContent.style.marginRight = 'auto';
         }
         
         // Also handle mission-content-wrapper (home page mission card)
         const missionWrapper = document.querySelector('.mission-content-wrapper');
         if (missionWrapper) {
-          missionWrapper.style.marginLeft = finalMargin + 'px';
+          missionWrapper.style.marginLeft = leftMargin + 'px';
           missionWrapper.style.marginRight = 'auto';
         }
       }
