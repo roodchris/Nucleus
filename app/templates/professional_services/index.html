@@ -214,6 +214,12 @@
   
 }
 
-/* Containers are centered by JavaScript */
+/* Center containers properly when sidebar is open */
+body.sidebar-open .container {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: calc(100% - 280px);
+  max-width: 1200px;
+}
 </style>
 {% endblock %}

@@ -2672,13 +2672,6 @@
           missionWrapper.style.marginLeft = 'auto';
           missionWrapper.style.marginRight = 'auto';
         }
-        
-        // Reset page-header margins when retracted
-        const pageHeaders = document.querySelectorAll('.page-header');
-        pageHeaders.forEach(header => {
-          header.style.marginLeft = 'auto';
-          header.style.marginRight = 'auto';
-        });
       } else {
         // Center in available space (viewport - sidebar)
         // Calculate the center point of available space, then position container so its center aligns
@@ -2695,13 +2688,16 @@
           // Exclude containers in mission-section and features-section - they center differently
           const isInMissionSection = container.closest('.mission-section');
           const isInFeaturesSection = container.closest('.features-section');
+          // Exclude containers on wRVU calculator and professional services pages - they use CSS centering
+          const isOnWRVUPage = !!(document.getElementById('compensation-rate') || document.getElementById('study-search'));
+          const isOnProfessionalServicesPage = !!(document.querySelector('.services-hero') || document.querySelector('.services-grid'));
           
-          if (!isInMissionSection && !isInFeaturesSection) {
-            // Apply margin calculation to all containers (including wRVU and professional services pages)
+          if (!isInMissionSection && !isInFeaturesSection && !isOnWRVUPage && !isOnProfessionalServicesPage) {
+            // Apply margin calculation to other containers
             container.style.marginLeft = finalMargin + 'px';
             container.style.marginRight = 'auto';
           } else {
-            // Reset to natural centering for excluded sections
+            // Reset to natural centering for excluded pages/sections
             container.style.marginLeft = 'auto';
             container.style.marginRight = 'auto';
           }
@@ -2710,13 +2706,6 @@
           feedbackContent.style.marginLeft = finalMargin + 'px';
           feedbackContent.style.marginRight = 'auto';
         }
-        
-        // Handle page-header elements (used on wRVU calculator page)
-        const pageHeaders = document.querySelectorAll('.page-header');
-        pageHeaders.forEach(header => {
-          header.style.marginLeft = finalMargin + 'px';
-          header.style.marginRight = 'auto';
-        });
         
         // Don't manually set margins on mission-content-wrapper - let CSS handle it
         const missionWrapper = document.querySelector('.mission-content-wrapper');
