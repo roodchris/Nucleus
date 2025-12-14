@@ -1065,13 +1065,18 @@
     .container {
       max-width: 1200px;
       padding: 2rem;
+      box-sizing: border-box;
+    }
+
+    /* When nav is visible, center container in available space (viewport - sidebar) */
+    .container:not(header .container) {
       margin-left: calc(280px + max(0px, (100vw - 280px - 1200px) / 2));
       margin-right: auto;
       transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* When header is retracted, center in full viewport */
-    header.retracted ~ .container {
+    header.retracted ~ .container:not(header .container) {
       margin-left: auto;
       margin-right: auto;
     }
