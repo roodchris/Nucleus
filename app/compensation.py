@@ -204,6 +204,11 @@ def submit_compensation():
         except Exception as e:
             db.session.rollback()
             flash('An error occurred while submitting your data. Please try again.', 'error')
-            # Error submitting compensation data
+    else:
+        # Form validation failed - show errors
+        if request.method == 'POST':
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f"{form[field].label.text}: {error}", "error")
     
     return render_template('compensation/submit.html', form=form)

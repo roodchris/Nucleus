@@ -258,43 +258,93 @@ def edit_review(review_id):
 @login_required
 def new_review():
     """Create a new program review"""
+    errors = []
+    form_data = {}
+    
     if request.method == 'POST':
-        program_name = request.form.get('program_name')
-        specialty = request.form.get('specialty', '')
-        educational_quality = int(request.form.get('educational_quality'))
-        work_life_balance = int(request.form.get('work_life_balance'))
-        attending_quality = int(request.form.get('attending_quality'))
-        facilities_quality = int(request.form.get('facilities_quality'))
-        research_opportunities = int(request.form.get('research_opportunities'))
-        culture = int(request.form.get('culture'))
-        comments = request.form.get('comments')
-        anonymous = bool(request.form.get('anonymous'))  # Checkbox value
+        program_name = request.form.get('program_name', '').strip()
+        specialty = request.form.get('specialty', '').strip()
+        educational_quality = request.form.get('educational_quality')
+        work_life_balance = request.form.get('work_life_balance')
+        attending_quality = request.form.get('attending_quality')
+        facilities_quality = request.form.get('facilities_quality')
+        research_opportunities = request.form.get('research_opportunities')
+        culture = request.form.get('culture')
+        comments = request.form.get('comments', '').strip()
+        anonymous = bool(request.form.get('anonymous'))
+        
+        # Store form data for re-rendering
+        form_data = {
+            'program_name': program_name,
+            'specialty': specialty,
+            'educational_quality': educational_quality,
+            'work_life_balance': work_life_balance,
+            'attending_quality': attending_quality,
+            'facilities_quality': facilities_quality,
+            'research_opportunities': research_opportunities,
+            'culture': culture,
+            'comments': comments,
+            'anonymous': anonymous
+        }
+        
+        # Validate required fields
+        if not program_name:
+            errors.append('Program name is required. Please select a program.')
         
         # Validate ratings
-        if not all(1 <= rating <= 5 for rating in [educational_quality, work_life_balance, attending_quality, 
-                                                   facilities_quality, research_opportunities, culture]):
-            flash('All ratings must be between 1 and 5', 'error')
-            return redirect(request.url)
+        rating_fields = [
+            ('educational_quality', 'Educational Quality'),
+            ('work_life_balance', 'Work-Life Balance'),
+            ('attending_quality', 'Attending Quality'),
+            ('facilities_quality', 'Facilities Quality'),
+            ('research_opportunities', 'Research Opportunities'),
+            ('culture', 'Culture')
+        ]
+        
+        ratings = {}
+        for field_name, field_label in rating_fields:
+            value = request.form.get(field_name)
+            if not value:
+                errors.append(f'{field_label} rating is required. Please provide a rating from 1 to 5.')
+            else:
+                try:
+                    rating = int(value)
+                    if not (1 <= rating <= 5):
+                        errors.append(f'{field_label} rating must be between 1 and 5.')
+                    else:
+                        ratings[field_name] = rating
+                except ValueError:
+                    errors.append(f'{field_label} rating must be a valid number between 1 and 5.')
+        
+        # If there are errors, show them and re-render the form
+        if errors:
+            for error in errors:
+                flash(error, 'error')
+            return render_template('program_reviews/new.html', form_data=form_data, errors=errors)
         
         # Create review
         review = ProgramReview(
             program_name=program_name,
             user_id=current_user.id,
             specialty=specialty if specialty else None,
-            educational_quality=educational_quality,
-            work_life_balance=work_life_balance,
-            attending_quality=attending_quality,
-            facilities_quality=facilities_quality,
-            research_opportunities=research_opportunities,
-            culture=culture,
+            educational_quality=ratings['educational_quality'],
+            work_life_balance=ratings['work_life_balance'],
+            attending_quality=ratings['attending_quality'],
+            facilities_quality=ratings['facilities_quality'],
+            research_opportunities=ratings['research_opportunities'],
+            culture=ratings['culture'],
             comments=comments,
             anonymous=anonymous
         )
         
-        db.session.add(review)
-        db.session.commit()
-        
-        flash('Review submitted successfully!', 'success')
-        return redirect(url_for('program_reviews.index', program=program_name))
+        try:
+            db.session.add(review)
+            db.session.commit()
+            flash('Review submitted successfully!', 'success')
+            return redirect(url_for('program_reviews.index', program=program_name))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while submitting your review. Please try again.', 'error')
+            return render_template('program_reviews/new.html', form_data=form_data, errors=errors)
     
-    return render_template('program_reviews/new.html')
+    return render_template('program_reviews/new.html', form_data=form_data, errors=errors)

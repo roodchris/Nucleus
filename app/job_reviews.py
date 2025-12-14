@@ -130,6 +130,12 @@ def submit_review():
             current_app.logger.error(f"Error submitting job review: {str(e)}")
             flash("An error occurred while submitting your review. Please try again.", "error")
             return render_template("job_reviews/submit.html", form=form, practice_names=practice_names_list)
+    else:
+        # Form validation failed - show errors
+        if request.method == 'POST':
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f"{form[field].label.text}: {error}", "error")
     
     return render_template("job_reviews/submit.html", form=form, practice_names=practice_names_list)
 

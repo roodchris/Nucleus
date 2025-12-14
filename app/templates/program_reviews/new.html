@@ -24,6 +24,9 @@
           <label for="program_name" class="block text-sm font-medium mb-2">Program *</label>
           <select name="program_name" id="program_name" class="input" required>
             <option value="">Choose a program...</option>
+            {% if form_data and form_data.program_name %}
+            <option value="{{ form_data.program_name }}" selected>{{ form_data.program_name }}</option>
+            {% endif %}
             <!-- Programs will be loaded dynamically via JavaScript -->
           </select>
           <div class="info-box">
@@ -33,35 +36,35 @@
         <div>
           <label for="specialty" class="block text-sm font-medium mb-2">Medical Specialty (Optional)</label>
           <select name="specialty" id="specialty" class="input">
-            <option value="">General (All Specialties)</option>
-            <option value="non_clinical_other">Non-clinical/Other</option>
-            <option value="aerospace_medicine">Aerospace Medicine</option>
-            <option value="anesthesiology">Anesthesiology</option>
-            <option value="child_neurology">Child Neurology</option>
-            <option value="dermatology">Dermatology</option>
-            <option value="emergency_medicine">Emergency Medicine</option>
-            <option value="family_medicine">Family Medicine</option>
-            <option value="internal_medicine">Internal Medicine</option>
-            <option value="medical_genetics">Medical Genetics</option>
-            <option value="interventional_radiology">Interventional Radiology</option>
-            <option value="neurological_surgery">Neurological Surgery</option>
-            <option value="neurology">Neurology</option>
-            <option value="nuclear_medicine">Nuclear Medicine</option>
-            <option value="obstetrics_gynecology">Obstetrics and Gynecology</option>
-            <option value="occupational_environmental_medicine">Occupational and Environmental Medicine</option>
-            <option value="orthopaedic_surgery">Orthopaedic Surgery</option>
-            <option value="otolaryngology">Otolaryngology - Head and Neck Surgery</option>
-            <option value="pathology">Pathology-Anatomic and Clinical</option>
-            <option value="pediatrics">Pediatrics</option>
-            <option value="physical_medicine_rehabilitation">Physical Medicine and Rehabilitation</option>
-            <option value="plastic_surgery">Plastic Surgery</option>
-            <option value="psychiatry">Psychiatry</option>
-            <option value="radiation_oncology">Radiation Oncology</option>
-            <option value="radiology_diagnostic">Radiology-Diagnostic</option>
-            <option value="general_surgery">General Surgery</option>
-            <option value="thoracic_surgery">Thoracic Surgery</option>
-            <option value="urology">Urology</option>
-            <option value="vascular_surgery">Vascular Surgery</option>
+            <option value="" {% if not form_data or not form_data.specialty %}selected{% endif %}>General (All Specialties)</option>
+            <option value="non_clinical_other" {% if form_data and form_data.specialty == 'non_clinical_other' %}selected{% endif %}>Non-clinical/Other</option>
+            <option value="aerospace_medicine" {% if form_data and form_data.specialty == 'aerospace_medicine' %}selected{% endif %}>Aerospace Medicine</option>
+            <option value="anesthesiology" {% if form_data and form_data.specialty == 'anesthesiology' %}selected{% endif %}>Anesthesiology</option>
+            <option value="child_neurology" {% if form_data and form_data.specialty == 'child_neurology' %}selected{% endif %}>Child Neurology</option>
+            <option value="dermatology" {% if form_data and form_data.specialty == 'dermatology' %}selected{% endif %}>Dermatology</option>
+            <option value="emergency_medicine" {% if form_data and form_data.specialty == 'emergency_medicine' %}selected{% endif %}>Emergency Medicine</option>
+            <option value="family_medicine" {% if form_data and form_data.specialty == 'family_medicine' %}selected{% endif %}>Family Medicine</option>
+            <option value="internal_medicine" {% if form_data and form_data.specialty == 'internal_medicine' %}selected{% endif %}>Internal Medicine</option>
+            <option value="medical_genetics" {% if form_data and form_data.specialty == 'medical_genetics' %}selected{% endif %}>Medical Genetics</option>
+            <option value="interventional_radiology" {% if form_data and form_data.specialty == 'interventional_radiology' %}selected{% endif %}>Interventional Radiology</option>
+            <option value="neurological_surgery" {% if form_data and form_data.specialty == 'neurological_surgery' %}selected{% endif %}>Neurological Surgery</option>
+            <option value="neurology" {% if form_data and form_data.specialty == 'neurology' %}selected{% endif %}>Neurology</option>
+            <option value="nuclear_medicine" {% if form_data and form_data.specialty == 'nuclear_medicine' %}selected{% endif %}>Nuclear Medicine</option>
+            <option value="obstetrics_gynecology" {% if form_data and form_data.specialty == 'obstetrics_gynecology' %}selected{% endif %}>Obstetrics and Gynecology</option>
+            <option value="occupational_environmental_medicine" {% if form_data and form_data.specialty == 'occupational_environmental_medicine' %}selected{% endif %}>Occupational and Environmental Medicine</option>
+            <option value="orthopaedic_surgery" {% if form_data and form_data.specialty == 'orthopaedic_surgery' %}selected{% endif %}>Orthopaedic Surgery</option>
+            <option value="otolaryngology" {% if form_data and form_data.specialty == 'otolaryngology' %}selected{% endif %}>Otolaryngology - Head and Neck Surgery</option>
+            <option value="pathology" {% if form_data and form_data.specialty == 'pathology' %}selected{% endif %}>Pathology-Anatomic and Clinical</option>
+            <option value="pediatrics" {% if form_data and form_data.specialty == 'pediatrics' %}selected{% endif %}>Pediatrics</option>
+            <option value="physical_medicine_rehabilitation" {% if form_data and form_data.specialty == 'physical_medicine_rehabilitation' %}selected{% endif %}>Physical Medicine and Rehabilitation</option>
+            <option value="plastic_surgery" {% if form_data and form_data.specialty == 'plastic_surgery' %}selected{% endif %}>Plastic Surgery</option>
+            <option value="psychiatry" {% if form_data and form_data.specialty == 'psychiatry' %}selected{% endif %}>Psychiatry</option>
+            <option value="radiation_oncology" {% if form_data and form_data.specialty == 'radiation_oncology' %}selected{% endif %}>Radiation Oncology</option>
+            <option value="radiology_diagnostic" {% if form_data and form_data.specialty == 'radiology_diagnostic' %}selected{% endif %}>Radiology-Diagnostic</option>
+            <option value="general_surgery" {% if form_data and form_data.specialty == 'general_surgery' %}selected{% endif %}>General Surgery</option>
+            <option value="thoracic_surgery" {% if form_data and form_data.specialty == 'thoracic_surgery' %}selected{% endif %}>Thoracic Surgery</option>
+            <option value="urology" {% if form_data and form_data.specialty == 'urology' %}selected{% endif %}>Urology</option>
+            <option value="vascular_surgery" {% if form_data and form_data.specialty == 'vascular_surgery' %}selected{% endif %}>Vascular Surgery</option>
           </select>
           <div class="info-box">
             <p class="text-sm">Select the medical specialty this review is written for (optional)</p>
@@ -178,7 +181,7 @@
       <div class="form-grid">
         <div>
           <label for="comments" class="block text-sm font-medium mb-2">Detailed Review</label>
-          <textarea name="comments" id="comments" rows="6" class="input" placeholder="Share your detailed experience, pros and cons, advice for future physicians, or any other insights..."></textarea>
+          <textarea name="comments" id="comments" rows="6" class="input" placeholder="Share your detailed experience, pros and cons, advice for future physicians, or any other insights...">{% if form_data and form_data.comments %}{{ form_data.comments }}{% endif %}</textarea>
           <div class="info-box">
             <p class="text-sm">Optional: Provide detailed feedback about your experience, including specific examples and advice for future residents</p>
           </div>
@@ -195,7 +198,7 @@
       <div class="form-grid">
         <div>
           <label class="flex items-center space-x-3 cursor-pointer">
-            <input type="checkbox" name="anonymous" id="anonymous" class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+            <input type="checkbox" name="anonymous" id="anonymous" class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" {% if form_data and form_data.anonymous %}checked{% endif %}>
             <span class="text-sm font-medium">Submit this review anonymously</span>
           </label>
           <div class="info-box">
@@ -296,6 +299,65 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+// Restore form values if validation failed
+{% if form_data %}
+document.addEventListener('DOMContentLoaded', function() {
+  const formData = {{ form_data|tojson }};
+  
+  // Restore specialty
+  if (formData.specialty) {
+    const specialtySelect = document.getElementById('specialty');
+    if (specialtySelect) {
+      specialtySelect.value = formData.specialty;
+    }
+  }
+  
+  // Restore rating fields
+  const ratingFields = ['educational_quality', 'work_life_balance', 'attending_quality', 
+                        'facilities_quality', 'research_opportunities', 'culture'];
+  ratingFields.forEach(field => {
+    if (formData[field]) {
+      const select = document.getElementById(field);
+      if (select) {
+        select.value = formData[field];
+      }
+    }
+  });
+  
+  // Restore comments
+  if (formData.comments) {
+    const commentsTextarea = document.getElementById('comments');
+    if (commentsTextarea) {
+      commentsTextarea.value = formData.comments;
+    }
+  }
+  
+  // Restore anonymous checkbox
+  if (formData.anonymous) {
+    const anonymousCheckbox = document.getElementById('anonymous');
+    if (anonymousCheckbox) {
+      anonymousCheckbox.checked = true;
+    }
+  }
+  
+  // Restore program name (after programs are loaded)
+  if (formData.program_name) {
+    setTimeout(() => {
+      const programSelect = document.getElementById('program_name');
+      if (programSelect) {
+        // Try to find and select the program
+        for (let option of programSelect.options) {
+          if (option.value === formData.program_name) {
+            option.selected = true;
+            break;
+          }
+        }
+      }
+    }, 1000); // Wait for programs to load
+  }
+});
+{% endif %}
 </script>
 
 {% endblock %}
