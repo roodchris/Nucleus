@@ -232,22 +232,8 @@
               <span class="detail-value">{{ opp.pgy_min.value }} - {{ opp.pgy_max.value }}</span>
             </div>
             <div class="detail-row">
-              <span class="detail-label">Date & Time</span>
-              <span class="detail-value">
-                {% if opp.calendar_slots %}
-                  {% set first_slot = opp.calendar_slots|selectattr('is_available')|first %}
-                  {% if first_slot %}
-                    {{ first_slot.date.strftime('%a, %b %d') }} • {{ first_slot.start_time.strftime('%I:%M %p') }} - {{ first_slot.end_time.strftime('%I:%M %p') }}
-                    {% if opp.calendar_slots|selectattr('is_available')|list|length > 1 %}
-                      <span class="additional-slots">+{{ opp.calendar_slots|selectattr('is_available')|list|length - 1 }} more</span>
-                    {% endif %}
-                  {% else %}
-                    No available slots
-                  {% endif %}
-                {% else %}
-                  Flexible scheduling
-                {% endif %}
-              </span>
+              <span class="detail-label">Work Duration</span>
+              <span class="detail-value">{% if opp.work_duration %}{% if opp.work_duration.value == 'single_shift' %}Single Shift{% elif opp.work_duration.value == 'short_term' %}Short-term (less than 1 month){% elif opp.work_duration.value == 'medium_term' %}Medium-term (1 month to 6 months){% elif opp.work_duration.value == 'permanent' %}Permanent Employment{% else %}{{ opp.work_duration.value.replace('_', ' ').title() }}{% endif %}{% else %}Not specified{% endif %}</span>
             </div>
           </div>
           
