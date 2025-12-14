@@ -2688,8 +2688,16 @@
           // Exclude containers in mission-section and features-section - they center differently
           const isInMissionSection = container.closest('.mission-section');
           const isInFeaturesSection = container.closest('.features-section');
-          if (!isInMissionSection && !isInFeaturesSection) {
+          // Exclude containers on wRVU calculator page
+          const isOnWRVUPage = !!(document.getElementById('compensation-rate') || document.getElementById('study-search'));
+          // Exclude containers on professional services page
+          const isOnProfessionalServicesPage = !!(document.querySelector('.services-hero') || document.querySelector('.services-grid'));
+          if (!isInMissionSection && !isInFeaturesSection && !isOnWRVUPage && !isOnProfessionalServicesPage) {
             container.style.marginLeft = finalMargin + 'px';
+            container.style.marginRight = 'auto';
+          } else {
+            // Reset to natural centering for excluded pages
+            container.style.marginLeft = 'auto';
             container.style.marginRight = 'auto';
           }
         });
