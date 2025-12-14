@@ -2178,28 +2178,6 @@
             </div>
           </div>
 
-          <!-- Radiology Tools Group -->
-          <div class="nav-group">
-            <div class="group-label">Radiology Tools</div>
-            <div class="group-tabs">
-              <a href="/knowledge-base" class="{% if request.path.startswith('/knowledge-base') %}active{% endif %}">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Knowledge Base
-              </a>
-              <a href="/wrvu-calculator" class="{% if request.path.startswith('/wrvu-calculator') %}active{% endif %}">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M9 9h6v6H9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M9 1v6M15 1v6M9 17v6M15 17v6M1 9h6M17 9h6M1 15h6M17 15h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                wRVU Calculator
-              </a>
-            </div>
-          </div>
-
           <!-- Tools & Resources Group -->
           <div class="nav-group">
             <div class="group-label">Tools & Resources</div>
@@ -2226,32 +2204,6 @@
             </div>
           </div>
 
-          <!-- Residency & Fellowship Group -->
-          <div class="nav-group">
-            <div class="group-label">Residency & Fellowship</div>
-            <div class="group-tabs">
-              <a href="/residency-swaps" class="{% if request.path.startswith('/residency-swaps') %}active{% endif %}">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M8 7h8m-8 5h8m-8 5h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Swap / Openings
-              </a>
-            </div>
-          </div>
-
-          <!-- Professional Services Group -->
-          <div class="nav-group">
-            <div class="group-label">Professional Services <span class="coming-soon-badge">Coming Soon</span></div>
-            <div class="group-tabs">
-              <a href="/professional-services" class="{% if request.path.startswith('/professional-services') %}active{% endif %}">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Click Here to Learn More
-              </a>
-            </div>
-          </div>
-
           <!-- Community & Communication Group -->
           <div class="nav-group">
             <div class="group-label">Community & Communication</div>
@@ -2268,6 +2220,54 @@
                 </svg>
                 Messages
                 <span class="badge" id="header-messages-badge" style="display: none;">0</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Residency & Fellowship Group -->
+          <div class="nav-group">
+            <div class="group-label">Residency & Fellowship</div>
+            <div class="group-tabs">
+              <a href="/residency-swaps" class="{% if request.path.startswith('/residency-swaps') %}active{% endif %}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 7h8m-8 5h8m-8 5h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Swap / Openings
+              </a>
+            </div>
+          </div>
+
+          <!-- Radiology Tools Group -->
+          <div class="nav-group">
+            <div class="group-label">Radiology Tools</div>
+            <div class="group-tabs">
+              <a href="/knowledge-base" class="{% if request.path.startswith('/knowledge-base') %}active{% endif %}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Knowledge Base
+              </a>
+              <a href="/wrvu-calculator" class="{% if request.path.startswith('/wrvu-calculator') %}active{% endif %}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 9h6v6H9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 1v6M15 1v6M9 17v6M15 17v6M1 9h6M17 9h6M1 15h6M17 15h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                wRVU Calculator
+              </a>
+            </div>
+          </div>
+
+          <!-- Professional Services Group -->
+          <div class="nav-group">
+            <div class="group-label">Professional Services <span class="coming-soon-badge">Coming Soon</span></div>
+            <div class="group-tabs">
+              <a href="/professional-services" class="{% if request.path.startswith('/professional-services') %}active{% endif %}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Click Here to Learn More
               </a>
             </div>
           </div>
@@ -2461,28 +2461,6 @@
         </div>
       </div>
 
-      <!-- Radiology Tools Group -->
-      <div class="mobile-nav-group">
-        <div class="group-label">Radiology Tools</div>
-        <div class="group-tabs">
-          <a href="/knowledge-base" class="{% if request.path.startswith('/knowledge-base') %}active{% endif %}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Knowledge Base
-          </a>
-          <a href="/wrvu-calculator" class="{% if request.path.startswith('/wrvu-calculator') %}active{% endif %}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M9 9h6v6H9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M9 1v6M15 1v6M9 17v6M15 17v6M1 9h6M17 9h6M1 15h6M17 15h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            wRVU Calculator
-          </a>
-        </div>
-      </div>
-
       <!-- Tools & Resources Group -->
       <div class="mobile-nav-group">
         <div class="group-label">Tools & Resources</div>
@@ -2505,19 +2483,6 @@
               <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             Compensation Data
-          </a>
-        </div>
-      </div>
-
-      <!-- Residency & Fellowship Group -->
-      <div class="mobile-nav-group">
-        <div class="group-label">Residency & Fellowship</div>
-        <div class="group-tabs">
-          <a href="/residency-swaps" class="{% if request.path.startswith('/residency-swaps') %}active{% endif %}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 7h8m-8 5h8m-8 5h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Swap / Openings
           </a>
         </div>
       </div>
@@ -2554,6 +2519,41 @@
               <span class="toggle-slider"></span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Residency & Fellowship Group -->
+      <div class="mobile-nav-group">
+        <div class="group-label">Residency & Fellowship</div>
+        <div class="group-tabs">
+          <a href="/residency-swaps" class="{% if request.path.startswith('/residency-swaps') %}active{% endif %}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 7h8m-8 5h8m-8 5h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Swap / Openings
+          </a>
+        </div>
+      </div>
+
+      <!-- Radiology Tools Group -->
+      <div class="mobile-nav-group">
+        <div class="group-label">Radiology Tools</div>
+        <div class="group-tabs">
+          <a href="/knowledge-base" class="{% if request.path.startswith('/knowledge-base') %}active{% endif %}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Knowledge Base
+          </a>
+          <a href="/wrvu-calculator" class="{% if request.path.startswith('/wrvu-calculator') %}active{% endif %}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 9h6v6H9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 1v6M15 1v6M9 17v6M15 17v6M1 9h6M17 9h6M1 15h6M17 15h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            wRVU Calculator
+          </a>
         </div>
       </div>
 
