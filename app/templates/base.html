@@ -1062,9 +1062,15 @@
     .container {
       max-width: 1200px;
       padding: 2rem;
+      margin-left: calc(280px + max(0px, (100vw - 280px - 1200px) / 2));
+      margin-right: auto;
+      transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* When header is retracted, center in full viewport */
+    header.retracted ~ .container {
       margin-left: auto;
       margin-right: auto;
-      transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* Ensure header container doesn't inherit general container styles */
@@ -2622,83 +2628,28 @@
       content.style.animation = 'fadeIn 0.6s ease-out';
     }
 
-    // Function to update all container margins for centering
+    // Function to update container margins when header is toggled
     function updateContainerMargins() {
       if (window.innerWidth <= 768) {
-        // On mobile, reset to default
-        const containers = document.querySelectorAll('.container:not(header .container)');
-        const feedbackContent = document.querySelector('.feedback-footer-content');
-        containers.forEach(container => {
-          container.style.marginLeft = '0';
-          container.style.marginRight = 'auto';
-        });
-        if (feedbackContent) {
-          feedbackContent.style.marginLeft = 'auto';
-          feedbackContent.style.marginRight = 'auto';
-        }
+        // On mobile, CSS handles it
         return;
       }
       
+      // CSS handles centering via calc(), we just need to ensure
+      // containers reset their inline styles when toggling
       const header = document.querySelector('header');
       const isRetracted = header && header.classList.contains('retracted');
       const containers = document.querySelectorAll('.container:not(header .container)');
       const feedbackContent = document.querySelector('.feedback-footer-content');
       
-      const viewportWidth = window.innerWidth;
-      const sidebarWidth = 280;
-      const contentMaxWidth = 1200;
-      
-      if (isRetracted) {
-        // Center in full viewport
-        containers.forEach(container => {
-          container.style.marginLeft = 'auto';
-          container.style.marginRight = 'auto';
-        });
-        if (feedbackContent) {
-          feedbackContent.style.marginLeft = 'auto';
-          feedbackContent.style.marginRight = 'auto';
-        }
-      } else {
-        // Center in remaining space (viewport - sidebar)
-        // Available space: from 280px (sidebar) to viewportWidth
-        // Strategy: Calculate the left margin needed to center the container
-        // We'll measure each container's actual width and center it individually
-        
-        containers.forEach(container => {
-          // Force a reflow to get accurate measurements
-          void container.offsetWidth;
-          
-          // Get actual width (including padding, but we want content width)
-          const containerRect = container.getBoundingClientRect();
-          const containerWidth = containerRect.width || contentMaxWidth;
-          const actualWidth = Math.min(containerWidth, contentMaxWidth);
-          
-          // Calculate available space
-          const availableSpace = viewportWidth - sidebarWidth;
-          
-          // Calculate how much space is left after the container
-          const remainingSpace = availableSpace - actualWidth;
-          
-          // Distribute remaining space equally on left and right
-          // Left margin = sidebar width + half of remaining space
-          const leftMargin = sidebarWidth + (remainingSpace / 2);
-          
-          container.style.marginLeft = leftMargin + 'px';
-          container.style.marginRight = 'auto';
-        });
-        
-        if (feedbackContent) {
-          void feedbackContent.offsetWidth;
-          const feedbackRect = feedbackContent.getBoundingClientRect();
-          const feedbackWidth = feedbackRect.width || contentMaxWidth;
-          const actualWidth = Math.min(feedbackWidth, contentMaxWidth);
-          const availableSpace = viewportWidth - sidebarWidth;
-          const remainingSpace = availableSpace - actualWidth;
-          const leftMargin = sidebarWidth + (remainingSpace / 2);
-          
-          feedbackContent.style.marginLeft = leftMargin + 'px';
-          feedbackContent.style.marginRight = 'auto';
-        }
+      // Remove any inline styles so CSS can take over
+      containers.forEach(container => {
+        container.style.marginLeft = '';
+        container.style.marginRight = '';
+      });
+      if (feedbackContent) {
+        feedbackContent.style.marginLeft = '';
+        feedbackContent.style.marginRight = '';
       }
     }
 
@@ -2798,26 +2749,8 @@
         toggleButton.classList.add('retracted');
       }
       
-      // Update all container margins immediately and after delays to ensure proper centering
+      // Update container margins on load
       updateContainerMargins();
-      // Use requestAnimationFrame to ensure DOM is ready
-      requestAnimationFrame(() => {
-        updateContainerMargins();
-        setTimeout(updateContainerMargins, 100);
-        setTimeout(updateContainerMargins, 300);
-        setTimeout(updateContainerMargins, 500);
-      });
-      
-      // Watch for container size changes and update margins
-      const containers = document.querySelectorAll('.container:not(header .container)');
-      if (containers.length > 0 && window.ResizeObserver) {
-        const resizeObserver = new ResizeObserver(() => {
-          updateContainerMargins();
-        });
-        containers.forEach(container => {
-          resizeObserver.observe(container);
-        });
-      }
       
       // Initialize notification toggle
       initializeNotificationToggle();
