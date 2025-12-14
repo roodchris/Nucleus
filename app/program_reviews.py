@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
+from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for, abort
 from flask_login import login_required, current_user
 from .models import ProgramReview, db
 from .utils import user_has_contributed
@@ -250,46 +250,8 @@ def index():
 @program_reviews_bp.route('/program-reviews/<int:review_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_review(review_id):
-    """Edit an existing program review"""
-    review = ProgramReview.query.get_or_404(review_id)
-    
-    # Only allow the author to edit their review
-    if review.user_id != current_user.id:
-        from flask import abort
-        abort(403)
-    
-    if request.method == 'POST':
-        # Update review fields
-        review.program_name = request.form.get('program_name')
-        review.specialty = request.form.get('specialty', '')
-        review.educational_quality = int(request.form.get('educational_quality'))
-        review.work_life_balance = int(request.form.get('work_life_balance'))
-        review.attending_quality = int(request.form.get('attending_quality'))
-        review.facilities_quality = int(request.form.get('facilities_quality'))
-        review.research_opportunities = int(request.form.get('research_opportunities'))
-        review.culture = int(request.form.get('culture'))
-        review.comments = request.form.get('comments')
-        review.anonymous = bool(request.form.get('anonymous'))
-        
-        # Validate ratings
-        ratings = [review.educational_quality, review.work_life_balance, review.attending_quality,
-                  review.facilities_quality, review.research_opportunities, review.culture]
-        
-        if not all(1 <= rating <= 5 for rating in ratings):
-            flash('All ratings must be between 1 and 5.', 'error')
-            return render_template('program_reviews/edit.html', 
-                                 review=review)
-        
-        try:
-            db.session.commit()
-            flash('Review updated successfully!', 'success')
-            return redirect(url_for('program_reviews.index'))
-        except Exception as e:
-            db.session.rollback()
-            flash('Error updating review. Please try again.', 'error')
-    
-    return render_template('program_reviews/edit.html', 
-                         review=review)
+    """Edit an existing program review - DISABLED: Users cannot edit their reviews"""
+    abort(404)  # Return 404 to hide that the route exists
 
 
 @program_reviews_bp.route('/program-reviews/new', methods=['GET', 'POST'])

@@ -144,68 +144,15 @@ def view_review(review_id):
 @job_reviews_bp.route("/<int:review_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_review(review_id):
-    review = JobReview.query.get_or_404(review_id)
-    
-    # Only allow the author to edit their review
-    if review.user_id != current_user.id:
-        abort(403)
-    
-    # Get all distinct practice names for dropdown
-    practice_names = db.session.query(distinct(JobReview.practice_name))\
-        .filter(JobReview.practice_name.isnot(None))\
-        .filter(JobReview.practice_name != '')\
-        .order_by(JobReview.practice_name)\
-        .all()
-    
-    practice_names_list = [name[0] for name in practice_names if name[0]]
-    
-    form = JobReviewForm(obj=review)
-    if form.validate_on_submit():
-        # Handle optional rating fields - convert empty strings to None
-        work_life_balance = int(form.work_life_balance.data) if form.work_life_balance.data and form.work_life_balance.data != '' else None
-        compensation = int(form.compensation.data) if form.compensation.data and form.compensation.data != '' else None
-        culture = int(form.culture.data) if form.culture.data and form.culture.data != '' else None
-        growth_opportunities = int(form.growth_opportunities.data) if form.growth_opportunities.data and form.growth_opportunities.data != '' else None
-        
-        review.practice_name = form.practice_name.data
-        review.location = form.location.data
-        review.practice_type = form.practice_type.data if form.practice_type.data and form.practice_type.data != '' else None
-        review.specialty = form.specialty.data if form.specialty.data and form.specialty.data != '' else None
-        review.work_life_balance = work_life_balance
-        review.compensation = compensation
-        review.culture = culture
-        review.growth_opportunities = growth_opportunities
-        review.overall_rating = int(form.overall_rating.data)
-        review.review_text = form.review_text.data
-        review.is_anonymous = form.is_anonymous.data
-        
-        try:
-            db.session.commit()
-            flash("Your review has been updated successfully.", "success")
-            return redirect(url_for("job_reviews.view_review", review_id=review.id))
-        except Exception as e:
-            db.session.rollback()
-            current_app.logger.error(f"Error updating job review: {str(e)}")
-            flash("An error occurred while updating your review. Please try again.", "error")
-            return render_template("job_reviews/edit.html", form=form, review=review, practice_names=practice_names_list)
-    
-    return render_template("job_reviews/edit.html", form=form, review=review, practice_names=practice_names_list)
+    """Edit an existing job review - DISABLED: Users cannot edit their reviews"""
+    abort(404)  # Return 404 to hide that the route exists
 
 
 @job_reviews_bp.route("/<int:review_id>/delete", methods=["POST"])
 @login_required
 def delete_review(review_id):
-    review = JobReview.query.get_or_404(review_id)
-    
-    # Only allow the author to delete their review
-    if review.user_id != current_user.id:
-        abort(403)
-    
-    db.session.delete(review)
-    db.session.commit()
-    
-    flash("Your review has been deleted successfully.", "success")
-    return redirect(url_for("job_reviews.index"))
+    """Delete a job review - DISABLED: Users cannot delete their reviews"""
+    abort(404)  # Return 404 to hide that the route exists
 
 
 @job_reviews_bp.route("/api/practice-names")
