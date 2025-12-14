@@ -2688,16 +2688,16 @@
           // Exclude containers in mission-section and features-section - they center differently
           const isInMissionSection = container.closest('.mission-section');
           const isInFeaturesSection = container.closest('.features-section');
-          // Check if on wRVU calculator or professional services page - these need margin when sidebar is open
+          // Exclude containers on wRVU calculator and professional services pages - they use CSS centering
           const isOnWRVUPage = !!(document.getElementById('compensation-rate') || document.getElementById('study-search'));
           const isOnProfessionalServicesPage = !!(document.querySelector('.services-hero') || document.querySelector('.services-grid'));
           
-          if (!isInMissionSection && !isInFeaturesSection) {
-            // Apply margin calculation to all containers (including wRVU and professional services pages)
+          if (!isInMissionSection && !isInFeaturesSection && !isOnWRVUPage && !isOnProfessionalServicesPage) {
+            // Apply margin calculation to other containers
             container.style.marginLeft = finalMargin + 'px';
             container.style.marginRight = 'auto';
           } else {
-            // Reset to natural centering for excluded sections
+            // Reset to natural centering for excluded pages/sections
             container.style.marginLeft = 'auto';
             container.style.marginRight = 'auto';
           }
@@ -2725,11 +2725,13 @@
         // Show header
         header.classList.remove('retracted');
         toggleButton.classList.remove('retracted');
+        document.body.classList.add('sidebar-open');
         localStorage.setItem('headerRetracted', 'false');
       } else {
         // Hide header
         header.classList.add('retracted');
         toggleButton.classList.add('retracted');
+        document.body.classList.remove('sidebar-open');
         localStorage.setItem('headerRetracted', 'true');
       }
       
@@ -2810,6 +2812,12 @@
       if (headerRetracted && window.innerWidth > 768) {
         header.classList.add('retracted');
         toggleButton.classList.add('retracted');
+        document.body.classList.remove('sidebar-open');
+      } else if (window.innerWidth > 768) {
+        document.body.classList.add('sidebar-open');
+      } else {
+        // On mobile, sidebar is always "closed" (header is at top)
+        document.body.classList.remove('sidebar-open');
       }
       
       // Update container margins on load
@@ -2858,6 +2866,7 @@
           // On mobile, always show header
           header.classList.remove('retracted');
           toggleButton.classList.remove('retracted');
+          document.body.classList.remove('sidebar-open');
           // Reset margins on mobile
           const containers = document.querySelectorAll('.container:not(header .container)');
           const feedbackContent = document.querySelector('.feedback-footer-content');
@@ -2873,6 +2882,9 @@
           // On desktop, respect the saved state
           header.classList.add('retracted');
           toggleButton.classList.add('retracted');
+          document.body.classList.remove('sidebar-open');
+        } else {
+          document.body.classList.add('sidebar-open');
         }
         
         // Update all container margins

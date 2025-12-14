@@ -695,8 +695,21 @@
   }
 }
 
-/* Containers will be centered by JavaScript when sidebar is open, 
-   and naturally when sidebar is retracted */
+/* Center containers properly when sidebar is open */
+body.sidebar-open .container {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: calc(100% - 280px);
+  max-width: 1200px;
+}
+
+/* Center page-header when sidebar is open */
+body.sidebar-open .page-header {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: calc(100% - 280px);
+  max-width: 1200px;
+}
 </style>
 
 <script>
