@@ -49,6 +49,11 @@ def index():
     """Display compensation data dashboard"""
     if not current_user.is_authenticated:
         return render_template("auth/login_required.html")
+    
+    # Check if user has contributed data
+    from .utils import user_has_contributed
+    if not user_has_contributed():
+        return render_template("access_denied.html")
         
     # Get filter parameters
     year = request.args.get('year', type=int)
@@ -187,7 +192,8 @@ def submit_compensation():
             experience_years=None,  # No longer collected
             additional_notes=form.additional_notes.data,
             source='Community Submission',
-            is_anonymous_submission=True
+            is_anonymous_submission=True,
+            user_id=current_user.id  # Track user for access control (data remains anonymous)
         )
         
         try:

@@ -382,10 +382,14 @@ class CompensationData(db.Model):
     weeks_per_year = db.Column(db.Float, nullable=False)       # Average weeks per year
     source = db.Column(db.String(100), default='MGMA Survey')
     is_anonymous_submission = db.Column(db.Boolean, default=False)  # True for user submissions
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Track user for access control (data remains anonymous)
     practice_type = db.Column(db.String(100), nullable=True)   # Private practice, academic, etc.
     experience_years = db.Column(db.Integer, nullable=True)    # Years of experience
     additional_notes = db.Column(db.Text, nullable=True)       # Additional details from user
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='compensation_submissions')
     
     def __repr__(self):
         return f'<CompensationData {self.specialty} {self.year} {self.region}>'

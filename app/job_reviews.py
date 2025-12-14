@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from .models import db, UserRole, JobReview
 from .forms import JobReviewForm
+from .utils import user_has_contributed
 from sqlalchemy import desc, distinct
 from datetime import datetime
 
@@ -11,6 +12,10 @@ job_reviews_bp = Blueprint("job_reviews", __name__, url_prefix="/job-reviews")
 @job_reviews_bp.route("/")
 @login_required
 def index():
+    # Check if user has contributed data
+    if not user_has_contributed():
+        return render_template("access_denied.html")
+    
     # Get filter parameters
     practice_name = request.args.get('practice_name', '').strip()
     state = request.args.get('state', '').strip()

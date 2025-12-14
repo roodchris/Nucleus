@@ -70,6 +70,13 @@ def migrate_database_columns():
         """))
         interventional_radiology_migration_exists = result.fetchone() is not None
         
+        # Check if compensation_data user_id migration has already been completed
+        result = db.session.execute(text("""
+            SELECT migration_name FROM migrations 
+            WHERE migration_name = 'add_compensation_data_user_id'
+        """))
+        compensation_user_id_migration_exists = result.fetchone() is not None
+        
         # Note: We don't return early here because we need to check additional_info migration separately
         
         # Migrate timezone column if needed
@@ -218,6 +225,55 @@ def migrate_database_columns():
             db.session.execute(text("""
                 INSERT INTO migrations (migration_name) 
                 VALUES ('add_forum_comment_photos_column')
+                ON CONFLICT (migration_name) DO NOTHING
+            """))
+            db.session.commit()
+        
+        # Migrate compensation_data user_id column if needed
+        if not compensation_user_id_migration_exists:
+            if 'postgresql' in db_url.lower():
+                # PostgreSQL
+                result = db.session.execute(text("""
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'compensation_data' AND column_name = 'user_id'
+                """))
+                user_id_exists = result.fetchone() is not None
+                
+                if not user_id_exists:
+                    current_app.logger.info("Adding user_id column to compensation_data table...")
+                    db.session.execute(text("""
+                        ALTER TABLE "compensation_data" 
+                        ADD COLUMN user_id INTEGER REFERENCES "user"(id)
+                    """))
+                    db.session.commit()
+                    current_app.logger.info("✅ user_id column added to compensation_data successfully")
+                else:
+                    current_app.logger.info("✅ user_id column already exists in compensation_data")
+                    
+            elif 'sqlite' in db_url.lower():
+                # SQLite
+                result = db.session.execute(text("""
+                    PRAGMA table_info(compensation_data)
+                """))
+                columns = [row[1] for row in result.fetchall()]
+                user_id_exists = 'user_id' in columns
+                
+                if not user_id_exists:
+                    current_app.logger.info("Adding user_id column to compensation_data table...")
+                    db.session.execute(text("""
+                        ALTER TABLE compensation_data 
+                        ADD COLUMN user_id INTEGER REFERENCES user(id)
+                    """))
+                    db.session.commit()
+                    current_app.logger.info("✅ user_id column added to compensation_data successfully")
+                else:
+                    current_app.logger.info("✅ user_id column already exists in compensation_data")
+            
+            # Record compensation_data user_id migration as completed
+            db.session.execute(text("""
+                INSERT INTO migrations (migration_name) 
+                VALUES ('add_compensation_data_user_id')
                 ON CONFLICT (migration_name) DO NOTHING
             """))
             db.session.commit()

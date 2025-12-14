@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
 from flask_login import login_required, current_user
 from .models import ProgramReview, db
+from .utils import user_has_contributed
 from sqlalchemy import func
 import json
 import os
@@ -184,6 +185,10 @@ def index():
     """Display program reviews dashboard"""
     if not current_user.is_authenticated:
         return render_template("auth/login_required.html")
+    
+    # Check if user has contributed data
+    if not user_has_contributed():
+        return render_template("access_denied.html")
         
     program_name = request.args.get('program', '')
     specialty = request.args.get('specialty', '')

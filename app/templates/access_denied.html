@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Access Required - Nucleus{% endblock %}
+
+{% block content %}
+<div class="access-denied-container">
+  <div class="access-denied-card">
+    <div class="access-denied-icon">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 22c5.421 0 10-4.579 10-10S17.421 2 12 2 2 6.579 2 12s4.579 10 10 10z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    
+    <h1 class="access-denied-title">Access Required</h1>
+    
+    <div class="access-denied-message">
+      <p>In order to gain access to residency program reviews, job reviews, and compensation data from the Nucleus community, you must provide one of these three data points to Nucleus.</p>
+      
+      <p>Nucleus prides itself on aggregating, organizing, and making this data free to access for all, and we hope you feel compelled to help the community by either providing a residency program review, a job review of a current/former employer, or your compensation data (or all 3 if you're feeling generous).</p>
+      
+      <p>The more data points we have available, the more useful of a platform Nucleus becomes for the entire physician community.</p>
+      
+      <p class="access-granted-note"><strong>Access will be granted as soon as data is received.</strong></p>
+      
+      <p class="access-signature">Cheers!</p>
+    </div>
+    
+    <div class="access-denied-actions">
+      <a href="/program-reviews/new" class="access-action-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Submit Program Review
+      </a>
+      
+      <a href="/job-reviews/submit" class="access-action-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Submit Job Review
+      </a>
+      
+      <a href="/compensation/submit" class="access-action-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Submit Compensation Data
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .access-denied-container {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: transparent;
+  }
+
+  .access-denied-card {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 3rem;
+    max-width: 800px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .access-denied-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+    border-radius: 20px 20px 0 0;
+  }
+
+  .access-denied-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: var(--accent);
+  }
+
+  .access-denied-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text);
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .access-denied-message {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .access-denied-message p {
+    margin-bottom: 1.25rem;
+  }
+
+  .access-denied-message p:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .access-granted-note {
+    color: var(--accent);
+    font-size: 1.15rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .access-signature {
+    text-align: right;
+    font-style: italic;
+    color: var(--text);
+    margin-top: 1.5rem;
+  }
+
+  .access-denied-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 2.5rem;
+  }
+
+  .access-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+    color: var(--text);
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--accent-glow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .access-action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .access-action-btn:hover::before {
+    left: 100%;
+  }
+
+  .access-action-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .access-action-btn svg {
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 768px) {
+    .access-denied-container {
+      padding: 1rem;
+    }
+
+    .access-denied-card {
+      padding: 2rem 1.5rem;
+    }
+
+    .access-denied-title {
+      font-size: 2rem;
+    }
+
+    .access-denied-message {
+      font-size: 1rem;
+    }
+
+    .access-denied-actions {
+      flex-direction: column;
+    }
+
+    .access-action-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+{% endblock %}
+
