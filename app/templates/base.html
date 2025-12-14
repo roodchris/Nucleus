@@ -1788,19 +1788,75 @@
         border-right: none;
         border-bottom: 1px solid var(--glass-border);
         transform: translateX(0) !important;
+        overflow-x: auto;
+        overflow-y: visible;
       }
 
-      /* Hide desktop navigation */
+      /* Show navigation horizontally on mobile */
       nav {
-        display: none;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+        overflow-x: auto;
+        overflow-y: visible;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
       }
 
-      /* Show mobile nav toggle */
-      .mobile-nav-toggle {
+      /* Navigation groups - horizontal on mobile */
+      .nav-groups {
         display: flex !important;
-        min-width: 64px;
-        min-height: 64px;
-        padding: 20px;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        width: auto !important;
+        flex-wrap: nowrap;
+      }
+
+      .nav-group {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.25rem !important;
+        width: auto !important;
+        flex-shrink: 0;
+      }
+
+      .group-label {
+        font-size: 0.5rem;
+        margin-bottom: 0.1rem;
+        padding-left: 0;
+        text-align: center;
+      }
+
+      .group-tabs {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.055rem !important;
+        padding: 0.055rem !important;
+        width: auto !important;
+      }
+
+      nav a {
+        font-size: 0.55rem;
+        padding: 0.15rem 0.3rem;
+        width: auto !important;
+        transform: none !important;
+      }
+
+      nav a:hover {
+        transform: translateY(-2px) !important;
+      }
+
+      nav a svg {
+        width: 13px;
+        height: 13px;
+      }
+
+      /* Hide mobile nav toggle - show regular nav instead */
+      .mobile-nav-toggle {
+        display: none !important;
       }
 
       /* Hide header toggle button on mobile */
@@ -1810,12 +1866,51 @@
 
       /* Compact header */
       header .container {
-        padding: 0.75rem 1rem;
+        padding: 0.25rem 1rem;
         flex-direction: row;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
         height: auto;
-        gap: 0;
+        gap: 0.5rem;
+        overflow-x: auto;
+        overflow-y: visible;
+      }
+
+      /* Brand adjustments for mobile */
+      .brand {
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+        flex-shrink: 0;
+      }
+
+      /* Theme and notification toggles on mobile */
+      header .container > div:last-child {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        margin-left: auto !important;
+        flex-shrink: 0;
+        padding-top: 0 !important;
+        border-top: none !important;
+      }
+
+      .theme-toggle-container,
+      .notification-toggle-container {
+        width: auto !important;
+        padding: 4px 6px !important;
+      }
+
+      .theme-toggle-label,
+      .notification-toggle-label {
+        flex-direction: row !important;
+        gap: 4px !important;
+        font-size: 0.5rem !important;
+      }
+
+      .theme-toggle-text,
+      .toggle-text {
+        font-size: 0.5rem !important;
       }
 
       /* Reset container margin on mobile */
@@ -2650,30 +2745,52 @@
       
       if (isRetracted) {
         // Center in full viewport
-        const centerMargin = Math.max(0, (viewportWidth - contentMaxWidth) / 2);
         containers.forEach(container => {
-          container.style.marginLeft = centerMargin + 'px';
+          container.style.marginLeft = 'auto';
           container.style.marginRight = 'auto';
         });
         if (feedbackContent) {
-          feedbackContent.style.marginLeft = centerMargin + 'px';
+          feedbackContent.style.marginLeft = 'auto';
           feedbackContent.style.marginRight = 'auto';
         }
       } else {
         // Center in remaining space (viewport - sidebar)
-        // Available space = viewportWidth - sidebarWidth
-        // We want to center the container (max 1200px) in this available space
-        const availableSpace = viewportWidth - sidebarWidth;
-        // Calculate how much space is left after the container (assuming max-width)
-        const remainingSpace = Math.max(0, availableSpace - contentMaxWidth);
-        // Distribute remaining space equally on both sides
-        const leftMargin = sidebarWidth + (remainingSpace / 2);
+        // Available space: from 280px (sidebar) to viewportWidth
+        // Strategy: Calculate the left margin needed to center the container
+        // We'll measure each container's actual width and center it individually
         
         containers.forEach(container => {
+          // Force a reflow to get accurate measurements
+          void container.offsetWidth;
+          
+          // Get actual width (including padding, but we want content width)
+          const containerRect = container.getBoundingClientRect();
+          const containerWidth = containerRect.width || contentMaxWidth;
+          const actualWidth = Math.min(containerWidth, contentMaxWidth);
+          
+          // Calculate available space
+          const availableSpace = viewportWidth - sidebarWidth;
+          
+          // Calculate how much space is left after the container
+          const remainingSpace = availableSpace - actualWidth;
+          
+          // Distribute remaining space equally on left and right
+          // Left margin = sidebar width + half of remaining space
+          const leftMargin = sidebarWidth + (remainingSpace / 2);
+          
           container.style.marginLeft = leftMargin + 'px';
           container.style.marginRight = 'auto';
         });
+        
         if (feedbackContent) {
+          void feedbackContent.offsetWidth;
+          const feedbackRect = feedbackContent.getBoundingClientRect();
+          const feedbackWidth = feedbackRect.width || contentMaxWidth;
+          const actualWidth = Math.min(feedbackWidth, contentMaxWidth);
+          const availableSpace = viewportWidth - sidebarWidth;
+          const remainingSpace = availableSpace - actualWidth;
+          const leftMargin = sidebarWidth + (remainingSpace / 2);
+          
           feedbackContent.style.marginLeft = leftMargin + 'px';
           feedbackContent.style.marginRight = 'auto';
         }
@@ -2783,7 +2900,19 @@
         updateContainerMargins();
         setTimeout(updateContainerMargins, 100);
         setTimeout(updateContainerMargins, 300);
+        setTimeout(updateContainerMargins, 500);
       });
+      
+      // Watch for container size changes and update margins
+      const containers = document.querySelectorAll('.container:not(header .container)');
+      if (containers.length > 0 && window.ResizeObserver) {
+        const resizeObserver = new ResizeObserver(() => {
+          updateContainerMargins();
+        });
+        containers.forEach(container => {
+          resizeObserver.observe(container);
+        });
+      }
       
       // Initialize notification toggle
       initializeNotificationToggle();
