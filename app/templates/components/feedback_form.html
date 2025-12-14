@@ -51,12 +51,20 @@
 
 .feedback-footer-content {
   max-width: 1200px;
-  margin: 0 auto;
+  margin-left: calc(280px + max(0px, (100vw - 280px - 1200px) / 2));
+  margin-right: auto;
   padding: 0 20px;
   display: flex;
   align-items: center;
   gap: 16px;
-  transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* When header is retracted, center in full viewport */
+body:has(header.retracted) .feedback-footer-content,
+header.retracted ~ .feedback-footer .feedback-footer-content {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .feedback-text h4 {
