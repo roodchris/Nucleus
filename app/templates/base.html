@@ -2663,6 +2663,13 @@
           feedbackContent.style.marginLeft = 'auto';
           feedbackContent.style.marginRight = 'auto';
         }
+        
+        // Also handle mission-content-wrapper (home page mission card)
+        const missionWrapper = document.querySelector('.mission-content-wrapper');
+        if (missionWrapper) {
+          missionWrapper.style.marginLeft = 'auto';
+          missionWrapper.style.marginRight = 'auto';
+        }
       } else {
         // Center in available space (viewport - sidebar)
         const viewportWidth = window.innerWidth;
@@ -2677,6 +2684,13 @@
         if (feedbackContent) {
           feedbackContent.style.marginLeft = leftMargin + 'px';
           feedbackContent.style.marginRight = 'auto';
+        }
+        
+        // Also handle mission-content-wrapper (home page mission card)
+        const missionWrapper = document.querySelector('.mission-content-wrapper');
+        if (missionWrapper) {
+          missionWrapper.style.marginLeft = leftMargin + 'px';
+          missionWrapper.style.marginRight = 'auto';
         }
       }
     }
