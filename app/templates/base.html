@@ -385,6 +385,49 @@
       overflow-x: hidden;
     }
 
+    /* Custom Scrollbar Styling for Header */
+    header::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    header::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+    }
+
+    header::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 4px;
+      transition: background 0.3s ease;
+    }
+
+    header::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    /* Light theme scrollbar */
+    :root[data-theme="light"] header::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    :root[data-theme="light"] header::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    :root[data-theme="light"] header::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    /* Firefox scrollbar styling */
+    header {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.5) rgba(0, 0, 0, 0.1);
+    }
+
+    :root[data-theme="light"] header {
+      scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.05);
+    }
+
     /* Header retracted state */
     header.retracted {
       transform: translateX(-100%);
@@ -560,9 +603,14 @@
       flex-direction: column;
       align-items: stretch; 
       justify-content: flex-start;
-      padding: 1.5rem 1rem;
+      padding: 1.5rem 0.75rem;
       height: 100%;
       gap: 1.5rem;
+      width: 100%;
+      box-sizing: border-box;
+      max-width: 100%;
+      margin: 0;
+      overflow: visible;
     }
 
     /* Brand */
@@ -579,6 +627,8 @@
       padding: 0.5rem 0.25rem;
       margin-bottom: 0.5rem;
       justify-content: center;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     /* Logo */
@@ -740,6 +790,8 @@
       align-items: stretch;
       gap: 1.5rem;
       width: 100%;
+      box-sizing: border-box;
+      max-width: 100%;
     }
 
     .nav-group {
@@ -747,6 +799,8 @@
       flex-direction: column;
       gap: 0.5rem;
       width: 100%;
+      box-sizing: border-box;
+      max-width: 100%;
     }
 
     .group-label {
@@ -757,7 +811,9 @@
       letter-spacing: 0.05em;
       margin-bottom: 0.25rem;
       text-align: left;
-      padding-left: 0.5rem;
+      padding-left: 0.25rem;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .coming-soon-badge {
@@ -786,6 +842,9 @@
       padding: 0.5rem;
       box-shadow: var(--shadow);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 100%;
+      box-sizing: border-box;
+      max-width: 100%;
     }
 
     .group-tabs:hover {
@@ -818,6 +877,8 @@
       align-items: center;
       gap: 0.5rem;
       width: 100%;
+      box-sizing: border-box;
+      max-width: 100%;
     }
 
     nav a svg {
