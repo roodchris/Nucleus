@@ -2674,31 +2674,35 @@
         }
       } else {
         // Center in available space (viewport - sidebar)
-        // Use a simpler approach: calculate equal spacing on both sides
+        // Calculate the center point of available space, then position container so its center aligns
         const viewportWidth = window.innerWidth;
         const availableSpace = viewportWidth - sidebarWidth;
+        const centerOfAvailableSpace = sidebarWidth + (availableSpace / 2);
+        const containerHalfWidth = containerMaxWidth / 2;
+        let leftMargin = centerOfAvailableSpace - containerHalfWidth;
         
-        // For containers with max-width, center them in the available space
-        // Calculate: sidebar width + (available space - container width) / 2
-        // But we need to account for the actual container width (which may be less than max-width)
-        // So we'll use: sidebar + (available - min(available, maxWidth)) / 2
-        const effectiveContainerWidth = Math.min(containerMaxWidth, availableSpace);
-        const leftMargin = sidebarWidth + (availableSpace - effectiveContainerWidth) / 2;
+        // Ensure margin doesn't go before sidebar
+        const finalMargin = Math.max(sidebarWidth, leftMargin);
         
         containers.forEach(container => {
-          container.style.marginLeft = leftMargin + 'px';
-          container.style.marginRight = 'auto';
+          // Exclude containers in mission-section and features-section - they center differently
+          const isInMissionSection = container.closest('.mission-section');
+          const isInFeaturesSection = container.closest('.features-section');
+          if (!isInMissionSection && !isInFeaturesSection) {
+            container.style.marginLeft = finalMargin + 'px';
+            container.style.marginRight = 'auto';
+          }
         });
         if (feedbackContent) {
-          feedbackContent.style.marginLeft = leftMargin + 'px';
+          feedbackContent.style.marginLeft = finalMargin + 'px';
           feedbackContent.style.marginRight = 'auto';
         }
         
-        // Also handle mission-content-wrapper (home page mission card)
+        // Don't manually set margins on mission-content-wrapper - let CSS handle it
         const missionWrapper = document.querySelector('.mission-content-wrapper');
         if (missionWrapper) {
-          missionWrapper.style.marginLeft = leftMargin + 'px';
-          missionWrapper.style.marginRight = 'auto';
+          missionWrapper.style.marginLeft = '';
+          missionWrapper.style.marginRight = '';
         }
       }
     }
