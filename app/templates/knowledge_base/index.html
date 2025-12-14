@@ -131,6 +131,7 @@
     gap: 8px;
     margin-bottom: 4rem;
     align-items: start;
+    position: relative;
   }
 
   /* Subspecialty Card */
@@ -148,6 +149,14 @@
     height: fit-content;
     break-inside: avoid;
     margin-bottom: 8px;
+  }
+  
+  /* Disable masonry positioning - use CSS grid instead */
+  .subspecialties-grid.masonry-active .subspecialty-card {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    width: auto !important;
   }
 
   .subspecialty-card::before {
@@ -372,65 +381,21 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Masonry layout implementation
-  function initMasonry() {
-    const grid = document.querySelector('.subspecialties-grid');
-    if (!grid) return;
-    
+  // Disable masonry layout - use CSS grid instead to avoid positioning conflicts
+  const grid = document.querySelector('.subspecialties-grid');
+  if (grid) {
+    // Ensure all cards are in normal flow
     const cards = Array.from(grid.querySelectorAll('.subspecialty-card'));
-    if (cards.length === 0) return;
-    
-    // Reset any existing positioning
     cards.forEach(card => {
       card.style.position = '';
       card.style.top = '';
       card.style.left = '';
+      card.style.width = '';
     });
-    
-    // Get grid properties
-    const gridRect = grid.getBoundingClientRect();
-    const cardWidth = cards[0].getBoundingClientRect().width;
-    const gap = 8; // matches CSS gap
-    const columns = Math.floor((gridRect.width + gap) / (cardWidth + gap));
-    
-    if (columns <= 1) return; // Don't apply masonry on single column
-    
-    // Initialize column heights
-    const columnHeights = new Array(columns).fill(0);
-    
-    // Position each card
-    cards.forEach((card, index) => {
-      // Find the shortest column
-      const shortestColumn = columnHeights.indexOf(Math.min(...columnHeights));
-      
-      // Position the card
-      const x = shortestColumn * (cardWidth + gap);
-      const y = columnHeights[shortestColumn];
-      
-      card.style.position = 'absolute';
-      card.style.top = y + 'px';
-      card.style.left = x + 'px';
-      card.style.width = cardWidth + 'px';
-      
-      // Update column height
-      columnHeights[shortestColumn] += card.getBoundingClientRect().height + gap;
-    });
-    
-    // Set grid height to accommodate all cards
-    const maxHeight = Math.max(...columnHeights);
-    grid.style.height = maxHeight + 'px';
+    grid.style.height = '';
     grid.style.position = 'relative';
+    grid.classList.remove('masonry-active');
   }
-  
-  // Initialize masonry on load and resize
-  initMasonry();
-  window.addEventListener('resize', initMasonry);
-  
-  // Re-initialize when images load (in case they affect card heights)
-  const images = document.querySelectorAll('img');
-  images.forEach(img => {
-    img.addEventListener('load', initMasonry);
-  });
 });
 </script>
 {% endblock %}

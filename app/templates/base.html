@@ -2639,38 +2639,63 @@
       content.style.animation = 'fadeIn 0.6s ease-out';
     }
 
+    // Function to update all container margins for centering
+    function updateContainerMargins() {
+      if (window.innerWidth <= 768) return; // Skip on mobile
+      
+      const header = document.querySelector('header');
+      const isRetracted = header && header.classList.contains('retracted');
+      const containers = document.querySelectorAll('.container:not(header .container)');
+      const feedbackContent = document.querySelector('.feedback-footer-content');
+      
+      const viewportWidth = window.innerWidth;
+      const sidebarWidth = 280;
+      const contentMaxWidth = 1200;
+      
+      if (isRetracted) {
+        // Center in full viewport
+        containers.forEach(container => {
+          container.style.marginLeft = 'auto';
+          container.style.marginRight = 'auto';
+        });
+        if (feedbackContent) {
+          feedbackContent.style.marginLeft = 'auto';
+          feedbackContent.style.marginRight = 'auto';
+        }
+      } else {
+        // Center in remaining space (viewport - sidebar)
+        const availableSpace = viewportWidth - sidebarWidth;
+        const marginLeft = sidebarWidth + Math.max(0, (availableSpace - contentMaxWidth) / 2);
+        containers.forEach(container => {
+          container.style.marginLeft = marginLeft + 'px';
+          container.style.marginRight = 'auto';
+        });
+        if (feedbackContent) {
+          feedbackContent.style.marginLeft = marginLeft + 'px';
+          feedbackContent.style.marginRight = 'auto';
+        }
+      }
+    }
+
     // Header toggle functionality
     function toggleHeader() {
       const header = document.querySelector('header');
       const toggleButton = document.getElementById('headerToggle');
-      const container = document.querySelector('.container');
       
       if (header.classList.contains('retracted')) {
         // Show header
         header.classList.remove('retracted');
         toggleButton.classList.remove('retracted');
-        // Center content in remaining space
-        if (container && window.innerWidth > 768) {
-          const viewportWidth = window.innerWidth;
-          const sidebarWidth = 280;
-          const contentMaxWidth = 1200;
-          const availableSpace = viewportWidth - sidebarWidth;
-          const marginLeft = sidebarWidth + Math.max(0, (availableSpace - contentMaxWidth) / 2);
-          container.style.marginLeft = marginLeft + 'px';
-          container.style.marginRight = 'auto';
-        }
         localStorage.setItem('headerRetracted', 'false');
       } else {
         // Hide header
         header.classList.add('retracted');
         toggleButton.classList.add('retracted');
-        // Center content in full viewport
-        if (container && window.innerWidth > 768) {
-          container.style.marginLeft = 'auto';
-          container.style.marginRight = 'auto';
-        }
         localStorage.setItem('headerRetracted', 'true');
       }
+      
+      // Update all container margins
+      updateContainerMargins();
     }
 
     // Mobile navigation toggle functionality
@@ -2741,30 +2766,19 @@
       const headerRetracted = localStorage.getItem('headerRetracted') === 'true';
       const header = document.querySelector('header');
       const toggleButton = document.getElementById('headerToggle');
-      const container = document.querySelector('.container');
       
       // Only retract header on desktop, not on mobile
       if (headerRetracted && window.innerWidth > 768) {
         header.classList.add('retracted');
         toggleButton.classList.add('retracted');
-        // Center content in full viewport
-        if (container) {
-          container.style.marginLeft = 'auto';
-          container.style.marginRight = 'auto';
-        }
-      } else if (window.innerWidth > 768) {
-        // Center content in remaining space (viewport - sidebar)
-        if (container) {
-          const viewportWidth = window.innerWidth;
-          const sidebarWidth = 280;
-          const contentMaxWidth = 1200;
-          const availableSpace = viewportWidth - sidebarWidth;
-          const marginLeft = sidebarWidth + Math.max(0, (availableSpace - contentMaxWidth) / 2);
-          container.style.marginLeft = marginLeft + 'px';
-          container.style.marginRight = 'auto';
-        }
       }
-
+      
+      // Update all container margins
+      updateContainerMargins();
+      
+      // Also update on a slight delay to ensure all elements are loaded
+      setTimeout(updateContainerMargins, 100);
+      
       // Initialize notification toggle
       initializeNotificationToggle();
 
@@ -2797,37 +2811,31 @@
       window.addEventListener('resize', function() {
         const header = document.querySelector('header');
         const toggleButton = document.getElementById('headerToggle');
-        const container = document.querySelector('.container');
         const headerRetracted = localStorage.getItem('headerRetracted') === 'true';
         
         if (window.innerWidth <= 768) {
           // On mobile, always show header
           header.classList.remove('retracted');
           toggleButton.classList.remove('retracted');
-          if (container) {
+          // Reset margins on mobile
+          const containers = document.querySelectorAll('.container:not(header .container)');
+          const feedbackContent = document.querySelector('.feedback-footer-content');
+          containers.forEach(container => {
             container.style.marginLeft = '0';
             container.style.marginRight = 'auto';
+          });
+          if (feedbackContent) {
+            feedbackContent.style.marginLeft = 'auto';
+            feedbackContent.style.marginRight = 'auto';
           }
         } else if (headerRetracted) {
-          // On desktop, respect the saved state - center in full viewport
+          // On desktop, respect the saved state
           header.classList.add('retracted');
           toggleButton.classList.add('retracted');
-          if (container) {
-            container.style.marginLeft = 'auto';
-            container.style.marginRight = 'auto';
-          }
-        } else {
-          // Center content in remaining space (viewport - sidebar)
-          if (container) {
-            const viewportWidth = window.innerWidth;
-            const sidebarWidth = 280;
-            const contentMaxWidth = 1200;
-            const availableSpace = viewportWidth - sidebarWidth;
-            const marginLeft = sidebarWidth + Math.max(0, (availableSpace - contentMaxWidth) / 2);
-            container.style.marginLeft = marginLeft + 'px';
-            container.style.marginRight = 'auto';
-          }
         }
+        
+        // Update all container margins
+        updateContainerMargins();
       });
     });
 
