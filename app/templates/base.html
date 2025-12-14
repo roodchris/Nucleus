@@ -400,11 +400,13 @@
     header::-webkit-scrollbar-thumb {
       background: rgba(0, 0, 0, 0.5);
       border-radius: 4px;
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 8px rgba(0, 212, 255, 0.4), 0 0 12px rgba(0, 212, 255, 0.2);
     }
 
     header::-webkit-scrollbar-thumb:hover {
       background: rgba(0, 0, 0, 0.7);
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.6), 0 0 16px rgba(0, 212, 255, 0.3);
     }
 
     /* Light theme scrollbar */
@@ -414,20 +416,22 @@
 
     :root[data-theme="light"] header::-webkit-scrollbar-thumb {
       background: rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 8px rgba(0, 212, 255, 0.4), 0 0 12px rgba(0, 212, 255, 0.2);
     }
 
     :root[data-theme="light"] header::-webkit-scrollbar-thumb:hover {
       background: rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.6), 0 0 16px rgba(0, 212, 255, 0.3);
     }
 
     /* Firefox scrollbar styling */
     header {
       scrollbar-width: thin;
-      scrollbar-color: rgba(0, 0, 0, 0.5) rgba(0, 0, 0, 0.1);
+      scrollbar-color: rgba(0, 212, 255, 0.6) rgba(0, 0, 0, 0.1);
     }
 
     :root[data-theme="light"] header {
-      scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.05);
+      scrollbar-color: rgba(0, 212, 255, 0.5) rgba(0, 0, 0, 0.05);
     }
 
     /* Header retracted state */
