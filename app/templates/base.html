@@ -116,6 +116,8 @@
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       overflow-x: hidden;
       cursor: none; /* Hide default cursor for custom cursor */
+      margin: 0;
+      padding: 0;
     }
 
     /* Custom Cursor - Smaller circular design */
@@ -2672,24 +2674,29 @@
         }
       } else {
         // Center in available space (viewport - sidebar)
+        // Calculate the center point of available space, then position container so its center aligns
         const viewportWidth = window.innerWidth;
         const availableSpace = viewportWidth - sidebarWidth;
-        const remainingSpace = Math.max(0, availableSpace - containerMaxWidth);
-        const leftMargin = sidebarWidth + (remainingSpace / 2);
+        const centerOfAvailableSpace = sidebarWidth + (availableSpace / 2);
+        const containerHalfWidth = containerMaxWidth / 2;
+        const leftMargin = centerOfAvailableSpace - containerHalfWidth;
+        
+        // Ensure margin doesn't go before sidebar
+        const finalMargin = Math.max(sidebarWidth, leftMargin);
         
         containers.forEach(container => {
-          container.style.marginLeft = leftMargin + 'px';
+          container.style.marginLeft = finalMargin + 'px';
           container.style.marginRight = 'auto';
         });
         if (feedbackContent) {
-          feedbackContent.style.marginLeft = leftMargin + 'px';
+          feedbackContent.style.marginLeft = finalMargin + 'px';
           feedbackContent.style.marginRight = 'auto';
         }
         
         // Also handle mission-content-wrapper (home page mission card)
         const missionWrapper = document.querySelector('.mission-content-wrapper');
         if (missionWrapper) {
-          missionWrapper.style.marginLeft = leftMargin + 'px';
+          missionWrapper.style.marginLeft = finalMargin + 'px';
           missionWrapper.style.marginRight = 'auto';
         }
       }
