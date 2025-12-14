@@ -1807,17 +1807,23 @@
       /* Show mobile nav toggle */
       .mobile-nav-toggle {
         display: flex !important;
-        min-width: 48px;
-        min-height: 48px;
-        padding: 12px;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 10px;
         margin-left: auto;
+        margin-top: 0;
         order: 2;
+        align-self: flex-start;
       }
       
       /* Ensure brand stays on left */
       header .brand {
         order: 1;
         margin-right: auto;
+        justify-content: flex-start !important;
+        width: auto !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
       }
 
       /* Hide header toggle button on mobile */
@@ -1827,12 +1833,13 @@
 
       /* Compact header */
       header .container {
-        padding: 0.5rem 1rem;
+        padding: 0.35rem 1rem;
         flex-direction: row;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-start;
         height: auto;
         gap: 0;
+        min-height: auto;
       }
 
       /* Reset container margin on mobile */
@@ -2021,11 +2028,21 @@
       header .brand {
         order: 1;
         margin-right: auto;
+        justify-content: flex-start !important;
+        width: auto !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
       }
       
       /* Further reduce header padding on extra small screens */
       header .container {
-        padding: 0.4rem 0.75rem;
+        padding: 0.3rem 0.75rem;
+        align-items: flex-start;
+      }
+      
+      .mobile-nav-toggle {
+        margin-top: 0;
+        align-self: flex-start;
       }
 
       h1 { font-size: 1.75rem; }
