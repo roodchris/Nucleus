@@ -1812,8 +1812,10 @@
         padding: 10px;
         margin-left: auto;
         margin-top: 0;
+        margin-bottom: 0;
         order: 2;
         align-self: flex-start;
+        flex-shrink: 0;
       }
       
       /* Ensure brand stays on left */
@@ -1821,9 +1823,11 @@
         order: 1;
         margin-right: auto;
         justify-content: flex-start !important;
+        align-items: center !important;
         width: auto !important;
         margin-bottom: 0 !important;
         padding: 0 !important;
+        align-self: flex-start;
       }
 
       /* Hide header toggle button on mobile */
@@ -1840,6 +1844,7 @@
         height: auto;
         gap: 0;
         min-height: auto;
+        display: flex;
       }
 
       /* Reset container margin on mobile */
@@ -2016,7 +2021,11 @@
         min-height: 44px;
         padding: 10px;
         margin-left: auto;
+        margin-top: 0;
+        margin-bottom: 0;
         order: 2;
+        align-self: flex-start;
+        flex-shrink: 0;
       }
 
       .mobile-nav-toggle svg {
@@ -2029,20 +2038,18 @@
         order: 1;
         margin-right: auto;
         justify-content: flex-start !important;
+        align-items: center !important;
         width: auto !important;
         margin-bottom: 0 !important;
         padding: 0 !important;
+        align-self: flex-start;
       }
       
       /* Further reduce header padding on extra small screens */
       header .container {
         padding: 0.3rem 0.75rem;
         align-items: flex-start;
-      }
-      
-      .mobile-nav-toggle {
-        margin-top: 0;
-        align-self: flex-start;
+        display: flex;
       }
 
       h1 { font-size: 1.75rem; }
