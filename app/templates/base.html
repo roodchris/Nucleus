@@ -2672,34 +2672,29 @@
           missionWrapper.style.marginLeft = 'auto';
           missionWrapper.style.marginRight = 'auto';
         }
-        
-        // Reset page-header margins
-        const pageHeaders = document.querySelectorAll('.page-header');
-        pageHeaders.forEach(header => {
-          header.style.marginLeft = 'auto';
-          header.style.marginRight = 'auto';
-        });
       } else {
         // Center in available space (viewport - sidebar)
-        // Use a simpler approach: calculate equal spacing on both sides
+        // Calculate the center point of available space, then position container so its center aligns
         const viewportWidth = window.innerWidth;
         const availableSpace = viewportWidth - sidebarWidth;
+        const centerOfAvailableSpace = sidebarWidth + (availableSpace / 2);
+        const containerHalfWidth = containerMaxWidth / 2;
+        let leftMargin = centerOfAvailableSpace - containerHalfWidth;
         
-        // For containers with max-width, center them in the available space
-        // Calculate: sidebar width + (available space - container width) / 2
-        // But we need to account for the actual container width (which may be less than max-width)
-        // So we'll use: sidebar + (available - min(available, maxWidth)) / 2
-        const effectiveContainerWidth = Math.min(containerMaxWidth, availableSpace);
-        const leftMargin = sidebarWidth + (availableSpace - effectiveContainerWidth) / 2;
+        // Ensure margin doesn't go before sidebar
+        const finalMargin = Math.max(sidebarWidth, leftMargin);
         
         containers.forEach(container => {
           // Exclude containers in mission-section and features-section - they center differently
           const isInMissionSection = container.closest('.mission-section');
           const isInFeaturesSection = container.closest('.features-section');
+          // Check if on wRVU calculator or professional services page - these need margin when sidebar is open
+          const isOnWRVUPage = !!(document.getElementById('compensation-rate') || document.getElementById('study-search'));
+          const isOnProfessionalServicesPage = !!(document.querySelector('.services-hero') || document.querySelector('.services-grid'));
           
           if (!isInMissionSection && !isInFeaturesSection) {
             // Apply margin calculation to all containers (including wRVU and professional services pages)
-            container.style.marginLeft = leftMargin + 'px';
+            container.style.marginLeft = finalMargin + 'px';
             container.style.marginRight = 'auto';
           } else {
             // Reset to natural centering for excluded sections
@@ -2707,15 +2702,8 @@
             container.style.marginRight = 'auto';
           }
         });
-        
-        // Also handle page-header to keep it aligned with containers
-        const pageHeaders = document.querySelectorAll('.page-header');
-        pageHeaders.forEach(header => {
-          header.style.marginLeft = leftMargin + 'px';
-          header.style.marginRight = 'auto';
-        });
         if (feedbackContent) {
-          feedbackContent.style.marginLeft = leftMargin + 'px';
+          feedbackContent.style.marginLeft = finalMargin + 'px';
           feedbackContent.style.marginRight = 'auto';
         }
         
