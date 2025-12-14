@@ -767,13 +767,6 @@
       margin-bottom: 2rem;
       padding: 2rem 1rem;
       max-width: 1200px;
-      margin-left: calc(280px + max(0px, (100vw - 280px - 1200px) / 2));
-      margin-right: auto;
-      transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* When header is retracted, center page-header in full viewport */
-    body:has(header.retracted) .page-header {
       margin-left: auto;
       margin-right: auto;
     }
@@ -2644,7 +2637,6 @@
         // On mobile, reset margins
         const containers = document.querySelectorAll('.container:not(header .container)');
         const feedbackContent = document.querySelector('.feedback-footer-content');
-        const pageHeaders = document.querySelectorAll('.page-header');
         containers.forEach(container => {
           container.style.marginLeft = '0';
           container.style.marginRight = 'auto';
@@ -2653,20 +2645,13 @@
           feedbackContent.style.marginLeft = 'auto';
           feedbackContent.style.marginRight = 'auto';
         }
-        pageHeaders.forEach(header => {
-          header.style.marginLeft = 'auto';
-          header.style.marginRight = 'auto';
-        });
         return;
       }
       
       // CSS handles centering via calc(), we just need to ensure
       // containers reset their inline styles when toggling
-      const header = document.querySelector('header');
-      const isRetracted = header && header.classList.contains('retracted');
       const containers = document.querySelectorAll('.container:not(header .container)');
       const feedbackContent = document.querySelector('.feedback-footer-content');
-      const pageHeaders = document.querySelectorAll('.page-header');
       
       // Remove any inline styles so CSS can take over
       containers.forEach(container => {
@@ -2677,10 +2662,6 @@
         feedbackContent.style.marginLeft = '';
         feedbackContent.style.marginRight = '';
       }
-      pageHeaders.forEach(pageHeader => {
-        pageHeader.style.marginLeft = '';
-        pageHeader.style.marginRight = '';
-      });
     }
 
     // Header toggle functionality
