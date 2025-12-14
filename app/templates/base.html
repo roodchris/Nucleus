@@ -1661,8 +1661,8 @@
     }
 
     .mobile-nav-toggle svg {
-      width: 28px; /* Larger icon for better visibility */
-      height: 28px;
+      width: 24px; /* Icon size for mobile */
+      height: 24px;
       pointer-events: none; /* Allow clicks to pass through to the button */
     }
 
@@ -1807,9 +1807,17 @@
       /* Show mobile nav toggle */
       .mobile-nav-toggle {
         display: flex !important;
-        min-width: 64px;
-        min-height: 64px;
-        padding: 20px;
+        min-width: 48px;
+        min-height: 48px;
+        padding: 12px;
+        margin-left: auto;
+        order: 2;
+      }
+      
+      /* Ensure brand stays on left */
+      header .brand {
+        order: 1;
+        margin-right: auto;
       }
 
       /* Hide header toggle button on mobile */
@@ -1819,7 +1827,7 @@
 
       /* Compact header */
       header .container {
-        padding: 0.75rem 1rem;
+        padding: 0.5rem 1rem;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
@@ -1997,14 +2005,27 @@
 
       /* Mobile nav toggle adjustments for extra small screens */
       .mobile-nav-toggle {
-        min-width: 60px;
-        min-height: 60px;
-        padding: 18px;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 10px;
+        margin-left: auto;
+        order: 2;
       }
 
       .mobile-nav-toggle svg {
-        width: 24px;
-        height: 24px;
+        width: 22px;
+        height: 22px;
+      }
+      
+      /* Ensure brand stays on left on extra small screens */
+      header .brand {
+        order: 1;
+        margin-right: auto;
+      }
+      
+      /* Further reduce header padding on extra small screens */
+      header .container {
+        padding: 0.4rem 0.75rem;
       }
 
       h1 { font-size: 1.75rem; }
