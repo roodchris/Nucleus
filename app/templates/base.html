@@ -1058,12 +1058,15 @@
       color: white;
     }
 
-    /* Container */
+    /* Container - Centered in available space */
     .container {
       max-width: 1200px;
-      margin: 0 auto;
       padding: 2rem;
-      margin-left: 280px;
+      /* When nav is visible: center content in remaining space (viewport - 280px) */
+      /* Formula: sidebar width + (available space - content width) / 2 */
+      /* = 280px + (100vw - 280px - 1200px) / 2 */
+      margin-left: calc(280px + max(0px, (100vw - 280px - 1200px) / 2));
+      margin-right: auto;
       transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -1074,9 +1077,18 @@
       margin-right: 0 !important;
     }
 
-    /* Adjust container when header is retracted */
+    /* Adjust container when header is retracted - center in full viewport */
     header.retracted ~ .container {
-      margin-left: 0;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* For very small screens, ensure minimum margin */
+    @media (max-width: 1480px) {
+      .container {
+        margin-left: 280px;
+        margin-right: 0;
+      }
     }
 
     /* Cards - Glass Morphism */
@@ -2637,13 +2649,26 @@
         // Show header
         header.classList.remove('retracted');
         toggleButton.classList.remove('retracted');
-        if (container) container.style.marginLeft = '280px';
+        // Center content in remaining space
+        if (container && window.innerWidth > 768) {
+          const viewportWidth = window.innerWidth;
+          const sidebarWidth = 280;
+          const contentMaxWidth = 1200;
+          const availableSpace = viewportWidth - sidebarWidth;
+          const marginLeft = sidebarWidth + Math.max(0, (availableSpace - contentMaxWidth) / 2);
+          container.style.marginLeft = marginLeft + 'px';
+          container.style.marginRight = 'auto';
+        }
         localStorage.setItem('headerRetracted', 'false');
       } else {
         // Hide header
         header.classList.add('retracted');
         toggleButton.classList.add('retracted');
-        if (container) container.style.marginLeft = '0';
+        // Center content in full viewport
+        if (container && window.innerWidth > 768) {
+          container.style.marginLeft = 'auto';
+          container.style.marginRight = 'auto';
+        }
         localStorage.setItem('headerRetracted', 'true');
       }
     }
@@ -2722,9 +2747,22 @@
       if (headerRetracted && window.innerWidth > 768) {
         header.classList.add('retracted');
         toggleButton.classList.add('retracted');
-        if (container) container.style.marginLeft = '0';
+        // Center content in full viewport
+        if (container) {
+          container.style.marginLeft = 'auto';
+          container.style.marginRight = 'auto';
+        }
       } else if (window.innerWidth > 768) {
-        if (container) container.style.marginLeft = '280px';
+        // Center content in remaining space (viewport - sidebar)
+        if (container) {
+          const viewportWidth = window.innerWidth;
+          const sidebarWidth = 280;
+          const contentMaxWidth = 1200;
+          const availableSpace = viewportWidth - sidebarWidth;
+          const marginLeft = sidebarWidth + Math.max(0, (availableSpace - contentMaxWidth) / 2);
+          container.style.marginLeft = marginLeft + 'px';
+          container.style.marginRight = 'auto';
+        }
       }
 
       // Initialize notification toggle
@@ -2766,14 +2804,29 @@
           // On mobile, always show header
           header.classList.remove('retracted');
           toggleButton.classList.remove('retracted');
-          if (container) container.style.marginLeft = '0';
+          if (container) {
+            container.style.marginLeft = '0';
+            container.style.marginRight = 'auto';
+          }
         } else if (headerRetracted) {
-          // On desktop, respect the saved state
+          // On desktop, respect the saved state - center in full viewport
           header.classList.add('retracted');
           toggleButton.classList.add('retracted');
-          if (container) container.style.marginLeft = '0';
+          if (container) {
+            container.style.marginLeft = 'auto';
+            container.style.marginRight = 'auto';
+          }
         } else {
-          if (container) container.style.marginLeft = '280px';
+          // Center content in remaining space (viewport - sidebar)
+          if (container) {
+            const viewportWidth = window.innerWidth;
+            const sidebarWidth = 280;
+            const contentMaxWidth = 1200;
+            const availableSpace = viewportWidth - sidebarWidth;
+            const marginLeft = sidebarWidth + Math.max(0, (availableSpace - contentMaxWidth) / 2);
+            container.style.marginLeft = marginLeft + 'px';
+            container.style.marginRight = 'auto';
+          }
         }
       });
     });
