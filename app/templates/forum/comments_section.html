@@ -23,16 +23,18 @@
           <div class="comment-main">
             <div class="comment-header">
               <div class="comment-author">
-                {% if comment.author.resident_profile and comment.author.resident_profile.photo_filename %}
-                  <img src="/uploads/{{ comment.author.resident_profile.photo_filename }}" alt="{{ comment.author.name }}" class="author-avatar-small">
-                {% elif comment.author.employer_profile and comment.author.employer_profile.photo_filename %}
-                  <img src="/uploads/{{ comment.author.employer_profile.photo_filename }}" alt="{{ comment.author.name }}" class="author-avatar-small">
-                {% else %}
-                  <div class="author-avatar-small">
-                    {{ comment.author.name[0].upper() }}
-                  </div>
-                {% endif %}
-                <span class="author-name">{{ comment.author.name }}</span>
+                <a href="/profile/{{ comment.author.id }}" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                  {% if comment.author.resident_profile and comment.author.resident_profile.photo_filename %}
+                    <img src="/uploads/{{ comment.author.resident_profile.photo_filename }}" alt="{{ comment.author.name }}" class="author-avatar-small">
+                  {% elif comment.author.employer_profile and comment.author.employer_profile.photo_filename %}
+                    <img src="/uploads/{{ comment.author.employer_profile.photo_filename }}" alt="{{ comment.author.name }}" class="author-avatar-small">
+                  {% else %}
+                    <div class="author-avatar-small">
+                      {{ comment.author.name[0].upper() }}
+                    </div>
+                  {% endif %}
+                  <span class="author-name" style="color: var(--accent);">{{ comment.author.name }}</span>
+                </a>
               </div>
               <div class="comment-meta">
                 <span class="comment-date" data-timestamp="{{ comment.created_at.isoformat() }}" data-format="full">

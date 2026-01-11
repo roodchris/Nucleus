@@ -29,21 +29,19 @@
       <div class="conversation-card">
         <div class="conversation-header">
           <div class="conversation-avatar">
-            {% if c.other_user_profile and c.other_user_profile.photo_filename %}
-              <img src="/uploads/{{ c.other_user_profile.photo_filename }}" alt="{{ c.other_user.name }}" class="avatar-image">
-            {% else %}
-              <div class="avatar-fallback">
-                {{ c.other_user.name[0].upper() }}
-              </div>
-            {% endif %}
+            <a href="/profile/{{ c.other_user.id }}" style="text-decoration: none; display: block;">
+              {% if c.other_user_profile and c.other_user_profile.photo_filename %}
+                <img src="/uploads/{{ c.other_user_profile.photo_filename }}" alt="{{ c.other_user.name }}" class="avatar-image">
+              {% else %}
+                <div class="avatar-fallback">
+                  {{ c.other_user.name[0].upper() }}
+                </div>
+              {% endif %}
+            </a>
           </div>
           <div class="conversation-info">
             <h3 class="conversation-name" style="font-weight: {% if c.unread_count > 0 %}900{% else %}700{% endif %}; color: {% if c.unread_count > 0 %}var(--accent){% else %}var(--text){% endif %};">
-              {% if c.other_user.role.value == 'resident' %}
-                <a href="/profile/{{ c.other_user.id }}" class="user-link" style="color: {% if c.unread_count > 0 %}var(--accent){% else %}var(--accent){% endif %}; font-weight: {% if c.unread_count > 0 %}900{% else %}700{% endif %};">{{ c.other_user.name }}</a>
-              {% else %}
-                {{ c.other_user.name }}
-              {% endif %}
+              <a href="/profile/{{ c.other_user.id }}" class="user-link" style="color: {% if c.unread_count > 0 %}var(--accent){% else %}var(--accent){% endif %}; font-weight: {% if c.unread_count > 0 %}900{% else %}700{% endif %}; text-decoration: none;">{{ c.other_user.name }}</a>
               {% if c.unread_count > 0 %}
                 <span class="unread-badge">{{ c.unread_count }}</span>
               {% endif %}

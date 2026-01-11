@@ -3,22 +3,20 @@
   <div class="job-card" style="padding:16px; background: #2d3748;">
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
       <div style="display:flex; align-items:center; gap:10px; min-width:50px;">
-        {% if other_user_profile and other_user_profile.photo_filename %}
-          <img src="/uploads/{{ other_user_profile.photo_filename }}" alt="{{ other_user.name }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-        {% else %}
-          <div style="width:40px; height:40px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; color:white; font-size:16px; font-weight:600;">
-            {{ other_user.name[0].upper() }}
-          </div>
-        {% endif %}
+        <a href="/profile/{{ other_user.id }}" style="text-decoration: none; display: block;">
+          {% if other_user_profile and other_user_profile.photo_filename %}
+            <img src="/uploads/{{ other_user_profile.photo_filename }}" alt="{{ other_user.name }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+          {% else %}
+            <div style="width:40px; height:40px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; color:white; font-size:16px; font-weight:600;">
+              {{ other_user.name[0].upper() }}
+            </div>
+          {% endif %}
+        </a>
       </div>
       <div>
         <div style="font-weight:500; font-size:14px;">
           Chat with 
-          {% if current_user.role.value == 'employer' and other_user.role.value == 'resident' %}
-            <a href="/profile/{{ other_user.id }}" style="color:var(--accent); text-decoration:none;">{{ other_user.name }}</a>
-          {% else %}
-            {{ other_user.name }}
-          {% endif %}
+          <a href="/profile/{{ other_user.id }}" style="color:var(--accent); text-decoration:none; font-weight:600;">{{ other_user.name }}</a>
         </div>
       </div>
     </div>
@@ -52,11 +50,7 @@
                   <strong>You:</strong>
                 {% else %}
                   <strong>
-                    {% if current_user.role.value == 'employer' and other_user.role.value == 'resident' %}
-                      <a href="/profile/{{ other_user.id }}" style="color:var(--accent); text-decoration:none;">{{ other_user.name }}</a>:
-                    {% else %}
-                      {{ other_user.name }}:
-                    {% endif %}
+                    <a href="/profile/{{ other_user.id }}" style="color:var(--accent); text-decoration:none; font-weight:600;">{{ other_user.name }}</a>:
                   </strong>
                 {% endif %}
                 {{ m.body }}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="job-card" style="padding:24px;">
+    <h2 style="margin-top:0;">Practice Profile</h2>
+    <div class="muted">{{ user.name }}</div>
+    
+    <div style="margin-top:20px;">
+      <a class="btn" href="/opportunities">← Back to opportunities</a>
+      {% if current_user.is_authenticated and current_user.role.value == 'resident' %}
+        <a class="btn" href="/messages/start?employer_id={{ user.id }}" style="margin-left:12px;">Message Practice</a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if profile %}
+    <div class="job-card" style="padding:24px;">
+      <div style="display:grid; gap:20px;">
+        {% if profile.photo_filename %}
+          <div>
+            <h3>Profile Photo</h3>
+            <div style="text-align:center;">
+              <img src="/uploads/{{ profile.photo_filename }}" alt="{{ user.name }}" style="width:150px; height:150px; border-radius:50%; object-fit:cover; border:3px solid var(--accent);">
+            </div>
+          </div>
+        {% endif %}
+        
+        {% if profile.practice_setting %}
+          <div>
+            <h3>Practice Setting</h3>
+            <p>{{ profile.practice_setting }}</p>
+          </div>
+        {% endif %}
+        
+        {% if profile.medical_specialty %}
+          <div>
+            <h3>Medical Specialty</h3>
+            <p>{{ profile.medical_specialty }}</p>
+          </div>
+        {% endif %}
+        
+        {% if profile.location %}
+          <div>
+            <h3>Location</h3>
+            <p>{{ profile.location }}</p>
+          </div>
+        {% endif %}
+        
+        {% if profile.practice_description %}
+          <div>
+            <h3>Practice Description</h3>
+            <p style="white-space:pre-wrap;">{{ profile.practice_description }}</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <div class="job-card" style="padding:24px;">
+      <p class="muted">This practice hasn't created a profile yet.</p>
+    </div>
+  {% endif %}
+{% endblock %}
+

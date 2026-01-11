@@ -191,7 +191,7 @@
             </div>
             <div class="opportunity-title">
               <h4 class="opportunity-title-text">{{ opp.title }}</h4>
-              <p class="employer-name">{{ opp.employer.name }}</p>
+              <p class="employer-name"><a href="/profile/{{ opp.employer.id }}" style="color: var(--accent); text-decoration: none;">{{ opp.employer.name }}</a></p>
             </div>
             <div class="opportunity-pay">
               <span class="pay-rate">${{ opp.pay_amount }}{% if opp.pay_type %}{% if opp.pay_type.value == 'per_hour' %}/hr{% elif opp.pay_type.value == 'per_rvu' %}/RVU{% endif %}{% else %}/hr{% endif %}</span>

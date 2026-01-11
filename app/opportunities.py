@@ -642,15 +642,19 @@ def resident_profile():
 
 
 @opp_bp.route("/profile/<int:user_id>")
-def view_resident_profile(user_id):
-    from .models import ResidentProfile, User
+def view_profile(user_id):
+    from .models import ResidentProfile, EmployerProfile, User
     
     user = User.query.get_or_404(user_id)
-    if user.role != UserRole.RESIDENT:
-        abort(404)
     
-    profile = ResidentProfile.query.filter_by(user_id=user_id).first()
-    return render_template("opportunities/view_resident_profile.html", user=user, profile=profile)
+    if user.role == UserRole.RESIDENT:
+        profile = ResidentProfile.query.filter_by(user_id=user_id).first()
+        return render_template("opportunities/view_resident_profile.html", user=user, profile=profile)
+    elif user.role == UserRole.EMPLOYER:
+        profile = EmployerProfile.query.filter_by(user_id=user_id).first()
+        return render_template("opportunities/view_employer_profile.html", user=user, profile=profile)
+    else:
+        abort(404)
 
 
 # Employer Profile Routes

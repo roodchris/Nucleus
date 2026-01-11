@@ -14,10 +14,18 @@
     <div class="post-meta">
       <div class="post-author">
         <div class="author-avatar">
-          <span>{{ post.author.name[0].upper() }}</span>
+          <a href="/profile/{{ post.author.id }}" style="text-decoration: none; display: block;">
+            {% if post.author.resident_profile and post.author.resident_profile.photo_filename %}
+              <img src="/uploads/{{ post.author.resident_profile.photo_filename }}" alt="{{ post.author.name }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+            {% elif post.author.employer_profile and post.author.employer_profile.photo_filename %}
+              <img src="/uploads/{{ post.author.employer_profile.photo_filename }}" alt="{{ post.author.name }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+            {% else %}
+              <span>{{ post.author.name[0].upper() }}</span>
+            {% endif %}
+          </a>
         </div>
         <div class="author-info">
-          <div class="author-name">{{ post.author.name }}</div>
+          <div class="author-name"><a href="/profile/{{ post.author.id }}" style="color: var(--accent); text-decoration: none;">{{ post.author.name }}</a></div>
           <div class="post-date" data-timestamp="{{ post.created_at.isoformat() }}" data-format="full">{{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}</div>
         </div>
       </div>

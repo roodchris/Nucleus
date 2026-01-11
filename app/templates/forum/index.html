@@ -245,16 +245,20 @@
         <div class="post-footer">
           <div class="post-author">
             <div class="author-avatar">
-              {% if post.author.resident_profile and post.author.resident_profile.photo_filename %}
-                <img src="/uploads/{{ post.author.resident_profile.photo_filename }}" alt="{{ post.author.name }}" class="avatar-image">
-              {% else %}
-                <div class="avatar-fallback">
-                  {{ post.author.name[0].upper() }}
-                </div>
-              {% endif %}
+              <a href="/profile/{{ post.author.id }}" style="text-decoration: none; display: block;">
+                {% if post.author.resident_profile and post.author.resident_profile.photo_filename %}
+                  <img src="/uploads/{{ post.author.resident_profile.photo_filename }}" alt="{{ post.author.name }}" class="avatar-image">
+                {% elif post.author.employer_profile and post.author.employer_profile.photo_filename %}
+                  <img src="/uploads/{{ post.author.employer_profile.photo_filename }}" alt="{{ post.author.name }}" class="avatar-image">
+                {% else %}
+                  <div class="avatar-fallback">
+                    {{ post.author.name[0].upper() }}
+                  </div>
+                {% endif %}
+              </a>
             </div>
             <div class="author-info">
-              <span class="author-name">{{ post.author.name }}</span>
+              <a href="/profile/{{ post.author.id }}" class="author-name" style="color: var(--accent); text-decoration: none;">{{ post.author.name }}</a>
               <span class="post-date" data-timestamp="{{ post.created_at.isoformat() }}" data-format="date">{{ post.created_at.strftime('%B %d, %Y') }}</span>
             </div>
           </div>

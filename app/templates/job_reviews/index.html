@@ -290,7 +290,7 @@
               {% if review.is_anonymous %}
                 Anonymous • <span data-timestamp="{{ review.created_at.isoformat() }}" data-format="date">{{ review.created_at.strftime('%B %d, %Y') }}</span>
               {% else %}
-                {{ review.user.name }} • <span data-timestamp="{{ review.created_at.isoformat() }}" data-format="date">{{ review.created_at.strftime('%B %d, %Y') }}</span>
+                <a href="/profile/{{ review.user.id }}" style="color: var(--accent); text-decoration: none;">{{ review.user.name }}</a> • <span data-timestamp="{{ review.created_at.isoformat() }}" data-format="date">{{ review.created_at.strftime('%B %d, %Y') }}</span>
               {% endif %}
             </p>
           </div>
