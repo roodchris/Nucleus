@@ -114,7 +114,7 @@ def new_post():
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "").strip()
         category = request.form.get("category", "")
-        specialty = request.form.get("specialty", "") if should_enable_forum_specialty() else None
+        specialty = request.form.get("specialty", "").strip() if should_enable_forum_specialty() else None
         photos_json = request.form.get("photos", "[]")
         
         if not title or not content or not category:
@@ -151,12 +151,13 @@ def new_post():
             'photos': photos_json if photos else None
         }
         
-        # Only add specialty if the column exists and feature is enabled
-        if should_enable_forum_specialty() and specialty:
+        # Add specialty if the column exists and feature is enabled
+        # Convert empty strings to None (for "General (All Specialties)" option)
+        if should_enable_forum_specialty():
             # Check if the ForumPost model actually has the specialty attribute
             from .models import ForumPost
             if hasattr(ForumPost, 'specialty'):
-                post_data['specialty'] = specialty
+                post_data['specialty'] = specialty if specialty else None
         
         try:
             post = ForumPost(**post_data)
