@@ -569,6 +569,18 @@ def main():
     
     with app.app_context():
         try:
+            # Show which database we're using
+            db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', 'unknown')
+            if 'sqlite' in db_uri.lower():
+                print(f"📁 Using local SQLite database: {db_uri}")
+            elif 'postgresql' in db_uri.lower():
+                # Mask password in URI
+                masked_uri = db_uri.split('@')[1] if '@' in db_uri else db_uri
+                print(f"🌐 Using PostgreSQL database: ...@{masked_uri}")
+            else:
+                print(f"💾 Using database: {db_uri}")
+            print()
+            
             # Create fake users
             users = create_fake_users(app)
             
@@ -583,6 +595,9 @@ def main():
             print(f"  - {len(posts)} forum posts")
             print(f"  - {len(comments)} comments and replies")
             print(f"\nAll content spread over the past 3 months")
+            print("\n⚠️  NOTE: If you're viewing on production, make sure")
+            print("   to run this script on the production server or")
+            print("   with production database credentials!")
             print("=" * 60)
             
         except Exception as e:
