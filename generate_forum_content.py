@@ -217,93 +217,231 @@ FORUM_POSTS = [
     }
 ]
 
-# Comment templates - casual texting style, locker room talk
-COMMENT_TEMPLATES = [
-    "ugh been there. worst is when you finally get to sleep and then get paged 10 min later. sleep deprivation is torture fr",
-    "so relatable. had similar case last month still haunts me at 3am. thanks for that",
-    "lol this made my day. audacity of some consults is wild. got paged once for 'patient seems tired' - like join the club bro",
-    "can confirm. source: also exhausted and questioning life choices daily",
-    "this is why i chose [specialty]. lifestyle worth the pay cut. jk still broke and tired",
-    "feel this in my soul. struggle is real and my soul is tired",
-    "this is the content i'm here for. more dark humor less toxic positivity",
-    "same experience. frustrating but you're not alone. solidarity bro",
-    "so true. need more discussions where we can be honest about how much this sucks",
-    "pretty sure EMR was designed by someone who's never worked in a hospital. or they did and this is revenge",
-    "exactly what i needed to hear. thanks for validating my existential crisis",
-    "disagree but respect your take. here's why i'm wrong and you're right...",
-    "hot take and i'm here for it. more chaos less order",
-    "following. interested to see how many of us are actually okay (spoiler: none)",
-    "this is why i love this community. finally people who get it",
-    "saving this. so much good info and also so much pain",
-    "kind of case that makes medicine interesting and also makes me want to quit",
-    "had similar experience. validating to hear others go through this too even though i wish none of us had to",
-    "great reminder we're all just trying our best and sometimes that's not enough. cool cool cool",
-    "going through something similar. this helps or at least makes me feel less alone",
-    "well said. couldn't agree more and also i'm tired",
-    "not sure i agree but appreciate the perspective. also i'm probably wrong",
-    "reality check i needed today. thanks i hate it",
-    "following. curious what others think but also scared",
-    "glad i found this forum. finally people who understand",
-    "exactly my experience. thanks for putting it into words",
-    "fact that this is so relatable is both comforting and concerning",
-    "pretty sure we're all one bad shift away from breakdown. this confirms it",
-    "kind of honesty we need. less 'medicine is a calling' more 'medicine is hard and sometimes i want to quit'",
-    "can't relate but fascinating. also scared for when i will"
-]
+# Post-specific meaningful comments - each post gets relevant, insightful comments
+POST_SPECIFIC_COMMENTS = {
+    "Anyone else getting absolutely destroyed by overnight call?": [
+        "our program caps at 24hrs but honestly feels the same. the post-call delirium is real. started keeping a log of weird things i do post-call and it's... concerning",
+        "28hrs is insane. we do q4 call and by day 3 i'm basically a zombie. coffee machine breaking at 3am is the final boss fr",
+        "had a 30hr once during intern year. hallucinated that the walls were talking to me. attending sent me home early which was nice but also terrifying",
+        "the worst part is when you finally get to sleep and your pager goes off 10 min later. your brain just breaks at that point"
+    ],
+    "Interesting case: 45yo M with chest pain": [
+        "good catch on the PE. those subtle ekg changes are easy to miss. had similar case where initial trop was normal but something felt off - ended up being nstemi",
+        "always trust your gut. had a patient with 'anxiety' chest pain that was actually aortic dissection. attending was not happy when i ordered the CT but patient lived",
+        "pe can be sneaky. we had one where d-dimer was negative but still had massive PE. sometimes the workup lies to you",
+        "the anxiety dismissal is so common. had attending tell me 'it's just panic' on a patient who ended up having takotsubo. trust your instincts"
+    ],
+    "New study on AI in radiology - thoughts?": [
+        "we're using AI for chest xrays now. catches things we miss but also has false positives. still need human oversight but it's getting scary good",
+        "98% sensitivity is wild. but what about specificity? we tried AI for fractures and it flagged every single thing. had to turn sensitivity down",
+        "i think AI will change how we practice but not replace us. more like a really good second read. the liability question is interesting though",
+        "our hospital just got AI for stroke detection. it's actually pretty helpful for overnight when there's no neuro attending. but still makes me nervous"
+    ],
+    "Salary negotiation tips?": [
+        "negotiated my first offer from 320k to 360k. asked for more base, better retirement match, and extra pto. got all of it. always ask",
+        "don't feel greedy - it's expected. i asked for 50k more and they met me halfway. worst case they say no and you negotiate other stuff",
+        "negotiate everything: base, productivity bonus, sign-on, relocation, pto, cme money. they expect it. my recruiter told me to ask for more",
+        "got an extra 30k just by asking. also negotiated 4 weeks pto instead of 3. if you don't ask you don't get"
+    ],
+    "Private practice vs academic - help me decide": [
+        "made the switch from academic to private. pay is way better but miss teaching. also miss the research opportunities. but my bank account doesn't",
+        "stayed academic. pay is less but i love teaching residents. also get to do research which i couldn't in private. depends what you value",
+        "private practice here. autonomy is great but miss the academic environment. also miss having residents to do scut work. but money is nice",
+        "did academic first then switched. academic was more intellectually stimulating but private pays way better. no right answer just what you prioritize"
+    ],
+    "The most ridiculous consult I've received this week": [
+        "got one at 4am: 'patient is constipated. please evaluate.' like... really? that's why you woke me up?",
+        "had a consult for 'patient seems confused' at 2am. no neuro exam, no labs, nothing. just... seems confused. in a hospital. at 2am. shocking",
+        "got paged for 'patient has rash' at 3am. no description, no exam, just... rash. turned out to be bed sheets. actual bed sheets",
+        "consulted at 1am for 'patient is sad.' that's it. just sad. i was also sad. we were all sad. welcome to 1am in a hospital"
+    ],
+    "How do you maintain work-life balance?": [
+        "it's impossible tbh. i try to block out one day a week for myself but even that gets interrupted. boundaries don't exist in medicine",
+        "started saying no to extra shifts. money is nice but my sanity is nicer. also started therapy which helps",
+        "i don't. that's the honest answer. i'm drowning and something's gotta give but idk what. probably my relationships",
+        "set hard boundaries with my program. no extra shifts, no staying late unless emergency. they weren't happy but i'm still here"
+    ],
+    "Fellowship application season is here": [
+        "applied to 15 programs. got 8 interviews. it's stressful but you'll be fine. everyone feels not competitive enough",
+        "applied to 20. got 12 interviews. the process is brutal but you'll match somewhere. just be yourself in interviews",
+        "applied to 10, got 6 interviews. less is more if you're strategic. don't apply to places you wouldn't actually go",
+        "the anxiety is normal. everyone feels like they're not good enough. your PD wouldn't let you apply if you weren't competitive"
+    ],
+    "Step 3 studying while on rotations - possible?": [
+        "did it during a lighter rotation. studied 1-2 hours a day for 3 months. passed comfortably. it's doable but sucks",
+        "took dedicated time. couldn't focus while on rotations. worth it to just take the time and get it done",
+        "studied during night float. lots of downtime. passed first try. depends on your rotation schedule",
+        "did uworld questions during lunch breaks and after work. passed but barely. would recommend dedicated time if possible"
+    ],
+    "Radiology residents - how's your call schedule?": [
+        "q4 call, 8 weekends a year. it's brutal but manageable. some programs do q5 which is way better",
+        "q5 call, 6 weekends. changed from q4 last year and it's so much better. still tired but less dead",
+        "q6 call, 4 weekends. program is pretty chill. know some programs doing q3 which is insane",
+        "q4 call, 10 weekends. it's a lot. thinking about switching programs but don't want to restart"
+    ],
+    "Patient asked me if I googled their symptoms": [
+        "happens all the time. i just say 'checking uptodate' which is technically true. sometimes i do google things and i'm not ashamed",
+        "had this happen. was actually looking up drug interaction but now they think i'm incompetent. thanks patient",
+        "i straight up tell them sometimes i google things. we're not walking encyclopedias. they usually appreciate the honesty",
+        "just say 'consulting medical literature' which sounds professional. we all google things, it's fine"
+    ],
+    "Compensation data - is $400k reasonable for radiology?": [
+        "depends on location. in midwest that's solid. on coasts might be low. also depends on productivity structure",
+        "400k base is decent. what's the productivity bonus? that's where the real money is. know people making 500k+ with good productivity",
+        "for mid-size city that's reasonable. know people making 350k and people making 600k. depends on volume and location",
+        "sounds fair. negotiated mine from 380k to 420k. always ask for more. worst they say is no"
+    ],
+    "The EMR is trying to kill me": [
+        "epic is the worst. spent 20 min trying to order tylenol yesterday. why is everything so complicated?",
+        "switched from epic to cerner and it's somehow worse. all EMRs are terrible. pick your poison",
+        "epic crashing is a feature not a bug. pretty sure it's designed to make us suffer. sentient and evil",
+        "takes me 5 min to order a simple lab. used to take 30 seconds. 'improvements' my ass"
+    ],
+    "Interesting pediatric case - 8yo with abdominal pain": [
+        "peds cases are harder. kids can't tell you what's wrong. had similar case where appendicitis was super subtle on imaging",
+        "peds is challenging. same symptoms can be nothing or something serious. always err on side of caution",
+        "kids are tough. had 6yo with appendicitis that looked normal on exam. CT saved the day. always trust your gut with kids",
+        "peds appendicitis can be sneaky. labs normal, exam normal, but something feels off. good call on the CT"
+    ],
+    "Should I do a research year?": [
+        "did one. helped my fellowship apps but also delayed my career by a year. worth it if you want competitive fellowship",
+        "skipped it. matched to my top choice anyway. depends on how competitive you are and what you want",
+        "research year was worth it. got 3 first author pubs and matched to dream program. but it's a year of your life",
+        "didn't do one. matched fine. research year helps but not required for most programs. depends on your goals"
+    ],
+    "The attending who changed my perspective": [
+        "had similar attending. actually taught instead of just pimping. made me want to be that kind of mentor",
+        "those attendings are rare but they exist. had one who took time to explain things. changed how i approach teaching",
+        "wish more attendings were like that. most just pimp and belittle. need more mentors who actually care",
+        "had one who changed everything. showed me medicine can be collaborative not adversarial. trying to be like that now"
+    ],
+    "Moonlighting opportunities - worth it?": [
+        "did it for 6 months. made good money but was exhausted. stopped because burnout wasn't worth it",
+        "moonlighting is great money but kills you. did it for a year then stopped. my sanity is worth more",
+        "150/hr is solid. did it for extra cash but had to stop. wasn't sustainable with residency",
+        "moonlighting helped pay off loans but made me miserable. stopped after 3 months. not worth the burnout"
+    ],
+    "New guidelines for stroke management": [
+        "window keeps expanding. we're doing thrombectomy up to 24hrs now in some cases. guidelines change faster than we can keep up",
+        "every hospital does it differently. some follow guidelines strictly, others do their own thing. frustrating",
+        "the 24hr window is new. we're still figuring out which patients benefit. lots of debate in our stroke group",
+        "guidelines are suggestions not rules. we adapt based on patient factors. but some places are strict about it"
+    ],
+    "How to deal with difficult attendings": [
+        "had one like that. started documenting every time they were wrong. petty but satisfying. they eventually got better",
+        "just grin and bear it. not worth the fight. they'll retire eventually. or you'll graduate. either way it ends",
+        "had attending who made rounds hell. talked to PD about it. nothing changed but felt good to complain",
+        "started calling them out politely when they're wrong. they don't like it but at least i'm not just taking it"
+    ],
+    "The case that keeps me up at night": [
+        "had one like that. missed subtle sign, patient had bad outcome. still think about it years later. therapy helps",
+        "those cases stick with you. had one i still dream about. know it wasn't my fault but doesn't help",
+        "missed something, patient died. wasn't my fault but feels like it. these cases never leave you",
+        "had similar case. therapist says to practice self-compassion but easier said than done. still haunts me"
+    ],
+    "Board prep - UWorld vs other resources?": [
+        "uworld is gold standard. expensive but worth it. also did amboss which is cheaper and pretty good",
+        "did uworld and passed comfortably. know people who did other resources and passed too. uworld is just most popular",
+        "uworld + first aid is the combo. expensive but you only take boards once. worth the investment",
+        "did amboss instead of uworld. cheaper and passed fine. uworld is good but not the only option"
+    ],
+    "Rural vs urban practice - pros and cons?": [
+        "rural pays more but isolation is real. did rural for 2 years then moved to city. missed having colleagues",
+        "urban has better resources but more bureaucracy. rural is more autonomous but you're on your own",
+        "rural: better pay, more autonomy, but isolated. urban: better support, more resources, but more red tape",
+        "did rural. loved the autonomy and pay but missed city life. moved back after 3 years. depends on what you want"
+    ],
+    "The most satisfying diagnosis you've made": [
+        "had patient with weird symptoms. did deep dive, found rare diagnosis. patient got better. felt like house for a day",
+        "diagnosed something rare that everyone missed. patient was grateful. those moments make it all worth it",
+        "had case where everyone was stumped. did some research, found the answer. patient recovered. best feeling",
+        "diagnosed something that had been missed for months. patient finally got treatment. those wins keep you going"
+    ],
+    "Residency program red flags": [
+        "red flags: high turnover, unhappy residents, attendings who are mean, no work-life balance",
+        "if residents look miserable, run. if attendings are toxic, run. if call schedule is insane, run",
+        "red flags: no meal money, terrible call schedule, mean attendings, high burnout rate",
+        "if program director doesn't care about residents, that's biggest red flag. also if no one is happy there"
+    ],
+    "How much should I be saving as a resident?": [
+        "save what you can. max out roth ira if possible. don't kill yourself trying to save everything",
+        "trying to max roth ira. it's hard on resident salary but worth it. compound interest is your friend",
+        "save 10-20% if you can. but also live your life. you'll make attending money soon enough",
+        "saving what i can but not stressing. will catch up as attending. don't sacrifice everything now"
+    ],
+    "The evolution of medical education": [
+        "training has changed a lot. less autonomy, more oversight. is it better? debatable. we're safer but less prepared",
+        "older attendings had way more autonomy. we have more oversight. both have pros and cons",
+        "training is different now. more documentation, less hands-on. are we better doctors? not sure",
+        "less autonomy but more safety. more oversight but less independence. training has changed for better and worse"
+    ],
+    "Interesting surgical case - laparoscopic vs open": [
+        "had similar debate. attending wanted open, i wanted lap. they were right. experience matters more than literature sometimes",
+        "laparoscopic is newer but open is sometimes better. depends on the case. experience trumps what books say",
+        "had case where literature said lap but attending did open. was right call. sometimes experience knows best",
+        "learning to trust attendings' experience. they've seen things literature hasn't caught up to yet"
+    ],
+    "Dealing with patient families": [
+        "families are the worst part sometimes. had one today who questioned everything. just smile and nod",
+        "difficult families are exhausting. had one who was rude to everyone. just have to stay professional",
+        "families can be challenging. had one who was demanding and rude. just have to maintain professionalism",
+        "difficult families are part of the job. just have to stay calm and professional even when they're not"
+    ],
+    "The future of radiology": [
+        "ai will change things but not replace us. more like a tool to help. the liability question is interesting",
+        "ai is getting scary good. think it'll change how we practice but we'll still be needed for complex cases",
+        "ai will handle routine stuff, we'll do complex cases. might actually improve our lifestyle",
+        "ai is advancing fast. think it'll augment not replace. but who knows. 10 years is a long time"
+    ],
+    "Work-life balance in different specialties": [
+        "derm and rads are lifestyle-friendly but not perfect. still work hard. other specialties are worse",
+        "rads is good lifestyle but still busy. derm is great. surgery is terrible. depends on specialty",
+        "lifestyle varies a lot. derm/rads are best. surgery/em are worst. everything else is in between",
+        "rads is pretty good. derm is best. surgery is worst. everything else depends on practice setting"
+    ]
+}
 
 def generate_comment_content(post_title, post_content, specialty=None):
-    """Generate realistic comment content based on the post"""
-    # Sometimes use templates, sometimes generate contextual responses
-    if random.random() < 0.4:
-        return random.choice(COMMENT_TEMPLATES)
+    """Generate realistic, meaningful comment content specific to the post"""
+    # Get post-specific comments if available
+    if post_title in POST_SPECIFIC_COMMENTS:
+        return random.choice(POST_SPECIFIC_COMMENTS[post_title])
     
-    # Generate contextual responses - casual texting style
-    contextual_responses = {
-        "call": [
-            "coffee machine breaking is final boss of overnight call. started bringing my own instant coffee and will to live",
-            "28 hours? brutal. program caps at 24 but still feels like forever. time doesn't work same way in hospital",
-            "feel this. had similar night last week. post-call day is worst. still recovering physically and emotionally",
-            "at hour 26 started seeing things. pretty sure had conversation with wall. wall was more helpful than some consults"
-        ],
-        "case": [
-            "great catch. always trust your gut. had similar case where workup was normal but something felt off. trusted gut, saved life, still have nightmares",
-            "good reminder. sometimes subtle signs are most important. also sometimes we miss them and people die. no pressure",
-            "interesting case. thanks for sharing. these stick with you, both good catches and ones that got away"
-        ],
-        "salary": [
-            "solid offer depending on location. definitely negotiate - worst they say is no. if they say no you probably don't want to work there anyway",
-            "don't feel greedy. negotiation expected. ask for both base and benefits. also ask for therapist because you'll need one",
-            "negotiated first offer got extra 20k. always worth asking. worst they do is laugh at you which happens anyway"
-        ],
-        "balance": [
-            "so hard. been trying to set boundaries but easier said than done. boundaries currently: don't die, try to sleep sometimes, cry in private",
-            "started blocking out time for myself. even if just 30 min it helps. those 30 min are sacred. touch them and die",
-            "eternal struggle. don't have answers but you're not alone. we're all drowning together which is somehow comforting?"
-        ],
-        "consult": [
-            "lol got consult once for 'patient is sad.' that's it. just sad. me too bro",
-            "worst is when they consult at 3am for something going on for weeks. audacity is wild",
-            "got consult for 'patient has headache' at 2am. no neuro exam no imaging. just headache. still not over it"
-        ]
-    }
-    
-    # Try to match context
+    # Fallback: generate contextual response based on keywords
     post_lower = (post_title + " " + post_content).lower()
-    for key, responses in contextual_responses.items():
-        if key in post_lower:
-            return random.choice(responses)
     
-    # Default contextual response - casual texting
-    return random.choice([
-        "really helpful thanks for sharing. also i'm tired",
-        "going through something similar. this helps or at least makes me feel less alone",
-        "great post. following for more discussion and pain",
-        "exactly what i needed to hear today. thanks i hate it",
-        "thanks for insight. hadn't thought about it this way now questioning everything",
-        "kind of honesty we need. less toxic positivity more real talk about how hard this is",
-        "preach. all of this. every word",
-        "felt this in my bones. my tired bones"
-    ])
+    # Try to match specific topics
+    if "call" in post_lower or "shift" in post_lower:
+        return random.choice([
+            "our program caps at 24hrs but feels the same. post-call delirium is real",
+            "q4 call here. it's brutal. by day 3 i'm basically a zombie",
+            "28hrs is insane. we do q5 which is slightly better but still terrible"
+        ])
+    elif "salary" in post_lower or "compensation" in post_lower or "negotiate" in post_lower:
+        return random.choice([
+            "always negotiate. got extra 30k just by asking. worst they say is no",
+            "negotiated from 320k to 360k. asked for more base and better benefits. got both",
+            "don't feel greedy - it's expected. i asked for 50k more and they met me halfway"
+        ])
+    elif "balance" in post_lower or "life" in post_lower:
+        return random.choice([
+            "it's impossible tbh. try to set boundaries but they don't really exist in medicine",
+            "started saying no to extra shifts. money is nice but sanity is nicer",
+            "set hard boundaries with my program. no extra shifts unless emergency. they weren't happy but i'm still here"
+        ])
+    elif "case" in post_lower or "patient" in post_lower:
+        return random.choice([
+            "interesting case. had similar one last month. these stick with you",
+            "good catch. always trust your gut even when workup looks normal",
+            "cases like this are why medicine is interesting. thanks for sharing"
+        ])
+    else:
+        # Generic but still meaningful
+        return random.choice([
+            "this is helpful. hadn't thought about it this way. thanks for the perspective",
+            "interesting take. makes me reconsider my approach. appreciate you sharing",
+            "good point. this is something i've been thinking about too. helpful to hear your experience"
+        ])
 
 def create_fake_users(app):
     """Create fake user accounts"""
@@ -339,19 +477,44 @@ def create_fake_users(app):
     print(f"✅ Created {len(users)} fake users")
     return users
 
+def cleanup_existing_fake_content(app, users):
+    """Delete all existing fake posts and comments"""
+    print("\nCleaning up existing fake content...")
+    
+    fake_user_ids = [u.id for u in users]
+    
+    # Get all posts by fake users
+    fake_posts = ForumPost.query.filter(ForumPost.author_id.in_(fake_user_ids)).all()
+    
+    if fake_posts:
+        post_ids = [p.id for p in fake_posts]
+        
+        # Delete votes on comments
+        fake_comments = ForumComment.query.filter(ForumComment.post_id.in_(post_ids)).all()
+        comment_ids = [c.id for c in fake_comments]
+        if comment_ids:
+            ForumVote.query.filter(ForumVote.comment_id.in_(comment_ids)).delete()
+        
+        # Delete votes on posts
+        ForumVote.query.filter(ForumVote.post_id.in_(post_ids)).delete()
+        
+        # Delete comments
+        ForumComment.query.filter(ForumComment.post_id.in_(post_ids)).delete()
+        
+        # Delete posts
+        ForumPost.query.filter(ForumPost.id.in_(post_ids)).delete()
+        
+        db.session.commit()
+        print(f"✅ Deleted {len(fake_posts)} existing fake posts and their comments")
+    else:
+        print("✅ No existing fake posts to clean up")
+
 def generate_forum_content(app, users):
     """Generate forum posts, comments, and votes"""
     print("\nGenerating forum posts...")
     
-    # Check if posts already exist (prevent duplicate runs)
-    existing_posts = ForumPost.query.filter(
-        ForumPost.author_id.in_([u.id for u in users])
-    ).count()
-    
-    if existing_posts > 0:
-        print(f"⚠️  Found {existing_posts} existing forum posts from fake users.")
-        print("⚠️  Continuing anyway - this will add more posts to the database.")
-        print("⚠️  If you want to start fresh, delete existing posts first.\n")
+    # Clean up existing fake content first
+    cleanup_existing_fake_content(app, users)
     
     # Calculate date range (past 3 months)
     end_date = datetime.utcnow()
@@ -450,32 +613,35 @@ def generate_forum_content(app, users):
                     )
                     
                     reply_author = random.choice(users)
-                    # Replies are shorter, casual texting style
-                    reply_content = random.choice([
-                        "this. exactly this. my soul felt this",
-                        "couldn't agree more. also i'm tired",
-                        "had same experience. was terrible thanks for reminding me",
-                        "so true. why do we do this to ourselves",
-                        "thanks for sharing. validating and also depressing",
-                        "going through this right now too. send help. or don't probably beyond saving",
-                        "helpful thanks. also i hate it",
-                        "same here. frustrating and questioning everything",
-                        "feel this so much. therapist going to hear about this",
-                        "reality check i needed. thanks i hate it",
-                        "preach. all of this. every word",
-                        "yep. this is my life now. cool cool cool",
-                        "felt this in my bones. my tired bones",
-                        "same energy. different day. still suffering",
-                        "content i'm here for. more pain please",
-                        "fr",
-                        "mood",
-                        "big mood",
-                        "same",
-                        "relatable",
-                        "too real",
-                        "ouch",
-                        "felt that"
-                    ])
+                    # Replies should be meaningful, not just lazy affirmations
+                    # Generate based on parent comment context
+                    parent_lower = comment.content.lower()
+                    if "negotiate" in parent_lower or "salary" in parent_lower:
+                        reply_content = random.choice([
+                            "yeah i asked for more too. they gave me extra 25k. always worth asking",
+                            "negotiated my offer from 340k to 380k. asked for better retirement match too",
+                            "same. got extra pto and sign-on bonus just by asking. they expect it"
+                        ])
+                    elif "call" in parent_lower or "shift" in parent_lower:
+                        reply_content = random.choice([
+                            "q4 call here too. it's brutal. by day 3 i'm seeing things",
+                            "our program does q5 which is slightly better but still terrible",
+                            "28hrs is insane. we cap at 24 but feels the same"
+                        ])
+                    elif "case" in parent_lower or "patient" in parent_lower:
+                        reply_content = random.choice([
+                            "had similar case. those subtle signs are easy to miss",
+                            "good point. always trust your gut even when workup looks normal",
+                            "interesting. hadn't thought about it that way"
+                        ])
+                    else:
+                        # Still meaningful, not just "same" or "fr"
+                        reply_content = random.choice([
+                            "yeah that's a good point. hadn't considered that angle",
+                            "makes sense. my experience was similar but slightly different",
+                            "interesting perspective. makes me think about it differently",
+                            "yeah i've seen that too. adds another layer to consider"
+                        ])
                     
                     reply = ForumComment(
                         post_id=post.id,
