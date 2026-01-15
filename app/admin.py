@@ -153,6 +153,24 @@ def forum_posts():
         flash(f'Error loading forum posts: {str(e)}', 'error')
         return redirect(url_for('admin.dashboard'))
 
+@admin_bp.route('/forum-comments')
+@login_required
+@admin_required
+def forum_comments():
+    """List all forum comments with admin controls"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = 20
+        
+        comments = ForumComment.query.order_by(desc(ForumComment.created_at)).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+        
+        return render_template('admin/forum_comments.html', comments=comments)
+    except Exception as e:
+        flash(f'Error loading forum comments: {str(e)}', 'error')
+        return redirect(url_for('admin.dashboard'))
+
 # API routes for deletion actions
 @admin_bp.route('/api/delete/opportunity/<int:opportunity_id>', methods=['DELETE'])
 @login_required
