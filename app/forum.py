@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
-from sqlalchemy import and_, desc, asc, func, case
+from sqlalchemy import and_, desc, asc, func, case, select
+from sqlalchemy.orm import joinedload, selectinload
 from .models import db, ForumPost, ForumComment, ForumVote, ForumCategory, User, ResidentProfile, EmployerProfile
 from datetime import datetime
 import os
@@ -69,28 +70,63 @@ def forum_index():
             func.count(ForumComment.id).desc()
         )
     
+    # Eager load author relationships to avoid N+1 queries
+    query = query.options(joinedload(ForumPost.author))
+    
     # Pagination
     posts = query.paginate(page=page, per_page=20, error_out=False)
     
-    # Get comment counts and vote counts for each post
+    # Batch load comment counts for all posts in one query
+    post_ids = [post.id for post in posts.items]
+    if post_ids:
+        comment_counts = db.session.query(
+            ForumComment.post_id,
+            func.count(ForumComment.id).label('count')
+        ).filter(ForumComment.post_id.in_(post_ids)).group_by(ForumComment.post_id).all()
+        comment_count_dict = {post_id: count for post_id, count in comment_counts}
+    else:
+        comment_count_dict = {}
+    
+    # Batch load vote counts for all posts in one query
+    if post_ids:
+        vote_counts = db.session.query(
+            ForumVote.post_id,
+            ForumVote.vote_type,
+            func.count(ForumVote.id).label('count')
+        ).filter(
+            ForumVote.post_id.in_(post_ids),
+            ForumVote.post_id.isnot(None)
+        ).group_by(ForumVote.post_id, ForumVote.vote_type).all()
+        
+        # Build vote count dictionaries
+        upvote_dict = {}
+        downvote_dict = {}
+        for post_id, vote_type, count in vote_counts:
+            if vote_type == 'upvote':
+                upvote_dict[post_id] = count
+            elif vote_type == 'downvote':
+                downvote_dict[post_id] = count
+    else:
+        upvote_dict = {}
+        downvote_dict = {}
+    
+    # Batch load user vote states for all posts in one query
+    user_vote_dict = {}
+    if current_user and current_user.is_authenticated and post_ids:
+        user_votes = ForumVote.query.filter(
+            ForumVote.user_id == current_user.id,
+            ForumVote.post_id.in_(post_ids),
+            ForumVote.post_id.isnot(None)
+        ).all()
+        user_vote_dict = {vote.post_id: vote.vote_type for vote in user_votes}
+    
+    # Attach all data to posts
     for post in posts.items:
-        # Add comment count and vote count as attributes (not properties)
-        post._comment_count = ForumComment.query.filter_by(post_id=post.id).count()
-        
-        # Add vote count
-        upvotes = ForumVote.query.filter_by(post_id=post.id, vote_type="upvote").count()
-        downvotes = ForumVote.query.filter_by(post_id=post.id, vote_type="downvote").count()
+        post._comment_count = comment_count_dict.get(post.id, 0)
+        upvotes = upvote_dict.get(post.id, 0)
+        downvotes = downvote_dict.get(post.id, 0)
         post._total_votes = upvotes - downvotes
-        
-        # Add user's current vote state if logged in
-        if current_user and current_user.is_authenticated:
-            user_vote = ForumVote.query.filter_by(
-                user_id=current_user.id,
-                post_id=post.id
-            ).first()
-            post._user_vote = user_vote.vote_type if user_vote else None
-        else:
-            post._user_vote = None
+        post._user_vote = user_vote_dict.get(post.id, None)
     
     # Check if specialty features are enabled
     specialty_enabled = should_enable_forum_specialty()
@@ -183,65 +219,94 @@ def new_post():
 @forum_bp.route("/forum/post/<int:post_id>")
 def view_post(post_id):
     """View a specific forum post and its comments"""
-    post = ForumPost.query.get_or_404(post_id)
+    # Eager load author relationship
+    post = ForumPost.query.options(joinedload(ForumPost.author)).get_or_404(post_id)
     sort_by = request.args.get("sort", "oldest")  # Changed default to oldest
     
-    # Get top-level comments (no parent) with proper sorting
-    if sort_by == "most_voted":
-        # Sort by net votes (upvotes - downvotes) descending using subqueries
-        from sqlalchemy import select, func, and_
-        
-        upvote_subquery = select(func.count(ForumVote.id)).where(
-            and_(ForumVote.comment_id == ForumComment.id, ForumVote.vote_type == "upvote")
-        ).scalar_subquery()
-        
-        downvote_subquery = select(func.count(ForumVote.id)).where(
-            and_(ForumVote.comment_id == ForumComment.id, ForumVote.vote_type == "downvote")
-        ).scalar_subquery()
-        
-        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(
-            (upvote_subquery - downvote_subquery).desc()
-        ).all()
-    elif sort_by == "newest":
-        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
-    elif sort_by == "oldest":
-        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.asc()).all()
-    else:
-        # Default to oldest if invalid sort option
-        comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.asc()).all()
+    # Load ALL comments for this post in one query with eager loading
+    all_comments = ForumComment.query.filter_by(post_id=post_id).options(
+        joinedload(ForumComment.author)
+    ).order_by(ForumComment.created_at.asc()).all()
     
-    # Get all replies for each comment (recursively)
-    def get_replies_with_nesting(comment):
-        replies = ForumComment.query.filter_by(parent_comment_id=comment.id).order_by(ForumComment.created_at.asc()).all()
-        for reply in replies:
-            reply.replies = get_replies_with_nesting(reply)
-        return replies
+    # Build comment tree structure in Python (much faster than recursive queries)
+    comment_dict = {}  # id -> comment object
+    top_level_comments = []
     
-    for comment in comments:
-        comment.replies = get_replies_with_nesting(comment)
+    # First pass: create dictionary and initialize replies list
+    for comment in all_comments:
+        comment.replies = []
+        comment_dict[comment.id] = comment
     
-    # Add vote counts and user vote states to comments and replies (recursively)
-    def add_vote_data(comment):
-        upvotes = ForumVote.query.filter_by(comment_id=comment.id, vote_type="upvote").count()
-        downvotes = ForumVote.query.filter_by(comment_id=comment.id, vote_type="downvote").count()
-        comment._total_votes = upvotes - downvotes
-        
-        # Add user's current vote state if logged in
-        if current_user and current_user.is_authenticated:
-            user_vote = ForumVote.query.filter_by(
-                user_id=current_user.id,
-                comment_id=comment.id
-            ).first()
-            comment._user_vote = user_vote.vote_type if user_vote else None
+    # Second pass: build tree structure
+    for comment in all_comments:
+        if comment.parent_comment_id is None:
+            top_level_comments.append(comment)
         else:
-            comment._user_vote = None
+            parent = comment_dict.get(comment.parent_comment_id)
+            if parent:
+                parent.replies.append(comment)
+    
+    # Sort top-level comments based on sort_by parameter
+    if sort_by == "most_voted":
+        # We'll sort by vote counts after loading them
+        pass  # Will sort after loading vote data
+    elif sort_by == "newest":
+        top_level_comments.sort(key=lambda c: c.created_at, reverse=True)
+    elif sort_by == "oldest":
+        top_level_comments.sort(key=lambda c: c.created_at)
+    # else: already sorted by created_at.asc() in query
+    
+    # Batch load vote counts for all comments in one query
+    comment_ids = [c.id for c in all_comments]
+    if comment_ids:
+        vote_counts = db.session.query(
+            ForumVote.comment_id,
+            ForumVote.vote_type,
+            func.count(ForumVote.id).label('count')
+        ).filter(
+            ForumVote.comment_id.in_(comment_ids),
+            ForumVote.comment_id.isnot(None)
+        ).group_by(ForumVote.comment_id, ForumVote.vote_type).all()
+        
+        # Build vote count dictionaries
+        upvote_dict = {}
+        downvote_dict = {}
+        for comment_id, vote_type, count in vote_counts:
+            if vote_type == 'upvote':
+                upvote_dict[comment_id] = count
+            elif vote_type == 'downvote':
+                downvote_dict[comment_id] = count
+    else:
+        upvote_dict = {}
+        downvote_dict = {}
+    
+    # Batch load user vote states for all comments in one query
+    user_comment_vote_dict = {}
+    if current_user and current_user.is_authenticated and comment_ids:
+        user_votes = ForumVote.query.filter(
+            ForumVote.user_id == current_user.id,
+            ForumVote.comment_id.in_(comment_ids),
+            ForumVote.comment_id.isnot(None)
+        ).all()
+        user_comment_vote_dict = {vote.comment_id: vote.vote_type for vote in user_votes}
+    
+    # Attach vote data to all comments (recursively)
+    def attach_vote_data(comment):
+        upvotes = upvote_dict.get(comment.id, 0)
+        downvotes = downvote_dict.get(comment.id, 0)
+        comment._total_votes = upvotes - downvotes
+        comment._user_vote = user_comment_vote_dict.get(comment.id, None)
         
         # Process replies recursively
         for reply in comment.replies:
-            add_vote_data(reply)
+            attach_vote_data(reply)
     
-    for comment in comments:
-        add_vote_data(comment)
+    for comment in top_level_comments:
+        attach_vote_data(comment)
+    
+    # Sort top-level comments by votes if needed
+    if sort_by == "most_voted":
+        top_level_comments.sort(key=lambda c: c._total_votes, reverse=True)
     
     # Add vote count and user vote state for the main post
     upvotes = ForumVote.query.filter_by(post_id=post.id, vote_type="upvote").count()
@@ -260,7 +325,7 @@ def view_post(post_id):
     
     return render_template("forum/view_post.html", 
                          post=post, 
-                         comments=comments,
+                         comments=top_level_comments,
                          current_sort=sort_by)
 
 
@@ -647,60 +712,99 @@ def get_comments(post_id):
     """Get just the comments section for a post (for AJAX reload)"""
     try:
         post = ForumPost.query.get_or_404(post_id)
-        sort_by = request.args.get("sort", "most_voted")
+        sort_by = request.args.get("sort", "oldest")
         current_app.logger.info(f"Getting comments for post {post_id}, sort: {sort_by}")
         
-        # Get top-level comments (no parent) with proper sorting
-        if sort_by == "most_voted":
-            # For now, just show most recent since we can't use properties in queries
-            comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
-        elif sort_by == "most_downvoted":
-            # For now, just show most recent since we can't use properties in queries
-            comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
-        elif sort_by == "most_recent":
-            comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
-        elif sort_by == "oldest":
-            comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.asc()).all()
-        else:
-            comments = ForumComment.query.filter_by(post_id=post_id, parent_comment_id=None).order_by(ForumComment.created_at.desc()).all()
+        # Load ALL comments for this post in one query with eager loading
+        all_comments = ForumComment.query.filter_by(post_id=post_id).options(
+            joinedload(ForumComment.author)
+        ).order_by(ForumComment.created_at.asc()).all()
         
-        # Get all replies for each comment (recursively)
-        def get_replies_with_nesting(comment):
-            replies = ForumComment.query.filter_by(parent_comment_id=comment.id).order_by(ForumComment.created_at.asc()).all()
-            for reply in replies:
-                reply.replies = get_replies_with_nesting(reply)
-            return replies
+        # Build comment tree structure in Python
+        comment_dict = {}  # id -> comment object
+        top_level_comments = []
         
-        for comment in comments:
-            comment.replies = get_replies_with_nesting(comment)
+        # First pass: create dictionary and initialize replies list
+        for comment in all_comments:
+            comment.replies = []
+            comment_dict[comment.id] = comment
         
-        # Add vote counts and user vote states to comments and replies (recursively)
-        def add_vote_data(comment):
-            upvotes = ForumVote.query.filter_by(comment_id=comment.id, vote_type="upvote").count()
-            downvotes = ForumVote.query.filter_by(comment_id=comment.id, vote_type="downvote").count()
-            comment._total_votes = upvotes - downvotes
-            
-            # Add user's current vote state if logged in
-            if current_user and current_user.is_authenticated:
-                user_vote = ForumVote.query.filter_by(
-                    user_id=current_user.id,
-                    comment_id=comment.id
-                ).first()
-                comment._user_vote = user_vote.vote_type if user_vote else None
+        # Second pass: build tree structure
+        for comment in all_comments:
+            if comment.parent_comment_id is None:
+                top_level_comments.append(comment)
             else:
-                comment._user_vote = None
+                parent = comment_dict.get(comment.parent_comment_id)
+                if parent:
+                    parent.replies.append(comment)
+        
+        # Sort top-level comments based on sort_by parameter
+        if sort_by == "most_voted":
+            pass  # Will sort after loading vote data
+        elif sort_by == "newest" or sort_by == "most_recent":
+            top_level_comments.sort(key=lambda c: c.created_at, reverse=True)
+        elif sort_by == "oldest":
+            top_level_comments.sort(key=lambda c: c.created_at)
+        # else: already sorted by created_at.asc() in query
+        
+        # Batch load vote counts for all comments in one query
+        comment_ids = [c.id for c in all_comments]
+        if comment_ids:
+            vote_counts = db.session.query(
+                ForumVote.comment_id,
+                ForumVote.vote_type,
+                func.count(ForumVote.id).label('count')
+            ).filter(
+                ForumVote.comment_id.in_(comment_ids),
+                ForumVote.comment_id.isnot(None)
+            ).group_by(ForumVote.comment_id, ForumVote.vote_type).all()
+            
+            # Build vote count dictionaries
+            upvote_dict = {}
+            downvote_dict = {}
+            for comment_id, vote_type, count in vote_counts:
+                if vote_type == 'upvote':
+                    upvote_dict[comment_id] = count
+                elif vote_type == 'downvote':
+                    downvote_dict[comment_id] = count
+        else:
+            upvote_dict = {}
+            downvote_dict = {}
+        
+        # Batch load user vote states for all comments in one query
+        user_comment_vote_dict = {}
+        if current_user and current_user.is_authenticated and comment_ids:
+            user_votes = ForumVote.query.filter(
+                ForumVote.user_id == current_user.id,
+                ForumVote.comment_id.in_(comment_ids),
+                ForumVote.comment_id.isnot(None)
+            ).all()
+            user_comment_vote_dict = {vote.comment_id: vote.vote_type for vote in user_votes}
+        
+        # Attach vote data to all comments (recursively)
+        def attach_vote_data(comment):
+            upvotes = upvote_dict.get(comment.id, 0)
+            downvotes = downvote_dict.get(comment.id, 0)
+            comment._total_votes = upvotes - downvotes
+            comment._user_vote = user_comment_vote_dict.get(comment.id, None)
             
             # Process replies recursively
             for reply in comment.replies:
-                add_vote_data(reply)
+                attach_vote_data(reply)
         
-        for comment in comments:
-            add_vote_data(comment)
+        for comment in top_level_comments:
+            attach_vote_data(comment)
+        
+        # Sort top-level comments by votes if needed
+        if sort_by == "most_voted":
+            top_level_comments.sort(key=lambda c: c._total_votes, reverse=True)
+        elif sort_by == "most_downvoted":
+            top_level_comments.sort(key=lambda c: c._total_votes)  # Ascending (most negative first)
         
         # Render just the comments section
         return render_template("forum/comments_section.html", 
                              post=post, 
-                             comments=comments,
+                             comments=top_level_comments,
                              current_sort=sort_by)
     
     except Exception as e:
