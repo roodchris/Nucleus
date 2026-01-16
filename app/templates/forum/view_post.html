@@ -156,7 +156,7 @@
 <!-- Comments Section -->
 <div class="comments-section">
   <div class="comments-header">
-    <h3>💬 Comments ({{ comments|length }})</h3>
+    <h3>💬 Comments ({{ comment_count }})</h3>
     <div class="comment-sort-controls">
       <label for="comment-sort" class="sort-label">Sort by:</label>
       <select id="comment-sort" class="sort-dropdown" onchange="sortComments(this.value)">
@@ -969,11 +969,31 @@ function deleteComment(commentId) {
       let commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
       
       if (commentElement) {
-        // Update the comment content to show [deleted]
-        const contentDiv = commentElement.querySelector('.comment-text, .comment-content');
+        // Mark as deleted
+        commentElement.setAttribute('data-is-deleted', 'true');
+        
+        // Update the comment to show [deleted]
+        // Update author name
+        const authorName = commentElement.querySelector('.author-name, .reply-author .author-name');
+        if (authorName) {
+          authorName.textContent = '[deleted]';
+          authorName.style.color = 'var(--text-muted)';
+          authorName.style.fontStyle = 'italic';
+        }
+        
+        // Update author avatar
+        const authorAvatar = commentElement.querySelector('.author-avatar-small');
+        if (authorAvatar) {
+          authorAvatar.textContent = '[deleted]';
+          authorAvatar.style.opacity = '0.5';
+        }
+        
+        // Update comment content
+        const contentDiv = commentElement.querySelector('.comment-text, .reply-text');
         if (contentDiv) {
           contentDiv.textContent = '[deleted]';
-          contentDiv.classList.add('deleted-comment');
+          contentDiv.style.color = 'var(--text-muted)';
+          contentDiv.style.fontStyle = 'italic';
         }
         
         // Hide action buttons (Reply, Edit, Delete)
@@ -990,6 +1010,14 @@ function deleteComment(commentId) {
         const replyForm = document.getElementById(`reply-form-${commentId}`);
         if (replyForm) {
           replyForm.style.display = 'none';
+        }
+        
+        // Update comment count in header (deleted comments don't count)
+        const commentsHeader = document.querySelector('.comments-header h3');
+        if (commentsHeader) {
+          const currentCount = parseInt(commentsHeader.textContent.match(/\d+/)?.[0] || '0');
+          const newCount = Math.max(0, currentCount - 1);
+          commentsHeader.textContent = commentsHeader.textContent.replace(/\d+/, newCount);
         }
       } else {
         // If we can't find the element, reload the comments section

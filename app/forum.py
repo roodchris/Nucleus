@@ -76,13 +76,16 @@ def forum_index():
     # Pagination
     posts = query.paginate(page=page, per_page=20, error_out=False)
     
-    # Batch load comment counts for all posts in one query
+    # Batch load comment counts for all posts in one query (exclude deleted comments from count)
     post_ids = [post.id for post in posts.items]
     if post_ids:
         comment_counts = db.session.query(
             ForumComment.post_id,
             func.count(ForumComment.id).label('count')
-        ).filter(ForumComment.post_id.in_(post_ids)).group_by(ForumComment.post_id).all()
+        ).filter(
+            ForumComment.post_id.in_(post_ids),
+            ForumComment.is_deleted == False
+        ).group_by(ForumComment.post_id).all()
         comment_count_dict = {post_id: count for post_id, count in comment_counts}
     else:
         comment_count_dict = {}
@@ -223,8 +226,10 @@ def view_post(post_id):
     post = ForumPost.query.options(joinedload(ForumPost.author)).get_or_404(post_id)
     sort_by = request.args.get("sort", "oldest")  # Changed default to oldest
     
-    # Load ALL comments for this post in one query with eager loading
-    all_comments = ForumComment.query.filter_by(post_id=post_id).options(
+    # Load ALL comments for this post in one query with eager loading (include deleted for tree structure)
+    all_comments = ForumComment.query.filter_by(
+        post_id=post_id
+    ).options(
         joinedload(ForumComment.author)
     ).order_by(ForumComment.created_at.asc()).all()
     
@@ -237,14 +242,20 @@ def view_post(post_id):
         comment.replies = []
         comment_dict[comment.id] = comment
     
-    # Second pass: build tree structure
+    # Second pass: build tree structure (include deleted comments to maintain tree structure)
     for comment in all_comments:
         if comment.parent_comment_id is None:
+            # Top-level comment (no parent)
             top_level_comments.append(comment)
         else:
+            # This comment has a parent - try to attach it to the parent
             parent = comment_dict.get(comment.parent_comment_id)
             if parent:
+                # Parent exists - attach as reply (even if parent is deleted)
                 parent.replies.append(comment)
+            else:
+                # Parent not found - this shouldn't happen, but make it top-level as fallback
+                top_level_comments.append(comment)
     
     # Helper function to sort replies recursively
     def sort_replies_recursive(comment):
@@ -335,9 +346,13 @@ def view_post(post_id):
     else:
         post._user_vote = None
     
+    # Calculate comment count excluding deleted comments
+    non_deleted_count = sum(1 for c in all_comments if not c.is_deleted)
+    
     return render_template("forum/view_post.html", 
                          post=post, 
                          comments=top_level_comments,
+                         comment_count=non_deleted_count,
                          current_sort=sort_by)
 
 
@@ -727,8 +742,10 @@ def get_comments(post_id):
         sort_by = request.args.get("sort", "oldest")
         current_app.logger.info(f"Getting comments for post {post_id}, sort: {sort_by}")
         
-        # Load ALL comments for this post in one query with eager loading
-        all_comments = ForumComment.query.filter_by(post_id=post_id).options(
+        # Load ALL comments for this post in one query with eager loading (include deleted for tree structure)
+        all_comments = ForumComment.query.filter_by(
+            post_id=post_id
+        ).options(
             joinedload(ForumComment.author)
         ).order_by(ForumComment.created_at.asc()).all()
         
@@ -741,14 +758,20 @@ def get_comments(post_id):
             comment.replies = []
             comment_dict[comment.id] = comment
         
-        # Second pass: build tree structure
+        # Second pass: build tree structure (include deleted comments to maintain tree structure)
         for comment in all_comments:
             if comment.parent_comment_id is None:
+                # Top-level comment (no parent)
                 top_level_comments.append(comment)
             else:
+                # This comment has a parent - try to attach it to the parent
                 parent = comment_dict.get(comment.parent_comment_id)
                 if parent:
+                    # Parent exists - attach as reply (even if parent is deleted)
                     parent.replies.append(comment)
+                else:
+                    # Parent not found - this shouldn't happen, but make it top-level as fallback
+                    top_level_comments.append(comment)
         
         # Helper function to sort replies recursively
         def sort_replies_recursive(comment):
@@ -825,10 +848,14 @@ def get_comments(post_id):
         elif sort_by == "most_downvoted":
             top_level_comments.sort(key=lambda c: c._total_votes)  # Ascending (most negative first)
         
+        # Calculate comment count excluding deleted comments
+        non_deleted_count = sum(1 for c in all_comments if not c.is_deleted)
+        
         # Render just the comments section
         return render_template("forum/comments_section.html", 
                              post=post, 
                              comments=top_level_comments,
+                             comment_count=non_deleted_count,
                              current_sort=sort_by)
     
     except Exception as e:

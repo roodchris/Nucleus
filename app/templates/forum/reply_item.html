@@ -1,4 +1,4 @@
-<div class="reply-item" data-comment-id="{{ reply.id }}">
+<div class="reply-item" data-comment-id="{{ reply.id }}" {% if reply.is_deleted %}data-is-deleted="true"{% endif %}>
   <div class="reply-content-wrapper">
     <!-- Vote Column for Reply -->
     <div class="reply-votes">
@@ -21,16 +21,23 @@
     <div class="reply-main">
       <div class="reply-header">
         <div class="reply-author">
-          {% if reply.author.resident_profile and reply.author.resident_profile.photo_filename %}
-            <img src="/uploads/{{ reply.author.resident_profile.photo_filename }}" alt="{{ reply.author.name }}" class="author-avatar-small">
-          {% elif reply.author.employer_profile and reply.author.employer_profile.photo_filename %}
-            <img src="/uploads/{{ reply.author.employer_profile.photo_filename }}" alt="{{ reply.author.name }}" class="author-avatar-small">
-          {% else %}
-            <div class="author-avatar-small">
-              {{ reply.author.name[0].upper() }}
+          {% if reply.is_deleted %}
+            <div class="author-avatar-small" style="opacity: 0.5;">
+              [deleted]
             </div>
+            <span class="author-name" style="color: var(--text-muted); font-style: italic;">[deleted]</span>
+          {% else %}
+            {% if reply.author.resident_profile and reply.author.resident_profile.photo_filename %}
+              <img src="/uploads/{{ reply.author.resident_profile.photo_filename }}" alt="{{ reply.author.name }}" class="author-avatar-small">
+            {% elif reply.author.employer_profile and reply.author.employer_profile.photo_filename %}
+              <img src="/uploads/{{ reply.author.employer_profile.photo_filename }}" alt="{{ reply.author.name }}" class="author-avatar-small">
+            {% else %}
+              <div class="author-avatar-small">
+                {{ reply.author.name[0].upper() }}
+              </div>
+            {% endif %}
+            <span class="author-name">{{ reply.author.name }}</span>
           {% endif %}
-          <span class="author-name">{{ reply.author.name }}</span>
         </div>
         <div class="reply-meta">
           <span class="reply-date" data-timestamp="{{ reply.created_at.isoformat() }}" data-format="full">
@@ -44,7 +51,7 @@
       
       <div class="reply-body">
         {% if reply.is_deleted %}
-          <div class="deleted-comment">[deleted]</div>
+          <div class="reply-text" id="comment-content-{{ reply.id }}" style="color: var(--text-muted); font-style: italic;">[deleted]</div>
         {% else %}
           <div class="reply-text" id="comment-content-{{ reply.id }}">{{ reply.content }}</div>
         {% endif %}
@@ -77,6 +84,7 @@
             </button>
           {% endif %}
         </div>
+      {% endif %}
       {% endif %}
       
       <!-- Edit Comment Form (Hidden by default) -->
@@ -252,12 +260,6 @@
   white-space: pre-wrap;
 }
 
-.deleted-comment {
-  font-style: italic;
-  color: var(--text-muted);
-  font-size: 12px;
-  opacity: 0.7;
-}
 
 .reply-actions {
   display: flex;
