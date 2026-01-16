@@ -176,7 +176,7 @@
       <!-- Photo Upload Section for Comments -->
       <div class="form-group">
         <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--text-secondary); font-size: 11px;">Photos (Optional)</label>
-        <div id="commentPhotoUploadArea" style="border: 2px dashed #4a5568; border-radius: 6px; padding: 8px; text-align: center; background: rgba(255,255,255,0.02); cursor: pointer;">
+        <div id="commentPhotoUploadArea" style="border: 2px dashed #4a5568; border-radius: 6px; padding: 6px; text-align: center; background: rgba(255,255,255,0.02); cursor: pointer;">
           <div id="commentPhotoUploadText">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto 4px; opacity: 0.6;">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -191,7 +191,7 @@
         </div>
         
         <!-- Photo Preview Area for Comments -->
-        <div id="commentPhotoPreview" style="margin-top: 12px; display: none;">
+        <div id="commentPhotoPreview" style="margin-top: 8px; display: none;">
           <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px;">
             <!-- Photos will be added here dynamically -->
           </div>
@@ -220,7 +220,7 @@
 <style>
 /* Post Card Styling */
 .post-card {
-  background: var(--surface);
+  background: rgba(128, 128, 128, 0.1);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 14px 16px;
@@ -570,17 +570,17 @@
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 12px;
+  padding: 8px 12px;
   margin-bottom: 16px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .comment-form-card .form-group {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .comment-form-card textarea {
-  min-height: 80px;
+  min-height: 50px;
   resize: vertical;
 }
 
