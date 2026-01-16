@@ -26,8 +26,8 @@
             <div class="comment-header">
               <div class="comment-author">
                 {% if comment.is_deleted %}
-                  <div class="author-avatar-small" style="opacity: 0.5;">
-                    [deleted]
+                  <div class="author-avatar-small deleted-avatar">
+                    X
                   </div>
                   <span class="author-name" style="color: var(--text-muted); font-style: italic;">[deleted]</span>
                 {% else %}
@@ -283,6 +283,14 @@
   color: var(--bg);
   font-size: 9px;
   font-weight: 600;
+}
+
+.author-avatar-small.deleted-avatar {
+  background: #3b82f6;
+  color: white;
+  font-weight: 700;
+  font-size: 10px;
+  opacity: 0.8;
 }
 
 .author-name {

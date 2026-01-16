@@ -253,24 +253,40 @@ def view_post(post_id):
     top_level_comments = []
     
     # First pass: create dictionary and initialize replies list
+    # Clear any existing SQLAlchemy relationship and set our own list
     for comment in all_comments:
-        comment.replies = []
+        # Clear SQLAlchemy relationship if it exists and set our own list
+        if hasattr(comment, 'replies'):
+            # Clear the relationship collection
+            try:
+                comment.replies.clear()
+            except:
+                pass
+        # Set our own list for building the tree
+        setattr(comment, 'replies', [])
         comment_dict[comment.id] = comment
     
     # Second pass: build tree structure (include deleted comments to maintain tree structure)
+    # IMPORTANT: Only process each comment once, and ensure nested comments go to their parents
     for comment in all_comments:
         if comment.parent_comment_id is None:
-            # Top-level comment (no parent)
-            top_level_comments.append(comment)
+            # Top-level comment (no parent) - only add if not already added
+            if comment not in top_level_comments:
+                top_level_comments.append(comment)
         else:
-            # This comment has a parent - try to attach it to the parent
+            # This comment has a parent - MUST attach it to the parent, never to top-level
             parent = comment_dict.get(comment.parent_comment_id)
             if parent:
                 # Parent exists - attach as reply (even if parent is deleted)
-                parent.replies.append(comment)
+                if comment not in parent.replies:
+                    parent.replies.append(comment)
+                # Make sure it's not in top_level_comments (defensive)
+                if comment in top_level_comments:
+                    top_level_comments.remove(comment)
             else:
-                # Parent not found - this shouldn't happen, but make it top-level as fallback
-                top_level_comments.append(comment)
+                # Parent not found - this is a data integrity issue, but log it
+                # Still don't add to top-level to avoid showing nested as top-level
+                current_app.logger.warning(f"Comment {comment.id} has parent_comment_id {comment.parent_comment_id} but parent not found")
     
     # Helper function to sort replies recursively
     def sort_replies_recursive(comment):
@@ -784,24 +800,40 @@ def get_comments(post_id):
         top_level_comments = []
         
         # First pass: create dictionary and initialize replies list
+        # Clear any existing SQLAlchemy relationship and set our own list
         for comment in all_comments:
-            comment.replies = []
+            # Clear SQLAlchemy relationship if it exists and set our own list
+            if hasattr(comment, 'replies'):
+                # Clear the relationship collection
+                try:
+                    comment.replies.clear()
+                except:
+                    pass
+            # Set our own list for building the tree
+            setattr(comment, 'replies', [])
             comment_dict[comment.id] = comment
         
         # Second pass: build tree structure (include deleted comments to maintain tree structure)
+        # IMPORTANT: Only process each comment once, and ensure nested comments go to their parents
         for comment in all_comments:
             if comment.parent_comment_id is None:
-                # Top-level comment (no parent)
-                top_level_comments.append(comment)
+                # Top-level comment (no parent) - only add if not already added
+                if comment not in top_level_comments:
+                    top_level_comments.append(comment)
             else:
-                # This comment has a parent - try to attach it to the parent
+                # This comment has a parent - MUST attach it to the parent, never to top-level
                 parent = comment_dict.get(comment.parent_comment_id)
                 if parent:
                     # Parent exists - attach as reply (even if parent is deleted)
-                    parent.replies.append(comment)
+                    if comment not in parent.replies:
+                        parent.replies.append(comment)
+                    # Make sure it's not in top_level_comments (defensive)
+                    if comment in top_level_comments:
+                        top_level_comments.remove(comment)
                 else:
-                    # Parent not found - this shouldn't happen, but make it top-level as fallback
-                    top_level_comments.append(comment)
+                    # Parent not found - this is a data integrity issue, but log it
+                    # Still don't add to top-level to avoid showing nested as top-level
+                    current_app.logger.warning(f"Comment {comment.id} has parent_comment_id {comment.parent_comment_id} but parent not found")
         
         # Helper function to sort replies recursively
         def sort_replies_recursive(comment):

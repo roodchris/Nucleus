@@ -22,8 +22,8 @@
       <div class="reply-header">
         <div class="reply-author">
           {% if reply.is_deleted %}
-            <div class="author-avatar-small" style="opacity: 0.5;">
-              [deleted]
+            <div class="author-avatar-small deleted-avatar">
+              X
             </div>
             <span class="author-name" style="color: var(--text-muted); font-style: italic;">[deleted]</span>
           {% else %}
@@ -93,7 +93,6 @@
             </button>
           {% endif %}
         </div>
-      {% endif %}
       {% endif %}
       
       <!-- Edit Comment Form (Hidden by default) -->
@@ -239,6 +238,14 @@
   width: 18px;
   height: 18px;
   font-size: 7px;
+}
+
+.reply-author .author-avatar-small.deleted-avatar {
+  background: #3b82f6;
+  color: white;
+  font-weight: 700;
+  font-size: 8px;
+  opacity: 0.8;
 }
 
 .reply-author .author-name {
