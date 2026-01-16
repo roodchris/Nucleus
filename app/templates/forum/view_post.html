@@ -10,126 +10,129 @@
 
 <!-- Post Content Card -->
 <div class="post-card">
-  <div class="post-header">
-    <div class="post-meta">
-      <div class="post-author">
-        <div class="author-avatar">
-          <a href="/profile/{{ post.author.id }}" style="text-decoration: none; display: block;">
-            {% if post.author.resident_profile and post.author.resident_profile.photo_filename %}
-              <img src="/uploads/{{ post.author.resident_profile.photo_filename }}" alt="{{ post.author.name }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-            {% elif post.author.employer_profile and post.author.employer_profile.photo_filename %}
-              <img src="/uploads/{{ post.author.employer_profile.photo_filename }}" alt="{{ post.author.name }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-            {% else %}
-              <span>{{ post.author.name[0].upper() }}</span>
-            {% endif %}
-          </a>
-        </div>
-        <div class="author-info">
-          <div class="author-name"><a href="/profile/{{ post.author.id }}" style="color: var(--accent); text-decoration: none;">{{ post.author.name }}</a></div>
-          <div class="post-date" data-timestamp="{{ post.created_at.isoformat() }}" data-format="full">{{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}</div>
-        </div>
-      </div>
-      <div class="post-category">
-        <span class="category-badge">{{ post.category.value.replace('_', ' ').title() }}</span>
-        {% if post.specialty %}
-          <span class="specialty-badge">
-            {% if post.specialty == 'NON_CLINICAL_OTHER' %}Non-clinical/Other
-            {% elif post.specialty == 'AEROSPACE_MEDICINE' %}Aerospace Medicine
-            {% elif post.specialty == 'ANESTHESIOLOGY' %}Anesthesiology
-            {% elif post.specialty == 'CHILD_NEUROLOGY' %}Child Neurology
-            {% elif post.specialty == 'DERMATOLOGY' %}Dermatology
-            {% elif post.specialty == 'EMERGENCY_MEDICINE' %}Emergency Medicine
-            {% elif post.specialty == 'FAMILY_MEDICINE' %}Family Medicine
-            {% elif post.specialty == 'INTERNAL_MEDICINE' %}Internal Medicine
-            {% elif post.specialty == 'MEDICAL_GENETICS' %}Medical Genetics
-            {% elif post.specialty == 'INTERVENTIONAL_RADIOLOGY' %}Interventional Radiology
-            {% elif post.specialty == 'NEUROLOGICAL_SURGERY' %}Neurological Surgery
-            {% elif post.specialty == 'NEUROLOGY' %}Neurology
-            {% elif post.specialty == 'NUCLEAR_MEDICINE' %}Nuclear Medicine
-            {% elif post.specialty == 'OBSTETRICS_GYNECOLOGY' %}Obstetrics and Gynecology
-            {% elif post.specialty == 'OCCUPATIONAL_ENVIRONMENTAL_MEDICINE' %}Occupational and Environmental Medicine
-            {% elif post.specialty == 'ORTHOPAEDIC_SURGERY' %}Orthopaedic Surgery
-            {% elif post.specialty == 'OTOLARYNGOLOGY' %}Otolaryngology - Head and Neck Surgery
-            {% elif post.specialty == 'PATHOLOGY' %}Pathology-Anatomic and Clinical
-            {% elif post.specialty == 'PEDIATRICS' %}Pediatrics
-            {% elif post.specialty == 'PHYSICAL_MEDICINE_REHABILITATION' %}Physical Medicine and Rehabilitation
-            {% elif post.specialty == 'PLASTIC_SURGERY' %}Plastic Surgery
-            {% elif post.specialty == 'PSYCHIATRY' %}Psychiatry
-            {% elif post.specialty == 'RADIATION_ONCOLOGY' %}Radiation Oncology
-            {% elif post.specialty == 'RADIOLOGY_DIAGNOSTIC' %}Radiology-Diagnostic
-            {% elif post.specialty == 'GENERAL_SURGERY' %}General Surgery
-            {% elif post.specialty == 'THORACIC_SURGERY' %}Thoracic Surgery
-            {% elif post.specialty == 'UROLOGY' %}Urology
-            {% elif post.specialty == 'VASCULAR_SURGERY' %}Vascular Surgery
-            {% else %}{{ post.specialty.replace('_', ' ').title() }}
-            {% endif %}
-          </span>
-        {% endif %}
-      </div>
-    </div>
-    {% if current_user.is_authenticated and current_user.id == post.author_id %}
-    <div class="post-actions">
-      <button class="action-btn edit-btn" onclick="showEditPost()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Edit
-      </button>
-      <button class="action-btn delete-btn" onclick="deletePost({{ post.id }})">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Delete
-      </button>
-    </div>
-    {% endif %}
-  </div>
-  
-  <div class="post-content">
-    {{ post.content | replace('\n', '<br>') | safe }}
-  </div>
-  
-  <!-- Post Photos -->
-  {% if post.photos %}
-    {% set post_photos = post.photos|from_json %}
-    {% if post_photos %}
-      <div class="post-photos" style="margin-top: 16px;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
-          {% for photo in post_photos %}
-            <div style="position: relative; border-radius: 8px; overflow: hidden; background: #1a202c;">
-              <img src="/static/uploads/photos/{{ photo }}" 
-                   alt="Post photo" 
-                   style="width: 100%; height: 200px; object-fit: cover; display: block; cursor: pointer;"
-                   onclick="openPhotoModal('/static/uploads/photos/{{ photo }}')">
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
-  {% endif %}
-
-  <!-- Post Voting Section -->
-  {% if current_user.is_authenticated %}
-  <div class="post-voting">
+  <div class="post-content-wrapper">
+    <!-- Vote Column -->
+    {% if current_user.is_authenticated %}
     <div class="post-votes">
       <div class="vote-container">
         <button class="vote-btn upvote{% if post._user_vote == 'upvote' %} voted{% endif %}" data-post-id="{{ post.id }}" data-vote-type="upvote">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
         <span class="vote-count" id="post-votes-{{ post.id }}">{{ post._total_votes }}</span>
         <button class="vote-btn downvote{% if post._user_vote == 'downvote' %} voted{% endif %}" data-post-id="{{ post.id }}" data-vote-type="downvote">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
       </div>
     </div>
+    {% endif %}
+    
+    <!-- Post Main Content -->
+    <div class="post-main">
+      <div class="post-header">
+        <div class="post-meta">
+          <div class="post-author">
+            <div class="author-avatar">
+              <a href="/profile/{{ post.author.id }}" style="text-decoration: none; display: block;">
+                {% if post.author.resident_profile and post.author.resident_profile.photo_filename %}
+                  <img src="/uploads/{{ post.author.resident_profile.photo_filename }}" alt="{{ post.author.name }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                {% elif post.author.employer_profile and post.author.employer_profile.photo_filename %}
+                  <img src="/uploads/{{ post.author.employer_profile.photo_filename }}" alt="{{ post.author.name }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                {% else %}
+                  <span>{{ post.author.name[0].upper() }}</span>
+                {% endif %}
+              </a>
+            </div>
+            <div class="author-info">
+              <div class="author-name"><a href="/profile/{{ post.author.id }}" style="color: var(--accent); text-decoration: none;">{{ post.author.name }}</a></div>
+              <div class="post-date" data-timestamp="{{ post.created_at.isoformat() }}" data-format="full">{{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}</div>
+            </div>
+          </div>
+          <div class="post-category">
+            <span class="category-badge">{{ post.category.value.replace('_', ' ').title() }}</span>
+            {% if post.specialty %}
+              <span class="specialty-badge">
+                {% if post.specialty == 'NON_CLINICAL_OTHER' %}Non-clinical/Other
+                {% elif post.specialty == 'AEROSPACE_MEDICINE' %}Aerospace Medicine
+                {% elif post.specialty == 'ANESTHESIOLOGY' %}Anesthesiology
+                {% elif post.specialty == 'CHILD_NEUROLOGY' %}Child Neurology
+                {% elif post.specialty == 'DERMATOLOGY' %}Dermatology
+                {% elif post.specialty == 'EMERGENCY_MEDICINE' %}Emergency Medicine
+                {% elif post.specialty == 'FAMILY_MEDICINE' %}Family Medicine
+                {% elif post.specialty == 'INTERNAL_MEDICINE' %}Internal Medicine
+                {% elif post.specialty == 'MEDICAL_GENETICS' %}Medical Genetics
+                {% elif post.specialty == 'INTERVENTIONAL_RADIOLOGY' %}Interventional Radiology
+                {% elif post.specialty == 'NEUROLOGICAL_SURGERY' %}Neurological Surgery
+                {% elif post.specialty == 'NEUROLOGY' %}Neurology
+                {% elif post.specialty == 'NUCLEAR_MEDICINE' %}Nuclear Medicine
+                {% elif post.specialty == 'OBSTETRICS_GYNECOLOGY' %}Obstetrics and Gynecology
+                {% elif post.specialty == 'OCCUPATIONAL_ENVIRONMENTAL_MEDICINE' %}Occupational and Environmental Medicine
+                {% elif post.specialty == 'ORTHOPAEDIC_SURGERY' %}Orthopaedic Surgery
+                {% elif post.specialty == 'OTOLARYNGOLOGY' %}Otolaryngology - Head and Neck Surgery
+                {% elif post.specialty == 'PATHOLOGY' %}Pathology-Anatomic and Clinical
+                {% elif post.specialty == 'PEDIATRICS' %}Pediatrics
+                {% elif post.specialty == 'PHYSICAL_MEDICINE_REHABILITATION' %}Physical Medicine and Rehabilitation
+                {% elif post.specialty == 'PLASTIC_SURGERY' %}Plastic Surgery
+                {% elif post.specialty == 'PSYCHIATRY' %}Psychiatry
+                {% elif post.specialty == 'RADIATION_ONCOLOGY' %}Radiation Oncology
+                {% elif post.specialty == 'RADIOLOGY_DIAGNOSTIC' %}Radiology-Diagnostic
+                {% elif post.specialty == 'GENERAL_SURGERY' %}General Surgery
+                {% elif post.specialty == 'THORACIC_SURGERY' %}Thoracic Surgery
+                {% elif post.specialty == 'UROLOGY' %}Urology
+                {% elif post.specialty == 'VASCULAR_SURGERY' %}Vascular Surgery
+                {% else %}{{ post.specialty.replace('_', ' ').title() }}
+                {% endif %}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        {% if current_user.is_authenticated and current_user.id == post.author_id %}
+        <div class="post-actions">
+          <button class="action-btn edit-btn" onclick="showEditPost()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Edit
+          </button>
+          <button class="action-btn delete-btn" onclick="deletePost({{ post.id }})">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Delete
+          </button>
+        </div>
+        {% endif %}
+      </div>
+      
+      <div class="post-content">
+        {{ post.content | replace('\n', '<br>') | safe }}
+      </div>
+      
+      <!-- Post Photos -->
+      {% if post.photos %}
+        {% set post_photos = post.photos|from_json %}
+        {% if post_photos %}
+          <div class="post-photos" style="margin-top: 16px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+              {% for photo in post_photos %}
+                <div style="position: relative; border-radius: 8px; overflow: hidden; background: #1a202c;">
+                  <img src="/static/uploads/photos/{{ photo }}" 
+                       alt="Post photo" 
+                       style="width: 100%; height: 200px; object-fit: cover; display: block; cursor: pointer;"
+                       onclick="openPhotoModal('/static/uploads/photos/{{ photo }}')">
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
   </div>
-  {% endif %}
 
   <!-- Edit Post Form (Hidden by default) -->
   {% if current_user.is_authenticated and current_user.id == post.author_id %}
@@ -236,6 +239,68 @@
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15);
   border-color: var(--accent);
+}
+
+.post-content-wrapper {
+  display: flex;
+  gap: 10px;
+}
+
+.post-votes {
+  min-width: 28px;
+}
+
+.post-votes .vote-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.post-votes .vote-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+
+.post-votes .vote-btn:hover {
+  background: var(--accent-light);
+}
+
+.post-votes .vote-btn.upvote {
+  color: var(--text-secondary);
+}
+
+.post-votes .vote-btn.downvote {
+  color: var(--text-secondary);
+}
+
+.post-votes .vote-btn.upvote.voted {
+  color: var(--accent);
+}
+
+.post-votes .vote-btn.downvote.voted {
+  color: var(--notification);
+}
+
+.post-votes .vote-count {
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--text);
+}
+
+.post-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .post-header {
@@ -355,64 +420,6 @@
   border-color: var(--notification);
 }
 
-/* Vote Button Styling - Matching Forum Index */
-.vote-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.vote-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-}
-
-.vote-btn:hover {
-  background: var(--accent-light);
-}
-
-.vote-btn.upvote {
-  color: var(--text-secondary);
-}
-
-.vote-btn.downvote {
-  color: var(--text-secondary);
-}
-
-.vote-btn.upvote.voted {
-  color: var(--accent);
-}
-
-.vote-btn.downvote.voted {
-  color: var(--notification);
-}
-
-.vote-count {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--text);
-}
-
-/* Post Voting Section */
-.post-voting {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border-light);
-}
-
-.post-votes {
-  display: flex;
-  align-items: center;
-}
 
 .post-content {
   font-size: 14px;
@@ -623,6 +630,14 @@
   .comments-section {
     padding: 12px;
     margin-bottom: 12px;
+  }
+  
+  .post-content-wrapper {
+    gap: 8px;
+  }
+  
+  .post-votes {
+    min-width: 24px;
   }
   
   .post-header {
