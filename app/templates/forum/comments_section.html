@@ -6,17 +6,19 @@
         <div class="comment-content-wrapper">
           <!-- Vote Column -->
           <div class="comment-votes">
-            <button class="vote-btn upvote" data-comment-id="{{ comment.id }}" data-vote-type="upvote" data-user-vote="{{ comment._user_vote or '' }}">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <span class="vote-count" id="comment-votes-{{ comment.id }}">{{ comment._total_votes }}</span>
-            <button class="vote-btn downvote" data-comment-id="{{ comment.id }}" data-vote-type="downvote" data-user-vote="{{ comment._user_vote or '' }}">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
+            <div class="vote-container">
+              <button class="vote-btn upvote{% if comment._user_vote == 'upvote' %} voted{% endif %}" data-comment-id="{{ comment.id }}" data-vote-type="upvote">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <span class="vote-count" id="comment-votes-{{ comment.id }}">{{ comment._total_votes }}</span>
+              <button class="vote-btn downvote{% if comment._user_vote == 'downvote' %} voted{% endif %}" data-comment-id="{{ comment.id }}" data-vote-type="downvote">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
           </div>
           
           <!-- Comment Content -->
@@ -184,53 +186,53 @@
 }
 
 .comment-votes {
+  min-width: 28px;
+}
+
+.vote-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  min-width: 28px;
+  gap: 0.25rem;
 }
 
 .vote-btn {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 3px;
-  border-radius: 3px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.75rem;
 }
 
 .vote-btn:hover {
-  background: var(--surface-3);
+  background: var(--accent-light);
 }
 
 .vote-btn.upvote {
-  color: var(--text-muted);
-}
-
-.vote-btn.upvote:hover,
-.vote-btn.upvote.active {
-  color: var(--accent);
+  color: var(--text-secondary);
 }
 
 .vote-btn.downvote {
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
-.vote-btn.downvote:hover,
-.vote-btn.downvote.active {
+.vote-btn.upvote.voted {
+  color: var(--accent);
+}
+
+.vote-btn.downvote.voted {
   color: var(--notification);
 }
 
 .vote-count {
   font-weight: 600;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--text);
-  min-width: 16px;
-  text-align: center;
 }
 
 .comment-main {

@@ -246,6 +246,18 @@ def view_post(post_id):
             if parent:
                 parent.replies.append(comment)
     
+    # Helper function to sort replies recursively
+    def sort_replies_recursive(comment):
+        # Sort replies by created_at (oldest first for nested replies)
+        comment.replies.sort(key=lambda c: c.created_at)
+        # Recursively sort nested replies
+        for reply in comment.replies:
+            sort_replies_recursive(reply)
+    
+    # Sort replies within each comment
+    for comment in top_level_comments:
+        sort_replies_recursive(comment)
+    
     # Sort top-level comments based on sort_by parameter
     if sort_by == "most_voted":
         # We'll sort by vote counts after loading them
@@ -737,6 +749,18 @@ def get_comments(post_id):
                 parent = comment_dict.get(comment.parent_comment_id)
                 if parent:
                     parent.replies.append(comment)
+        
+        # Helper function to sort replies recursively
+        def sort_replies_recursive(comment):
+            # Sort replies by created_at (oldest first for nested replies)
+            comment.replies.sort(key=lambda c: c.created_at)
+            # Recursively sort nested replies
+            for reply in comment.replies:
+                sort_replies_recursive(reply)
+        
+        # Sort replies within each comment
+        for comment in top_level_comments:
+            sort_replies_recursive(comment)
         
         # Sort top-level comments based on sort_by parameter
         if sort_by == "most_voted":
