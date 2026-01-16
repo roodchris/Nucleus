@@ -154,9 +154,9 @@
             {% endif %}
             
             <!-- Replies Section -->
-            {% if comment.replies %}
+            {% if comment._nested_replies %}
               <div class="replies-section">
-                {% for reply in comment.replies %}
+                {% for reply in comment._nested_replies %}
                   {% include 'forum/reply_item.html' %}
                 {% endfor %}
               </div>
@@ -286,7 +286,7 @@
 }
 
 .author-avatar-small.deleted-avatar {
-  background: #3b82f6;
+  background: #ef4444;
   color: white;
   font-weight: 700;
   font-size: 10px;

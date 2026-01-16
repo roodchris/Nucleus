@@ -249,21 +249,14 @@ def view_post(post_id):
                     comment.author.employer_profile = employer_profiles[comment.author_id]
     
     # Build comment tree structure in Python (much faster than recursive queries)
+    # Use _nested_replies to avoid conflict with SQLAlchemy's 'replies' relationship
     comment_dict = {}  # id -> comment object
     top_level_comments = []
     
-    # First pass: create dictionary and initialize replies list
-    # Clear any existing SQLAlchemy relationship and set our own list
+    # First pass: create dictionary and initialize nested replies list
     for comment in all_comments:
-        # Clear SQLAlchemy relationship if it exists and set our own list
-        if hasattr(comment, 'replies'):
-            # Clear the relationship collection
-            try:
-                comment.replies.clear()
-            except:
-                pass
-        # Set our own list for building the tree
-        setattr(comment, 'replies', [])
+        # Use _nested_replies to avoid SQLAlchemy relationship conflict
+        comment._nested_replies = []
         comment_dict[comment.id] = comment
     
     # Second pass: build tree structure (include deleted comments to maintain tree structure)
@@ -278,8 +271,8 @@ def view_post(post_id):
             parent = comment_dict.get(comment.parent_comment_id)
             if parent:
                 # Parent exists - attach as reply (even if parent is deleted)
-                if comment not in parent.replies:
-                    parent.replies.append(comment)
+                if comment not in parent._nested_replies:
+                    parent._nested_replies.append(comment)
                 # Make sure it's not in top_level_comments (defensive)
                 if comment in top_level_comments:
                     top_level_comments.remove(comment)
@@ -291,9 +284,9 @@ def view_post(post_id):
     # Helper function to sort replies recursively
     def sort_replies_recursive(comment):
         # Sort replies by created_at (oldest first for nested replies)
-        comment.replies.sort(key=lambda c: c.created_at)
+        comment._nested_replies.sort(key=lambda c: c.created_at)
         # Recursively sort nested replies
-        for reply in comment.replies:
+        for reply in comment._nested_replies:
             sort_replies_recursive(reply)
     
     # Sort replies within each comment
@@ -352,7 +345,7 @@ def view_post(post_id):
         comment._user_vote = user_comment_vote_dict.get(comment.id, None)
         
         # Process replies recursively
-        for reply in comment.replies:
+        for reply in comment._nested_replies:
             attach_vote_data(reply)
     
     for comment in top_level_comments:
@@ -796,21 +789,14 @@ def get_comments(post_id):
                         comment.author.employer_profile = employer_profiles[comment.author_id]
         
         # Build comment tree structure in Python
+        # Use _nested_replies to avoid conflict with SQLAlchemy's 'replies' relationship
         comment_dict = {}  # id -> comment object
         top_level_comments = []
         
-        # First pass: create dictionary and initialize replies list
-        # Clear any existing SQLAlchemy relationship and set our own list
+        # First pass: create dictionary and initialize nested replies list
         for comment in all_comments:
-            # Clear SQLAlchemy relationship if it exists and set our own list
-            if hasattr(comment, 'replies'):
-                # Clear the relationship collection
-                try:
-                    comment.replies.clear()
-                except:
-                    pass
-            # Set our own list for building the tree
-            setattr(comment, 'replies', [])
+            # Use _nested_replies to avoid SQLAlchemy relationship conflict
+            comment._nested_replies = []
             comment_dict[comment.id] = comment
         
         # Second pass: build tree structure (include deleted comments to maintain tree structure)
@@ -825,8 +811,8 @@ def get_comments(post_id):
                 parent = comment_dict.get(comment.parent_comment_id)
                 if parent:
                     # Parent exists - attach as reply (even if parent is deleted)
-                    if comment not in parent.replies:
-                        parent.replies.append(comment)
+                    if comment not in parent._nested_replies:
+                        parent._nested_replies.append(comment)
                     # Make sure it's not in top_level_comments (defensive)
                     if comment in top_level_comments:
                         top_level_comments.remove(comment)
@@ -838,9 +824,9 @@ def get_comments(post_id):
         # Helper function to sort replies recursively
         def sort_replies_recursive(comment):
             # Sort replies by created_at (oldest first for nested replies)
-            comment.replies.sort(key=lambda c: c.created_at)
+            comment._nested_replies.sort(key=lambda c: c.created_at)
             # Recursively sort nested replies
-            for reply in comment.replies:
+            for reply in comment._nested_replies:
                 sort_replies_recursive(reply)
         
         # Sort replies within each comment
@@ -898,7 +884,7 @@ def get_comments(post_id):
             comment._user_vote = user_comment_vote_dict.get(comment.id, None)
             
             # Process replies recursively
-            for reply in comment.replies:
+            for reply in comment._nested_replies:
                 attach_vote_data(reply)
         
         for comment in top_level_comments:

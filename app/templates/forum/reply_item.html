@@ -129,9 +129,9 @@
       {% endif %}
       
       <!-- Nested Replies (Recursive) -->
-      {% if reply.replies %}
+      {% if reply._nested_replies %}
         <div class="nested-replies">
-          {% for nested_reply in reply.replies %}
+          {% for nested_reply in reply._nested_replies %}
             {% set reply = nested_reply %}
             {% include 'forum/reply_item.html' %}
           {% endfor %}
@@ -241,7 +241,7 @@
 }
 
 .reply-author .author-avatar-small.deleted-avatar {
-  background: #3b82f6;
+  background: #ef4444;
   color: white;
   font-weight: 700;
   font-size: 8px;
