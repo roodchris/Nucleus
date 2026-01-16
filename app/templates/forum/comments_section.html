@@ -31,18 +31,27 @@
                   </div>
                   <span class="author-name" style="color: var(--text-muted); font-style: italic;">[deleted]</span>
                 {% else %}
-                  <a href="/profile/{{ comment.author.id }}" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
-                    {% if comment.author.resident_profile and comment.author.resident_profile.photo_filename %}
-                      <img src="/uploads/{{ comment.author.resident_profile.photo_filename }}" alt="{{ comment.author.name }}" class="author-avatar-small">
-                    {% elif comment.author.employer_profile and comment.author.employer_profile.photo_filename %}
-                      <img src="/uploads/{{ comment.author.employer_profile.photo_filename }}" alt="{{ comment.author.name }}" class="author-avatar-small">
-                    {% else %}
-                      <div class="author-avatar-small">
-                        {{ comment.author.name[0].upper() }}
-                      </div>
-                    {% endif %}
-                    <span class="author-name" style="color: var(--accent);">{{ comment.author.name }}</span>
-                  </a>
+                  {% if comment.author and comment.author.id %}
+                    <a href="/profile/{{ comment.author.id }}" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                      {% if comment.author.resident_profile and comment.author.resident_profile.photo_filename %}
+                        <img src="/uploads/{{ comment.author.resident_profile.photo_filename }}" alt="{{ comment.author.name or 'User' }}" class="author-avatar-small">
+                      {% elif comment.author.employer_profile and comment.author.employer_profile.photo_filename %}
+                        <img src="/uploads/{{ comment.author.employer_profile.photo_filename }}" alt="{{ comment.author.name or 'User' }}" class="author-avatar-small">
+                      {% else %}
+                        <div class="author-avatar-small">
+                          {% if comment.author.name and comment.author.name|length > 0 %}
+                            {{ comment.author.name[0].upper() }}
+                          {% else %}
+                            U
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                      <span class="author-name" style="color: var(--accent);">{{ comment.author.name or 'Unknown User' }}</span>
+                    </a>
+                  {% else %}
+                    <div class="author-avatar-small">U</div>
+                    <span class="author-name" style="color: var(--text-muted);">Unknown User</span>
+                  {% endif %}
                 {% endif %}
               </div>
               <div class="comment-meta">
@@ -131,7 +140,7 @@
             {% if current_user.is_authenticated and not post.is_locked %}
               <div id="reply-form-{{ comment.id }}" class="reply-form" style="display: none;">
                 <div class="reply-header">
-                  <span>Replying to <strong>{{ comment.author.name }}</strong></span>
+                  <span>Replying to <strong>{{ comment.author.name if comment.author else 'Unknown User' }}</strong></span>
                 </div>
                 <form onsubmit="submitReply({{ comment.id }}, event)">
                   <div class="form-group">

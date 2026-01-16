@@ -27,16 +27,25 @@
             </div>
             <span class="author-name" style="color: var(--text-muted); font-style: italic;">[deleted]</span>
           {% else %}
-            {% if reply.author.resident_profile and reply.author.resident_profile.photo_filename %}
-              <img src="/uploads/{{ reply.author.resident_profile.photo_filename }}" alt="{{ reply.author.name }}" class="author-avatar-small">
-            {% elif reply.author.employer_profile and reply.author.employer_profile.photo_filename %}
-              <img src="/uploads/{{ reply.author.employer_profile.photo_filename }}" alt="{{ reply.author.name }}" class="author-avatar-small">
+            {% if reply.author and reply.author.id %}
+              {% if reply.author.resident_profile and reply.author.resident_profile.photo_filename %}
+                <img src="/uploads/{{ reply.author.resident_profile.photo_filename }}" alt="{{ reply.author.name or 'User' }}" class="author-avatar-small">
+              {% elif reply.author.employer_profile and reply.author.employer_profile.photo_filename %}
+                <img src="/uploads/{{ reply.author.employer_profile.photo_filename }}" alt="{{ reply.author.name or 'User' }}" class="author-avatar-small">
+              {% else %}
+                <div class="author-avatar-small">
+                  {% if reply.author.name and reply.author.name|length > 0 %}
+                    {{ reply.author.name[0].upper() }}
+                  {% else %}
+                    U
+                  {% endif %}
+                </div>
+              {% endif %}
+              <span class="author-name">{{ reply.author.name or 'Unknown User' }}</span>
             {% else %}
-              <div class="author-avatar-small">
-                {{ reply.author.name[0].upper() }}
-              </div>
+              <div class="author-avatar-small">U</div>
+              <span class="author-name" style="color: var(--text-muted);">Unknown User</span>
             {% endif %}
-            <span class="author-name">{{ reply.author.name }}</span>
           {% endif %}
         </div>
         <div class="reply-meta">
@@ -106,7 +115,7 @@
       {% if current_user.is_authenticated and not post.is_locked %}
         <div id="reply-form-{{ reply.id }}" class="reply-form" style="display: none;">
           <div class="reply-header">
-            <span>Replying to <strong>{{ reply.author.name }}</strong></span>
+            <span>Replying to <strong>{{ reply.author.name if reply.author else 'Unknown User' }}</strong></span>
           </div>
           <form onsubmit="submitReply({{ reply.id }}, event)">
             <div class="form-group">

@@ -233,6 +233,21 @@ def view_post(post_id):
         joinedload(ForumComment.author)
     ).order_by(ForumComment.created_at.asc()).all()
     
+    # Eager load profile relationships to avoid N+1 queries when accessing author profiles
+    author_ids = {c.author_id for c in all_comments if c.author_id}
+    if author_ids:
+        # Load all resident profiles
+        resident_profiles = {p.user_id: p for p in ResidentProfile.query.filter(ResidentProfile.user_id.in_(author_ids)).all()}
+        # Load all employer profiles
+        employer_profiles = {p.user_id: p for p in EmployerProfile.query.filter(EmployerProfile.user_id.in_(author_ids)).all()}
+        # Attach profiles to authors
+        for comment in all_comments:
+            if comment.author_id:
+                if comment.author_id in resident_profiles:
+                    comment.author.resident_profile = resident_profiles[comment.author_id]
+                if comment.author_id in employer_profiles:
+                    comment.author.employer_profile = employer_profiles[comment.author_id]
+    
     # Build comment tree structure in Python (much faster than recursive queries)
     comment_dict = {}  # id -> comment object
     top_level_comments = []
@@ -748,6 +763,21 @@ def get_comments(post_id):
         ).options(
             joinedload(ForumComment.author)
         ).order_by(ForumComment.created_at.asc()).all()
+        
+        # Eager load profile relationships to avoid N+1 queries when accessing author profiles
+        author_ids = {c.author_id for c in all_comments if c.author_id}
+        if author_ids:
+            # Load all resident profiles
+            resident_profiles = {p.user_id: p for p in ResidentProfile.query.filter(ResidentProfile.user_id.in_(author_ids)).all()}
+            # Load all employer profiles
+            employer_profiles = {p.user_id: p for p in EmployerProfile.query.filter(EmployerProfile.user_id.in_(author_ids)).all()}
+            # Attach profiles to authors
+            for comment in all_comments:
+                if comment.author_id:
+                    if comment.author_id in resident_profiles:
+                        comment.author.resident_profile = resident_profiles[comment.author_id]
+                    if comment.author_id in employer_profiles:
+                        comment.author.employer_profile = employer_profiles[comment.author_id]
         
         # Build comment tree structure in Python
         comment_dict = {}  # id -> comment object
