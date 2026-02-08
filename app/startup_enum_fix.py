@@ -88,6 +88,43 @@ def fix_enum_on_startup():
                 else:
                     logger.info(f"🎉 All {len(required_specialties)} medical specialties now available!")
                 
+                # Ensure traininglevel enum has all values (PGY1–PGY7, FELLOW, ATTENDING)
+                required_training_levels = [
+                    'PGY1', 'PGY2', 'PGY3', 'PGY4', 'PGY5', 'PGY6', 'PGY7',
+                    'FELLOW', 'ATTENDING'
+                ]
+                try:
+                    cursor.execute("""
+                        SELECT EXISTS (
+                            SELECT 1 FROM pg_type WHERE typname = 'traininglevel'
+                        )
+                    """)
+                    has_traininglevel = cursor.fetchone()[0]
+                    if has_traininglevel:
+                        cursor.execute("""
+                            SELECT unnest(enum_range(NULL::traininglevel))::text as enum_value
+                        """)
+                        current_tl = set(row[0] for row in cursor.fetchall())
+                        missing_tl = [v for v in required_training_levels if v not in current_tl]
+                        if missing_tl:
+                            logger.info(f"🔧 Adding {len(missing_tl)} missing traininglevel values: {missing_tl}")
+                            for val in missing_tl:
+                                try:
+                                    cursor.execute(f"ALTER TYPE traininglevel ADD VALUE '{val}'")
+                                    conn.commit()
+                                    logger.info(f"    ✅ Added traininglevel: {val}")
+                                except Exception as e:
+                                    if "already exists" in str(e).lower():
+                                        logger.info(f"    ✅ Already exists: {val}")
+                                    else:
+                                        logger.error(f"    ❌ Failed to add {val}: {e}")
+                        else:
+                            logger.info("✅ All traininglevel enum values already present")
+                    else:
+                        logger.info("ℹ️  traininglevel enum not found (table may not exist yet)")
+                except Exception as e:
+                    logger.warning(f"⚠️  traininglevel enum check/fix skipped: {e}")
+                
                 # Also ensure forum_post table has specialty column
                 try:
                     logger.info("🔧 Ensuring forum_post table has specialty column...")
